@@ -1,0 +1,8 @@
+SUM = 'add'
+PROD = 'prod'
+MAX = 'max'
+MIN = 'min'
+DIV = 'div'
+SUB = 'subtract'
+OR = 'or'
+AND = 'and'
