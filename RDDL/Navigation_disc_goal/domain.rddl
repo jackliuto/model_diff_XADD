@@ -1,0 +1,74 @@
+////////////////////////////////////////////////////////////////////
+//Simple 2D navigaiton with discrete actions
+//
+////////////////////////////////////////////////////////////////////
+domain navigation_discrete {
+
+    requirements = {
+        reward-deterministic
+    };
+
+    types {
+		agent : object;
+	}; 
+
+    pvariables {
+
+
+        // minerals constants
+        GOAL-POS-X-1(agent): { non-fluent, real, default = 5 };            // goal x-1 location
+        GOAL-POS-Y-1(agent): { non-fluent, real, default = 5 };            // goal y-1 location
+        GOAL-POS-X-2(agent): { non-fluent, real, default = 10 };            // goal x-2 location
+        GOAL-POS-Y-2(agent): { non-fluent, real, default = 10 };            // goal y-2 location
+        MOVE-DISTANCE(agent) : { non-fluent, real, default = 4 };                // distance moved per time step
+
+        // states
+        pos-x(agent)    : { state-fluent, real, default = 0 };          // rover x position
+        pos-y(agent)    : { state-fluent, real, default = 0 };          // rover y position
+
+        // policy-move-x(agent)              : { interm-fluent, int };
+        // policy-move-y(agent)              : { interm-fluent, int };
+        // policy-do-nothing(agent)          : { interm-fluent, int };
+
+
+        // actions
+        move-pos-x(agent)     : { action-fluent, bool, default = false };     // force input in y direction
+        move-pos-y(agent)      : { action-fluent, bool, default = false };     // force input in x direction
+        do-nothing(agent)     : { action-fluent, bool, default = false };     // force input in x direction
+
+       
+    };
+
+    cpfs {
+
+        pos-x'(?a) =  if ((move-pos-x(?a)) ^ ([pos-x(?a) + MOVE-DISTANCE(?a)] < GOAL-POS-X-2(?a)))
+                        then pos-x(?a) + MOVE-DISTANCE(?a)
+                      else pos-x(?a);
+
+        pos-y'(?a) =  if ((move-pos-y(?a)) ^ ([pos-y(?a) + MOVE-DISTANCE(?a)] < GOAL-POS-Y-2(?a)))
+                        then pos-y(?a) + MOVE-DISTANCE(?a)
+                      else pos-y(?a);
+
+        // policy-move-x(?a) = if (pos-x(?a) < GOAL-POS-X-2(?a)) then 1
+        //                          else 0;
+        // policy-move-y(?a) = if (pos-x(?a) < GOAL-POS-X-2(?a)) then 0
+        //                          else if (pos-y(?a) < GOAL-POS-Y-2(?a)) then 1
+        //                          else 0;
+        // policy-do-nothing(?a) = if ((pos-x(?a) < GOAL-POS-X-2(?a)) | (pos-y(?a) < GOAL-POS-Y-2(?a))) then 0
+        //                          else 1;
+
+
+    };
+
+    // negative distance to the goal
+    // reward = sum_{?a : agent}[(pos-x(?a) > GOAL-POS-X-1(?a)) ^ (pos-y(?a) > GOAL-POS-Y-1(?a)) ^ (pos-x(?a) < GOAL-POS-X-2(?a)) ^ (pos-y(?a) < GOAL-POS-Y-2(?a))];
+    reward = sum_{?a : agent}[ if (pos-x(?a) > GOAL-POS-X-1(?a) ^ (pos-y(?a) > GOAL-POS-Y-1(?a))) then 1 else 0];
+ 
+    state-invariants {
+    };
+
+    action-preconditions {
+      forall_{?a : agent} [(move-pos-x(?a) + move-pos-y(?a) + do-nothing(?a)) <= 1];
+    };
+
+}
