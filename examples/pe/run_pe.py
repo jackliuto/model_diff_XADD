@@ -31,7 +31,7 @@ def test(args: argparse.ArgumentParser):
     xadd_model_2, _ = get_xadd_model_from_file(args.f_env2, args.f_inst2, context=context)
 
     parser = Parser()
-    mdp = parser.parse(xadd_model_1, is_linear=False)
+    mdp = parser.parse(xadd_model_1, is_linear=True)
     policy = create_policy(mdp, context)
 
     pe = PolicyEvaluation(mdp, policy, args.iter)

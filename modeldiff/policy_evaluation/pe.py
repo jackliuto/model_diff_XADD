@@ -67,6 +67,8 @@ class PolicyEvaluation:
             # Multiply by pi(a|s)
             # Note: since everything's symbolic, state is not specified
             res_dd = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
+            if self.mdp._is_linear:
+                res_dd = self.context.reduce_lp(res_dd)
         res_dd = self.mdp.standardize_dd(res_dd)
         return res_dd
     
@@ -124,6 +126,8 @@ class PolicyEvaluation:
         # Perform regression via delta function substitution
         leaf_op = DeltaFunctionSubstitution(v, q, self.context)
         q = self.context.reduce_process_xadd_leaf(cpf, leaf_op, [], [])
+        if self.mdp._is_linear:
+            q = self.context.reduce_lp(q)
         
         # Cache result
         self.mdp._cont_regr_cache[key] = q
