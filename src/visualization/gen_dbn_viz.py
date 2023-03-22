@@ -53,13 +53,22 @@ from graph import RDDL2GraphFile
 # instance_path = '../RDDL/PowerGen_linear/instance0.rddl'
 
 
-domain_name = 'Navigation_disc_goal'
-domain_path = '../RDDL/Navigation_disc_goal/domain.rddl'
-instance_path = '../RDDL/Navigation_disc_goal/instance0.rddl'
+# domain_name = 'Navigation_disc_goal'
+# domain_path = '../RDDL/Navigation_disc_goal/domain.rddl'
+# instance_path = '../RDDL/Navigation_disc_goal/instance0.rddl'
 
 # domain_name_new = 'Navigation_disc_linear_goal2'
 # domain_path_new = '../RDDL/Navigation_disc_linear_goal2/domain.rddl'
 # instance_path_new = '../RDDL/Navigation_disc_linear_goal/instance0.rddl'
+
+# domain_name = 'Navigation_disc_goal_551010'
+# domain_path = '../../RDDL/Navigation_disc_goal_551010/domain.rddl'
+# instance_path = '../../RDDL/Navigation_disc_goal_551010/instance0.rddl'
+
+domain_name = 'Navigation_disc_goal_771010'
+domain_path = '../../RDDL/Navigation_disc_goal_771010/domain.rddl'
+instance_path = '../../RDDL/Navigation_disc_goal_771010/instance0.rddl'
+
 
 myEnv = RDDLEnv.RDDLEnv(domain=domain_path, instance=instance_path)
 

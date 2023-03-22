@@ -1,0 +1,10 @@
+DBN dependency analysis
+
+Domain: Navigation_disc_goal_551010
+Instance: 0
+
+Grounded fluent                         Parent variables                                                                                    
+
+pos-x'(?a1)                             move-pos-x(?a1), pos-x(?a1)                                                                         
+pos-y'(?a1)                             move-pos-y(?a1), pos-y(?a1)                                                                         
+reward                                  pos-x(?a1), pos-y(?a1)                                                                              

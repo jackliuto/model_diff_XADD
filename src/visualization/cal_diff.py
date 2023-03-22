@@ -125,13 +125,21 @@ def test_model_diff():
     # domain_path_new = '../RDDL/Navigation_disc_linear2/domain.rddl'
     # instance_path_new = '../RDDL/Navigation_disc_linear2/instance0.rddl'
 
-    domain_name = 'Navigation_disc_goal'
-    domain_path = '../RDDL/Navigation_disc_goal/domain.rddl'
-    instance_path = '../RDDL/Navigation_disc_goal/instance0.rddl'
+    # domain_name = 'Navigation_disc_goal'
+    # domain_path = '../RDDL/Navigation_disc_goal/domain.rddl'
+    # instance_path = '../RDDL/Navigation_disc_goal/instance0.rddl'
 
-    domain_name_new = 'Navigation_disc_goal2'
-    domain_path_new = '../RDDL/Navigation_disc_goal2/domain.rddl'
-    instance_path_new = '../RDDL/Navigation_disc_goal2/instance0.rddl'
+    # domain_name_new = 'Navigation_disc_goal2'
+    # domain_path_new = '../RDDL/Navigation_disc_goal2/domain.rddl'
+    # instance_path_new = '../RDDL/Navigation_disc_goal2/instance0.rddl'
+
+    domain_name = 'Navigation_disc_goal_551010'
+    domain_path = '../../RDDL/Navigation_disc_goal_551010/domain.rddl'
+    instance_path = '../../RDDL/Navigation_disc_goal_551010/instance0.rddl'
+
+    domain_name_new = 'Navigation_disc_goal_771010'
+    domain_path_new = '../../RDDL/Navigation_disc_goal_771010/domain.rddl'
+    instance_path_new = '../../RDDL/Navigation_disc_goal_771010/instance0.rddl'
 
 
 

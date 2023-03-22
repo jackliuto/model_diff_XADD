@@ -16,10 +16,12 @@ domain navigation_discrete {
 
 
         // minerals constants
-        GOAL-POS-X-1(agent): { non-fluent, real, default = 5 };            // goal x-1 location
+        GOAL-POS-X-1(agent): { non-fluent, real, default = 0 };            // goal x-1 location
         GOAL-POS-Y-1(agent): { non-fluent, real, default = 5 };            // goal y-1 location
-        GOAL-POS-X-2(agent): { non-fluent, real, default = 10 };            // goal x-2 location
+        GOAL-POS-X-2(agent): { non-fluent, real, default = 5 };            // goal x-2 location
         GOAL-POS-Y-2(agent): { non-fluent, real, default = 10 };            // goal y-2 location
+        MAX-POS-X          : {non-fluent, real, default = 10};
+        MAX-POS-Y          : {non-fluent, real, default = 10};
         MOVE-DISTANCE(agent) : { non-fluent, real, default = 4 };                // distance moved per time step
 
         // states
@@ -41,11 +43,11 @@ domain navigation_discrete {
 
     cpfs {
 
-        pos-x'(?a) =  if ((move-pos-x(?a)) ^ ([pos-x(?a) + MOVE-DISTANCE(?a)] < GOAL-POS-X-2(?a)))
+        pos-x'(?a) =  if ((move-pos-x(?a)) ^ ([pos-x(?a) + MOVE-DISTANCE(?a)] < MAX-POS-X))
                         then pos-x(?a) + MOVE-DISTANCE(?a)
                       else pos-x(?a);
 
-        pos-y'(?a) =  if ((move-pos-y(?a)) ^ ([pos-y(?a) + MOVE-DISTANCE(?a)] < GOAL-POS-Y-2(?a)))
+        pos-y'(?a) =  if ((move-pos-y(?a)) ^ ([pos-y(?a) + MOVE-DISTANCE(?a)] < MAX-POS-Y))
                         then pos-y(?a) + MOVE-DISTANCE(?a)
                       else pos-y(?a);
 
