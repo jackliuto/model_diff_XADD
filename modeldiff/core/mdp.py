@@ -1,7 +1,8 @@
+import sympy as sp
 from typing import Dict, Tuple
 from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
 
-from modeldiff.core.base import Action
+from modeldiff.core.action import Action
 
 
 class MDP:
@@ -14,13 +15,13 @@ class MDP:
         self._model = model
         self._is_linear = is_linear
         self._discount = discount
-        self._prime_subs = self._model.next_state
+        self._prime_subs = self.get_prime_subs()
         self._cont_ns_vars = set()
         self._bool_ns_vars = set()
         self._cont_i_vars = set()
         self._bool_i_vars = set()
-        self._bool_s_vars = set()
-        self._cont_s_vars = set()
+        self._bool_s_vars = set()   # TODO: necessary?
+        self._cont_s_vars = set()   # TODO: necessary?
         self._cont_a_vars = set()   # This might be redundant
         
         # Cache
@@ -29,19 +30,30 @@ class MDP:
         self._actions: Dict[str, Action] = {}
         self.update_var_sets()
 
+    def get_prime_subs(self) -> Dict[sp.Symbol, sp.Symbol]:
+        model = self._model
+        s_to_ns = model.next_state
+        prime_subs = {}
+        for s, ns in s_to_ns.items():
+            s_var = model.ns[s]
+            ns_var = model.add_sympy_var(ns, model.gvar_to_type[ns])
+            prime_subs[s_var] = ns_var
+        return prime_subs
+
     def update_var_sets(self):
         model = self._model
         for v, vtype in model.gvar_to_type.items():
+            var_ = model.add_sympy_var(v, vtype)
             if v in model.next_state.values():
                 if vtype == 'bool':
-                    self._bool_ns_vars.add(v)
+                    self._bool_ns_vars.add(var_)
                 else:
-                    self._cont_ns_vars.add(v)
-            elif v in model.interm_state():
+                    self._cont_ns_vars.add(var_)
+            elif v in model.interm:
                 if vtype == 'bool':
-                    self._bool_i_vars.add(v)
+                    self._bool_i_vars.add(var_)
                 else:
-                    self._cont_i_vars.add(v)
+                    self._cont_i_vars.add(var_)
         
     def add_action(self, action: Action):
         self._actions[action._name] = action

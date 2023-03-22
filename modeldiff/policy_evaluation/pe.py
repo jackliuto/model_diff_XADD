@@ -5,21 +5,31 @@ import xaddpy
 from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
 from xaddpy.xadd.xadd import XADD, DeltaFunctionSubstitution
 
-from modeldiff.core.base import Action
+from modeldiff.core.action import Action
 from modeldiff.core.mdp import MDP
+from modeldiff.core.policy import Policy
 from modeldiff.utils.global_vars import SUM, PROD, RESTRICT_HIGH, RESTRICT_LOW
 
 
 class PolicyEvaluation:
 
-    def __init__(self, mdp: MDP, iter: int):
+    def __init__(self, mdp: MDP, policy: Policy, iter: int):
+        """Performs policy evaluation for the specified number of iterations, or until convergence.
+        
+        Args:
+            mdp (MDP): The MDP.
+            policy (Policy): The policy to evaluate.
+            iter (int): The number of iterations to perform.
+        """
         self.mdp = mdp
+        self.policy = policy
         self._cur_iter = 0
+        self._final_iter = 0
         self._n_iter = iter
         self._res_dd = 0
         self._prev_dd = 0
     
-    def solve(self):
+    def solve(self) -> int:
         # Initialize the iteration counter
         self._cur_iter = 0
 
@@ -28,14 +38,15 @@ class PolicyEvaluation:
 
         # Perform policy evaluation for the specified number of iterations, or until convergence
         while self._cur_iter < self._n_iter:
+            self._prev_dd = value_dd
+            
             # Compute the next value function
             value_dd = self.bellman_backup(value_dd)
 
             # Increment the iteration counter
             self._cur_iter += 1
-
-            self._prev_dd = value_dd
-            self.bellman_backup(value_dd)
+        self._final_iter = self._cur_iter
+        return self._final_iter
     
     def bellman_backup(self, value_dd: int) -> int:
         """Performs a single iteration of the Bellman backup.
@@ -50,8 +61,13 @@ class PolicyEvaluation:
 
         # Iterate over all actions
         for aname, action in self.mdp.actions.items():
+            # Compute the action value function
             regr = self.regress(res_dd, action)
-        
+
+            # Multiply by pi(a|s)
+            # Note: since everything's symbolic, state is not specified
+            res_dd = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
+        res_dd = self.mdp.standardize_dd(res_dd)
         return res_dd
     
     def regress(self, value_dd: int, action: Action, regress_cont: bool = False) -> int:
@@ -95,19 +111,18 @@ class PolicyEvaluation:
         q = self.mdp.standardize_dd(q)
         return q
 
-    def regress_c_vars(self, q: int, a: Action, v: str) -> int:
+    def regress_c_vars(self, q: int, a: Action, v: sp.Symbol) -> int:
         # Get the cpf for the variable
         cpf = a.get_cpf(v)
         
         # Check regression cache
-        key = (v, cpf, q)
+        key = (str(v), cpf, q)
         res = self.mdp._cont_regr_cache.get(key)
         if res is not None:
             return res
 
         # Perform regression via delta function substitution
-        v_ = self.mdp.model.ns[v]
-        leaf_op = DeltaFunctionSubstitution(v_, q, self.context)
+        leaf_op = DeltaFunctionSubstitution(v, q, self.context)
         q = self.context.reduce_process_xadd_leaf(cpf, leaf_op, [], [])
         
         # Cache result
@@ -153,6 +168,9 @@ class PolicyEvaluation:
     
     def save_results(self):
         pass
+
+    def print(self, node_id: int):
+        print(self.context.get_repr(node_id))
 
     @property
     def context(self):

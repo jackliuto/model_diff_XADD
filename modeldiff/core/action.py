@@ -1,38 +1,39 @@
-from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
+import sympy as sp
+from xaddpy.xadd.xadd import XADD
 
 
 class Action:
     def __init__(
             self, 
-            action_name: str, 
-            arity: int, 
-            model: RDDLModelWXADD,
+            name: str,
+            symbol: sp.Symbol,
+            context: XADD,
             atype: str,
             action_params: dict = None
     ):
-        self._name = action_name
-        self._arity = arity
-        self._model = model
-        self._atype = atype         # action type: 'boolean' or 'continuous'
+        self._name = name
+        self._symbol = symbol
+        self._context = context
+        self._atype = atype         # action type: 'bool' or 'real'
         self._action_params = action_params
         self._cpfs = {}
     
     def restrict(self, cpf: int):
         """Restricts the CPF to this particular action"""
-        context = self._model._context
-        if self._atype == 'boolean':
-            subst_dict = {self._name: True}
+        context = self._context
+        if self._atype == 'bool':
+            subst_dict = {self._symbol: True}
             return context.substitute(cpf, subst_dict)
         else:
             raise NotImplementedError("Continuous actions are not supported yet")
 
-    def add_cpf(self, name: str, cpf: int):
+    def add_cpf(self, v: sp.Symbol, cpf: int):
         """Adds a CPF to this action"""
-        self._cpfs[name] = cpf
+        self._cpfs[v] = cpf
     
-    def get_cpf(self, name: str) -> int:
+    def get_cpf(self, v: sp.Symbol) -> int:
         """Gets the CPF corresponding to the given name"""
-        return self._cpfs[name]
+        return self._cpfs[v]
 
     @property
     def reward(self) -> int:

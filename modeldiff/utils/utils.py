@@ -2,7 +2,6 @@ import pathlib
 from pathlib import Path
 from typing import Optional, Union
 
-from pyRDDLGym import RDDLEnv
 from pyRDDLGym.Core.Grounder.RDDLGrounder import RDDLGrounder
 from pyRDDLGym.Core.Parser.parser import RDDLParser
 from pyRDDLGym.Core.Parser.RDDLReader import RDDLReader
@@ -19,10 +18,9 @@ def get_xadd_model_from_file(
 ):
     if f_instance is None:
         f_instance = str(f_domain).replace('domain.rddl', 'instance0.rddl')
-    myEnv = RDDLEnv.RDDLEnv(domain=f_domain, instance=f_instance)
     
     # Read and parse domain and instance
-    reader = RDDLReader(domain, f_instance)
+    reader = RDDLReader(f_domain, f_instance)
     domain = reader.rddltxt
     parser = RDDLParser(None, False)
     parser.build()
