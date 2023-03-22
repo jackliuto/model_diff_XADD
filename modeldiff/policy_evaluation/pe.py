@@ -1,12 +1,13 @@
 from typing import Set
+import sympy as sp
 
 import xaddpy
 from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
-from xaddpy.xadd import XADD
+from xaddpy.xadd.xadd import XADD, DeltaFunctionSubstitution
 
 from modeldiff.core.base import Action
 from modeldiff.core.mdp import MDP
-from modeldiff.utils.global_vars import SUM
+from modeldiff.utils.global_vars import SUM, PROD, RESTRICT_HIGH, RESTRICT_LOW
 
 
 class PolicyEvaluation:
@@ -35,12 +36,6 @@ class PolicyEvaluation:
 
             self._prev_dd = value_dd
             self.bellman_backup(value_dd)
-            
-    def get_greedy_action(self):
-        pass
-    
-    def check_linear_approx(self):
-        pass
     
     def bellman_backup(self, value_dd: int) -> int:
         """Performs a single iteration of the Bellman backup.
@@ -59,10 +54,14 @@ class PolicyEvaluation:
         
         return res_dd
     
-    def regress(self, value_dd: int, action: Action) -> int:
+    def regress(self, value_dd: int, action: Action, regress_cont: bool = False) -> int:
         # Prime the value function
         subst_dict = self.mdp.prime_subs
         q = self.context.substitute(value_dd, subst_dict)
+
+        # Discount
+        if self.mdp.discount < 1.0:
+            q = self.context.scalar_op(q, self.mdp.discount, PROD)
 
         # Add reward *if* it contains primed vars that need to be regressed
         i_and_ns_vars_in_reward = self.filter_i_and_ns_vars(self.context.collect_vars(action.reward))
@@ -82,16 +81,59 @@ class PolicyEvaluation:
                 q = self.regress_b_vars(q, action, v)
         
         # Add the reward
-        if len(i_and_ns_vars_in_reward) > 0:
+        if len(i_and_ns_vars_in_reward) == 0:
             q = self.context.apply(q, action.reward, SUM)
 
         # Continuous noise?
         # TODO
         # q = self.regress_noise(q, action)
 
+        # Continuous parameter
+        if regress_cont:
+            q = self.regress_action(q, action)
+
         q = self.mdp.standardize_dd(q)
         return q
+
+    def regress_c_vars(self, q: int, a: Action, v: str) -> int:
+        # Get the cpf for the variable
+        cpf = a.get_cpf(v)
+        
+        # Check regression cache
+        key = (v, cpf, q)
+        res = self.mdp._cont_regr_cache.get(key)
+        if res is not None:
+            return res
+
+        # Perform regression via delta function substitution
+        v_ = self.mdp.model.ns[v]
+        leaf_op = DeltaFunctionSubstitution(v_, q, self.context)
+        q = self.context.reduce_process_xadd_leaf(cpf, leaf_op, [], [])
+        
+        # Cache result
+        self.mdp._cont_regr_cache[key] = q
+
+        return q
     
+    def regress_b_vars(self, q: int, a: Action, v: str) -> int:
+        # Get the cpf for the variable
+        cpf = a.get_cpf(v)
+        dec_id = self.context._expr_to_id[self.mdp.model.ns[v]]
+
+        # Marginalize out the variable
+        q = self.context.apply(q, cpf, PROD)
+
+        restrict_high = self.context.op_out(q, dec_id, RESTRICT_HIGH)
+        restrict_low = self.context.op_out(q, dec_id, RESTRICT_LOW)
+        q = self.context.apply(restrict_high, restrict_low, SUM)
+        return q
+    
+    def regress_action(self, q: int, a: Action) -> int:
+        if len(a._action_params) == 0:  # No action parameters
+            return q
+        else:
+            raise NotImplementedError("Continuous action parameters not yet supported")
+
     def filter_i_and_ns_vars(
             self, var_set: set, allow_bool: bool = True, allow_cont: bool = True
     ) -> Set[str]:
@@ -102,13 +144,7 @@ class PolicyEvaluation:
             elif allow_bool and (v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars):
                 filtered_vars.add(v)
         return filtered_vars
-    
-    def regress_c_vars(self, q: int, a: Action, v: str) -> int:
-        pass
-    
-    def regress_b_vars(self, q: int, a: Action, v: str) -> int:
-        pass
-    
+        
     def flush_caches(self):
         pass
     

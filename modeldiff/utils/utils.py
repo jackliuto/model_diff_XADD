@@ -1,7 +1,8 @@
-
+import pathlib
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
+from pyRDDLGym import RDDLEnv
 from pyRDDLGym.Core.Grounder.RDDLGrounder import RDDLGrounder
 from pyRDDLGym.Core.Parser.parser import RDDLParser
 from pyRDDLGym.Core.Parser.RDDLReader import RDDLReader
@@ -11,12 +12,17 @@ from xaddpy.xadd import XADD
 
 
 # gen xadd model from a RDDLEnv
-def get_xadd_model_from_file(env_name: str, instance: int = 0, context: XADD = None):
-    env_info = ExampleManager.GetEnvInfo(env_name)
-    domain = env_info.get_domain()
-    instance = env_info.get_instance(instance)
+def get_xadd_model_from_file(
+        f_domain: Union[str, pathlib.PosixPath],
+        f_instance: Union[str, pathlib.PosixPath] = None,
+        context: XADD = None
+):
+    if f_instance is None:
+        f_instance = str(f_domain).replace('domain.rddl', 'instance0.rddl')
+    myEnv = RDDLEnv.RDDLEnv(domain=f_domain, instance=f_instance)
+    
     # Read and parse domain and instance
-    reader = RDDLReader(domain, instance)
+    reader = RDDLReader(domain, f_instance)
     domain = reader.rddltxt
     parser = RDDLParser(None, False)
     parser.build()
@@ -33,4 +39,3 @@ def get_xadd_model_from_file(env_name: str, instance: int = 0, context: XADD = N
     xadd_model.compile()
     context = xadd_model._context
     return xadd_model, context
-

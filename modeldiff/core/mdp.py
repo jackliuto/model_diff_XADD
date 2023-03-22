@@ -1,13 +1,19 @@
-from typing import Dict
+from typing import Dict, Tuple
 from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
 
 from modeldiff.core.base import Action
 
 
 class MDP:
-    def __init__(self, model: RDDLModelWXADD, is_linear: bool = False):
+    def __init__(
+            self, 
+            model: RDDLModelWXADD, 
+            is_linear: bool = False, 
+            discount: float = 1.0
+    ):
         self._model = model
         self._is_linear = is_linear
+        self._discount = discount
         self._prime_subs = self._model.next_state
         self._cont_ns_vars = set()
         self._bool_ns_vars = set()
@@ -17,6 +23,9 @@ class MDP:
         self._cont_s_vars = set()
         self._cont_a_vars = set()   # This might be redundant
         
+        # Cache
+        self._cont_regr_cache: Dict[Tuple[str, int, int], int] = {}
+
         self._actions: Dict[str, Action] = {}
         self.update_var_sets()
 
@@ -70,6 +79,18 @@ class MDP:
             return False
         return True
     
+    @property
+    def discount(self):
+        return self._discount
+    
+    @property
+    def model(self):
+        return self._model
+
+    @property
+    def cpfs(self):
+        return self._model.cpfs
+
     @property
     def context(self):
         return self._model._context
