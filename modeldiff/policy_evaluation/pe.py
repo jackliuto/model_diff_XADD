@@ -46,7 +46,7 @@ class PolicyEvaluation:
             # Increment the iteration counter
             self._cur_iter += 1
         self._final_iter = self._cur_iter
-        return self._final_iter
+        return value_dd
     
     def bellman_backup(self, value_dd: int) -> int:
         """Performs a single iteration of the Bellman backup.
@@ -57,18 +57,19 @@ class PolicyEvaluation:
         Returns:
             int: The next value function.
         """
-        res_dd = value_dd
+        res_dd = self.context.ZERO      # Accumulate the value function in this variable
 
         # Iterate over all actions
         for aname, action in self.mdp.actions.items():
             # Compute the action value function
-            regr = self.regress(res_dd, action)
+            regr = self.regress(value_dd, action)
 
             # Multiply by pi(a|s)
             # Note: since everything's symbolic, state is not specified
-            res_dd = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
+            regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
             if self.mdp._is_linear:
-                res_dd = self.context.reduce_lp(res_dd)
+                regr = self.context.reduce_lp(regr)
+            res_dd = self.context.apply(regr, res_dd, SUM)
         res_dd = self.mdp.standardize_dd(res_dd)
         return res_dd
     
