@@ -1,3 +1,4 @@
+from typing import Dict, Union
 import sympy as sp
 from xaddpy.xadd.xadd import XADD
 
@@ -18,11 +19,11 @@ class Action:
         self._action_params = action_params
         self._cpfs = {}
     
-    def restrict(self, cpf: int):
+    def restrict(self, cpf: int, subst_dict: Dict[sp.Symbol, Union[bool, float, int]] = {}):
         """Restricts the CPF to this particular action"""
         context = self._context
         if self._atype == 'bool':
-            subst_dict = {self._symbol: True}
+            subst_dict.update({self._symbol: True})
             return context.substitute(cpf, subst_dict)
         else:
             raise NotImplementedError("Continuous actions are not supported yet")
