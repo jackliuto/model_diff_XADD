@@ -16,9 +16,9 @@ domain navigation_discrete {
 
 
         // minerals constants
-        GOAL-POS-X-1(agent): { non-fluent, real, default = 0 };            // goal x-1 location
-        GOAL-POS-Y-1(agent): { non-fluent, real, default = 5 };            // goal y-1 location
-        GOAL-POS-X-2(agent): { non-fluent, real, default = 5 };            // goal x-2 location
+        GOAL-POS-X-1(agent): { non-fluent, real, default = 7 };            // goal x-1 location
+        GOAL-POS-Y-1(agent): { non-fluent, real, default = 7 };            // goal y-1 location
+        GOAL-POS-X-2(agent): { non-fluent, real, default = 10 };            // goal x-2 location
         GOAL-POS-Y-2(agent): { non-fluent, real, default = 10 };            // goal y-2 location
         MAX-POS-X          : {non-fluent, real, default = 10};
         MAX-POS-Y          : {non-fluent, real, default = 10};

@@ -9,6 +9,7 @@ from modeldiff.utils.utils import get_xadd_model_from_file
 from modeldiff.core.parser import Parser
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def create_policy(mdp: MDP, context: XADD) -> Policy:
@@ -64,9 +65,25 @@ def eval_function(x,y, iter_id, model, context):
 
 
 
-def gen_countour():
+def gen_countour_graph(X, Y, Z, title, fname):
+    fig = plt.figure(figsize=(6,5))
+    left, bottom, width, height = 0.1, 0.1, 0.8, 0.8
+    ax = fig.add_axes([left, bottom, width, height])
 
-    return 
+    cp = plt.contourf(X, Y, Z)
+    plt.colorbar(cp)
+
+    ax.set_title(title)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+
+    plt.xticks(range(0,11))
+    plt.yticks(range(0,11))
+
+    plt.savefig(fname) 
+    plt.cla()
+
+    return fname
     
 
     # Z = np.sin(X) + np.cos(Y)
@@ -102,8 +119,8 @@ def test(args: argparse.ArgumentParser):
     # save_xadd_graph(iter_id_2, context2, 'v_2_t_2')
     # save_xadd_graph(iter_id_diff, context_diff, 'v_diff_t_2')
 
-    x = np.linspace(0,10,10)
-    y = np.linspace(0,10,10)
+    x = np.linspace(0,10,50)
+    y = np.linspace(0,10,50)
 
     X, Y = np.meshgrid(x,y)
 
@@ -113,19 +130,19 @@ def test(args: argparse.ArgumentParser):
         for j in range(len(y)):
             Z[i][j] = eval_function(X[i][j], Y[i][j], iter_id_1, xadd_model_1, context1)
     
-    print(Z)
+    gen_countour_graph(X, Y, Z,'Value at T=2 for goal=(5,5)', 'visualization/vplot55.png')
 
     for i in range(len(x)):
         for j in range(len(y)):
             Z[i][j] = eval_function(X[i][j], Y[i][j], iter_id_2, xadd_model_2, context2)
     
-    print(Z)
+    gen_countour_graph(X, Y, Z,'Value at T=2 for goal=(7,7)', 'visualization/vplot77.png')
 
     for i in range(len(x)):
         for j in range(len(y)):
             Z[i][j] = eval_function(X[i][j], Y[i][j], iter_id_diff, xadd_model_diff, context_diff)
     
-    print(Z)
+    gen_countour_graph(X, Y, Z,'Value at T=2 for goal=(5,5) - goal=(7,7)', 'visualization/vplot_diff.png')
 
 
 
