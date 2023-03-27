@@ -35,14 +35,16 @@ def test(args: argparse.ArgumentParser):
     policy = create_policy(mdp, context)
 
     pe = PolicyEvaluation(mdp, policy, args.iter)
-    pe.solve()
+    v = pe.solve()
+
+    pe.print(v)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--f_env1", type=str, default="RDDL/Navigation_disc_goal/domain.rddl")
+    parser.add_argument("--f_env1", type=str, default="RDDL/Navigation_disc_goal_551010/domain.rddl")
     parser.add_argument("--f_inst1", type=str, default=None)
-    parser.add_argument("--f_env2", type=str, default="RDDL/Navigation_disc_goal2/domain.rddl")
+    parser.add_argument("--f_env2", type=str, default="RDDL/Navigation_disc_goal_771010/domain.rddl")
     parser.add_argument("--f_inst2", type=str, default=None)
     parser.add_argument("--iter", type=int, default=2)
     args = parser.parse_args()
