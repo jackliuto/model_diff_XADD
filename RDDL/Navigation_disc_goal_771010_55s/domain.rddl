@@ -22,11 +22,11 @@ domain navigation_discrete {
         GOAL-POS-Y-2(agent): { non-fluent, real, default = 10 };            // goal y-2 location
         MAX-POS-X          : {non-fluent, real, default = 10};
         MAX-POS-Y          : {non-fluent, real, default = 10};
-        MOVE-DISTANCE(agent) : { non-fluent, real, default = 4 };                // distance moved per time step
+        MOVE-DISTANCE(agent) : { non-fluent, real, default = 3 };                // distance moved per time step
 
         // states
-        pos-x(agent)    : { state-fluent, real, default = 0 };          // rover x position
-        pos-y(agent)    : { state-fluent, real, default = 0 };          // rover y position
+        pos-x(agent)    : { state-fluent, real, default = 5 };          // rover x position
+        pos-y(agent)    : { state-fluent, real, default = 5 };          // rover y position
 
         // policy-move-x(agent)              : { interm-fluent, int };
         // policy-move-y(agent)              : { interm-fluent, int };
@@ -45,14 +45,10 @@ domain navigation_discrete {
 
         pos-x'(?a) =  if ((move-pos-x(?a)) ^ ([pos-x(?a) + MOVE-DISTANCE(?a)] < MAX-POS-X))
                         then pos-x(?a) + MOVE-DISTANCE(?a)
-                      else if ((move-pos-x(?a)) ^ ([pos-x(?a) + MOVE-DISTANCE(?a)] >= MAX-POS-X))
-                        then MAX-POS-X
                       else pos-x(?a);
 
         pos-y'(?a) =  if ((move-pos-y(?a)) ^ ([pos-y(?a) + MOVE-DISTANCE(?a)] < MAX-POS-Y))
                         then pos-y(?a) + MOVE-DISTANCE(?a)
-                      else if ((move-pos-y(?a)) ^ ([pos-y(?a) + MOVE-DISTANCE(?a)] >= MAX-POS-Y))
-                        then MAX-POS-Y
                       else pos-y(?a);
 
         // policy-move-x(?a) = if (pos-x(?a) < GOAL-POS-X-2(?a)) then 1

@@ -1,0 +1,4 @@
+[General]
+name=navigation_disc_goal
+description=Navigation domain where agent needs to move to a region
+viz=TextViz.TextVisualizer

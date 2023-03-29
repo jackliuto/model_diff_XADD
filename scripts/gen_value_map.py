@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 
 
 def create_policy(mdp: MDP, context: XADD) -> Policy:
-    move_pos_x = context.import_xadd('examples/pe/ex/move_pos_x.xadd', locals=context._str_var_to_var)
-    move_pos_y = context.import_xadd('examples/pe/ex/move_pos_y.xadd', locals=context._str_var_to_var)
-    do_nothing = context.import_xadd('examples/pe/ex/do_nothing.xadd', locals=context._str_var_to_var)
+    move_pos_x = context.import_xadd('../examples/pe/ex/move_pos_x.xadd', locals=context._str_var_to_var)
+    move_pos_y = context.import_xadd('../examples/pe/ex/move_pos_y.xadd', locals=context._str_var_to_var)
+    do_nothing = context.import_xadd('../examples/pe/ex/do_nothing.xadd', locals=context._str_var_to_var)
     xadd_policy = {
         'move-pos-x___a1': move_pos_x,
         'move-pos-y___a1':move_pos_y,
@@ -130,19 +130,21 @@ def test(args: argparse.ArgumentParser):
         for j in range(len(y)):
             Z[i][j] = eval_function(X[i][j], Y[i][j], iter_id_1, xadd_model_1, context1)
     
-    gen_countour_graph(X, Y, Z,'Value at T=2 for goal=(5,5)', 'visualization/vplot55.png')
+    gen_countour_graph(X, Y, Z,'Value at T=2 for goal=(5,5)', '../visualization/vplot55.png')
 
     for i in range(len(x)):
         for j in range(len(y)):
             Z[i][j] = eval_function(X[i][j], Y[i][j], iter_id_2, xadd_model_2, context2)
     
-    gen_countour_graph(X, Y, Z,'Value at T=2 for goal=(7,7)', 'visualization/vplot77.png')
+    gen_countour_graph(X, Y, Z,'Value at T=2 for goal=(7,7)', '../visualization/vplot77.png')
 
     for i in range(len(x)):
         for j in range(len(y)):
             Z[i][j] = eval_function(X[i][j], Y[i][j], iter_id_diff, xadd_model_diff, context_diff)
+
+    Z += 0.00001
     
-    gen_countour_graph(X, Y, Z,'Value at T=2 for goal=(5,5) - goal=(7,7)', 'visualization/vplot_diff.png')
+    gen_countour_graph(X, Y, Z,'Value at T=2 for goal=(5,5) - goal=(7,7)', '../visualization/vplot_diff_5577.png')
 
 
 
@@ -155,9 +157,9 @@ if __name__ == "__main__":
     # parser.add_argument("--f_env2", type=str, default="RDDL/Navigation_disc_goal2/domain.rddl")
     # parser.add_argument("--f_inst2", type=str, default=None)
 
-    parser.add_argument("--f_env1", type=str, default="RDDL/Navigation_disc_goal_551010/domain.rddl")
+    parser.add_argument("--f_env1", type=str, default="../RDDL/Navigation_disc_goal_551010/domain.rddl")
     parser.add_argument("--f_inst1", type=str, default=None)
-    parser.add_argument("--f_env2", type=str, default="RDDL/Navigation_disc_goal_771010/domain.rddl")
+    parser.add_argument("--f_env2", type=str, default="../RDDL/Navigation_disc_goal_771010/domain.rddl")
     parser.add_argument("--f_inst2", type=str, default=None)
 
 
