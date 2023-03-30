@@ -45,10 +45,14 @@ domain navigation_discrete {
 
         pos-x'(?a) =  if ((move-pos-x(?a)) ^ ([pos-x(?a) + MOVE-DISTANCE(?a)] < MAX-POS-X))
                         then pos-x(?a) + MOVE-DISTANCE(?a)
+                      else if ((move-pos-x(?a)) ^ ([pos-x(?a) + MOVE-DISTANCE(?a)] >= MAX-POS-X))
+                        then MAX-POS-X
                       else pos-x(?a);
 
         pos-y'(?a) =  if ((move-pos-y(?a)) ^ ([pos-y(?a) + MOVE-DISTANCE(?a)] < MAX-POS-Y))
                         then pos-y(?a) + MOVE-DISTANCE(?a)
+                      else if ((move-pos-y(?a)) ^ ([pos-y(?a) + MOVE-DISTANCE(?a)] >= MAX-POS-Y))
+                        then MAX-POS-Y
                       else pos-y(?a);
 
         // policy-move-x(?a) = if (pos-x(?a) < GOAL-POS-X-2(?a)) then 1
@@ -64,7 +68,7 @@ domain navigation_discrete {
 
     // negative distance to the goal
     // reward = sum_{?a : agent}[(pos-x(?a) > GOAL-POS-X-1(?a)) ^ (pos-y(?a) > GOAL-POS-Y-1(?a)) ^ (pos-x(?a) < GOAL-POS-X-2(?a)) ^ (pos-y(?a) < GOAL-POS-Y-2(?a))];
-    reward = sum_{?a : agent}[ if (pos-x(?a) < GOAL-POS-X-1(?a) ^ (pos-y(?a) < GOAL-POS-Y-1(?a))) then 1 else 0];
+    reward = sum_{?a : agent}[ if (pos-x(?a) < GOAL-POS-X-2(?a) ^ (pos-y(?a) < GOAL-POS-Y-2(?a))) then 1 else 0];
  
     state-invariants {
     };
