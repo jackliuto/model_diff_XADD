@@ -1,22 +1,22 @@
 from modeldiff.diffenv.diffClass import ModelDiffNavigation
 
 
-## experiment 1
-policy_path = '../policies/op_55/'
-m1_path = "../RDDL/Navigation_disc_goal_551010/domain.rddl"
-m2_path = "../RDDL/Navigation_disc_goal_771010/domain.rddl"
-title_1 = 'Value at T=2 for goal=(5,5)'
-title_2 = 'Value at T=2 for goal=(7,7)'
-title_diff = 'Value at T=2 for goal=(7,7) - goal=(5,5)'
-fpath_1_value = '../visualization/VI/value_maps/vplot551010.png'
-fpath_2_value = '../visualization/VI/value_maps/vplot771010.png'
-fpath_diff_value = '../visualization/VI/value_maps/vplot_diff_551010771010.png'
-fpath_1_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_551010.png'
-fpath_2_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_771010.png'
-fpath_diff_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_diff_551010771010.png'
-fpath_1_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_551010.png'
-fpath_2_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_771010.png'
-fpath_diff_xadd_value = '../visualization/VI/xadd_graphs/xadd_value__diff_551010771010.png'
+# ## experiment 1
+# policy_path = '../policies/op_55/'
+# m1_path = "../RDDL/Navigation_disc_goal_551010/domain.rddl"
+# m2_path = "../RDDL/Navigation_disc_goal_771010/domain.rddl"
+# title_1 = 'Value at T=2 for goal=(5,5)'
+# title_2 = 'Value at T=2 for goal=(7,7)'
+# title_diff = 'Value at T=2 for goal=(7,7) - goal=(5,5)'
+# fpath_1_value = '../visualization/VI/value_maps/vplot551010.png'
+# fpath_2_value = '../visualization/VI/value_maps/vplot771010.png'
+# fpath_diff_value = '../visualization/VI/value_maps/vplot_diff_551010771010.png'
+# fpath_1_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_551010.png'
+# fpath_2_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_771010.png'
+# fpath_diff_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_diff_551010771010.png'
+# fpath_1_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_551010.png'
+# fpath_2_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_771010.png'
+# fpath_diff_xadd_value = '../visualization/VI/xadd_graphs/xadd_value__diff_551010771010.png'
 
 # # experiment 2
 # policy_path = '../policies/op_50/'
@@ -52,6 +52,77 @@ fpath_diff_xadd_value = '../visualization/VI/xadd_graphs/xadd_value__diff_551010
 # fpath_1_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_771010_55s.png'
 # fpath_2_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_0033_55s.png'
 # fpath_diff_xadd_value = '../visualization/VI/xadd_graphs/xadd_value__diff_7710100033_55s.png'
+
+# ## experiment 1
+# policy_path = '../policies/op_77/'
+# m1_path = "../RDDL/Navigation_disc_goal_771010/domain.rddl"
+# m2_path = "../RDDL/Navigation_disc_goal_551010/domain.rddl"
+# title_1 = 'Value at T=2 for goal=(7,7)'
+# title_2 = 'Value at T=2 for goal=(5,5)'
+# title_diff = 'Value at T=2 for goal=(5,5) - goal=(7,7)'
+# fpath_1_value = '../visualization/VI/value_maps/vplot771010.png'
+# fpath_2_value = '../visualization/VI/value_maps/vplot551010.png'
+# fpath_diff_value = '../visualization/VI/value_maps/vplot_diff_551010771010.png'
+# fpath_1_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_771010.png'
+# fpath_2_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_551010.png'
+# fpath_diff_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_diff_551010771010.png'
+# fpath_1_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_771010.png'
+# fpath_2_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_551010.png'
+# fpath_diff_xadd_value = '../visualization/VI/xadd_graphs/xadd_value__diff_551010771010.png'
+
+
+# # # experiment 2
+# policy_path = '../policies/op_55/'
+# m1_path = "../RDDL/Navigation_disc_goal_551010/domain.rddl"
+# m2_path = "../RDDL/Navigation_disc_goal_501010/domain.rddl"
+# title_1 = 'Value at T=2 for goal=(5,5)'
+# title_2 = 'Value at T=2 for goal=(5,0)'
+# title_diff = 'Value at T=2 for goal=(5,0) - goal=(5,5)'
+# fpath_1_value = '../visualization/VI/value_maps/vplot551010.png'
+# fpath_2_value = '../visualization/VI/value_maps/vplot501010.png'
+# fpath_diff_value = '../visualization/VI/value_maps/vplot_diff_501010551010.png'
+# fpath_1_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_551010.png'
+# fpath_2_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_501010.png'
+# fpath_diff_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_diff_501010551010.png'
+# fpath_1_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_551010.png'
+# fpath_2_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_501010.png'
+# fpath_diff_xadd_value = '../visualization/VI/xadd_graphs/xadd_value__diff_501010551010.png'
+
+
+# # experiment 3
+# policy_path = '../policies/op_77/'
+# m1_path = "../RDDL/Navigation_disc_goal_771010_55s/domain.rddl"
+# m2_path = "../RDDL/Navigation_disc_goal_0033_55s/domain.rddl"
+# title_1 = 'Value at T=2 for goal=(7,7)'
+# title_2 = 'Value at T=2 for goal=(3,3)'
+# title_diff = 'Value at T=2 for goal=(3,3) - goal=(7,7)'
+# fpath_1_value = '../visualization/VI/value_maps/vplot771010_55s.png'
+# fpath_2_value = '../visualization/VI/value_maps/vplot0033_55s.png'
+# fpath_diff_value = '../visualization/VI/value_maps/vplot_diff_7710100033_55s.png'
+# fpath_1_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_771010_55s.png'
+# fpath_2_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_0033_55s.png'
+# fpath_diff_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_diff_7710100033_55s.png'
+# fpath_1_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_771010_55s.png'
+# fpath_2_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_0033_55s.png'
+# fpath_diff_xadd_value = '../visualization/VI/xadd_graphs/xadd_value__diff_7710100033_55s.png'
+
+# # experiment 4
+policy_path = '../policies/op_50/'
+m2_path = "../RDDL/Navigation_disc_goal_501010/domain.rddl"
+m1_path = "../RDDL/Navigation_disc_goal_551010/domain.rddl"
+title_1 = 'Value at T=2 for goal=(5,0)'
+title_2 = 'Value at T=2 for goal=(5,5)'
+title_diff = 'Value at T=2 for goal=(5,5) - goal=(5,0)'
+fpath_1_value = '../visualization/VI/value_maps/vplot501010_SS.png'
+fpath_2_value = '../visualization/VI/value_maps/vplot551010_SS.png'
+fpath_diff_value = '../visualization/VI/value_maps/vplot_diff_501010551010_SS.png'
+fpath_1_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_501010_SS.png'
+fpath_2_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_551010_SS.png'
+fpath_diff_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_diff_501010551010_SS.png'
+fpath_1_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_501010_SS.png'
+fpath_2_xadd_value = '../visualization/VI/xadd_graphs/xadd_value_551010_SS.png'
+fpath_diff_xadd_value = '../visualization/VI/xadd_graphs/xadd_value__diff_501010551010_SS.png'
+
 
 
 ModelDiff = ModelDiffNavigation(m1_path, m2_path, policy_path)
