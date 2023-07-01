@@ -75,7 +75,7 @@ class ValueIteration:
   
             if self.mdp._is_linear:
                 regr = self.context.reduce_lp(regr)
-            res_dd = self.context.apply(regr, res_dd, MAX)
+            res_dd = self.context.apply(regr, res_dd, MAX) # annotate turn on update depend on one is larger
         res_dd = self.mdp.standardize_dd(res_dd)
         return res_dd
     

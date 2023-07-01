@@ -65,47 +65,47 @@ def save_xadd_graph(xadd_list,f_path):
 
 def test_model_diff():
 
-    domain_name = DOMAIN_NAME
-    domain_path = DOMAIN_PATH
-    instance_path = INSTANCE_PATH
+    domain_name_1 = DOMAIN_NAME_1
+    domain_path_1 = DOMAIN_PATH_1
+    instance_path_1 = INSTANCE_PATH_1
 
-    domain_name_new = DOMAIN_NAME_NEW
-    domain_path_new = DOMAIN_PATH_NEW
-    instance_path_new = INSTANCE_PATH_NEW
+    domain_name_2 = DOMAIN_NAME_2
+    domain_path_2 = DOMAIN_PATH_2
+    instance_path_2 = INSTANCE_PATH_2
 
-    xadd_model0 = parse_xadd_model(domain_name_new, domain_path_new, instance_path_new)
-    xadd_model1 = parse_xadd_model(domain_name, domain_path, instance_path)
+    xadd_model_1 = parse_xadd_model(domain_name_1, domain_path_1, instance_path_1)
+    xadd_model_2 = parse_xadd_model(domain_name_2, domain_path_2, instance_path_2)
+    
+    xadd_model_1.compile()
+    context_1 = xadd_model_1._context
 
-    xadd_model0.compile()
-    context0 = xadd_model0._context
-
-    xadd_model1.compile()
-    context1 = xadd_model1._context
+    xadd_model_2.compile()
+    context_2 = xadd_model_2._context
 
     xadd_diff_dict = defaultdict(list)
 
-    for cpf, node_id in xadd_model0.cpfs.items():
-        save_node = context0._id_to_node.get(node_id)
-        save_node.turn_off_print_node_info()
-        xadd_diff_dict[cpf].append(xadd_str2list(str(save_node)))
+    # for cpf, node_id in xadd_model_1.cpfs.items():
+    #     save_node = context_1._id_to_node.get(node_id)
+    #     save_node.turn_off_print_node_info()
+    #     xadd_diff_dict[cpf].append(xadd_str2list(str(save_node)))
 
-    for cpf, node_id in xadd_model1.cpfs.items():
-        save_node = context1._id_to_node.get(node_id)
-        save_node.turn_off_print_node_info()
-        xadd_diff_dict[cpf].append(xadd_str2list(str(save_node)))
+    # for cpf, node_id in xadd_model_2.cpfs.items():
+    #     save_node = context_2._id_to_node.get(node_id)
+    #     save_node.turn_off_print_node_info()
+    #     xadd_diff_dict[cpf].append(xadd_str2list(str(save_node)))
 
-    reward_node0 = context0._id_to_node.get(xadd_model0.reward)
+    reward_node0 = context_1._id_to_node.get(xadd_model_1.reward)
     reward_node0.turn_off_print_node_info()
 
     xadd_diff_dict['reward'].append(xadd_str2list(str(reward_node0)))
 
-    reward_node1 = context1._id_to_node.get(xadd_model1.reward)
-    reward_node1.turn_off_print_node_info()
-    xadd_diff_dict['reward'].append(xadd_str2list(str(reward_node1)))
+    # reward_node1 = context_2._id_to_node.get(xadd_model_2.reward)
+    # reward_node1.turn_off_print_node_info()
+    # xadd_diff_dict['reward'].append(xadd_str2list(str(reward_node1)))
 
 
-    for k,v in xadd_diff_dict.items():
-        xadd_diff_dict[k].append(xadd_caldiff(*v))
+    # for k,v in xadd_diff_dict.items():
+    #     xadd_diff_dict[k].append(xadd_caldiff(*v))
         
 
     # Path(f'tmp/{domain_name_new}').mkdir(parents=True, exist_ok=True)

@@ -55,10 +55,18 @@
 # domain_path_new = '../RDDL/Navigation_cont_error/domain.rddl'
 # instance_path_new = '../RDDL/Navigation_cont_error/instance0.rddl'
 
-DOMAIN_NAME = 'Navigation_disc_goal_551010'
-DOMAIN_PATH = '../RDDL/Navigation_disc_goal_551010/domain.rddl'
-INSTANCE_PATH = '../RDDL/Navigation_disc_goal_551010/instance0.rddl'
+# DOMAIN_NAME = 'Navigation_disc_goal_551010'
+# DOMAIN_PATH = '../RDDL/Navigation_disc_goal_551010/domain.rddl'
+# INSTANCE_PATH = '../RDDL/Navigation_disc_goal_551010/instance0.rddl'
 
-DOMAIN_NAME_NEW = 'Navigation_disc_goal_771010'
-DOMAIN_PATH_NEW = '../RDDL/Navigation_disc_goal_771010/domain.rddl'
-INSTANCE_PATH_NEW = '../RDDL/Navigation_disc_goal_771010/instance0.rddl'
+# DOMAIN_NAME_NEW = 'Navigation_disc_goal_771010'
+# DOMAIN_PATH_NEW = '../RDDL/Navigation_disc_goal_771010/domain.rddl'
+# INSTANCE_PATH_NEW = '../RDDL/Navigation_disc_goal_771010/instance0.rddl'
+
+DOMAIN_NAME_1 = 'Navigation_disc_goal_551010'
+DOMAIN_PATH_1 = '../RDDL/Reservoir_disc_simple_1/domain.rddl'
+INSTANCE_PATH_1 = '../RDDL/Reservoir_disc_simple_1/instance0.rddl'
+
+DOMAIN_NAME_2 = 'Navigation_disc_goal_771010'
+DOMAIN_PATH_2 = '../RDDL/Reservoir_disc_simple_2/domain.rddl'
+INSTANCE_PATH_2 = '../RDDL/Reservoir_disc_simple_2/instance0.rddl'

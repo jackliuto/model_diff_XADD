@@ -15,7 +15,7 @@ import matplotlib as mpl
 
 import os
 
-class ModelDiffNavigation:
+class ModelDiffReservoir:
     def __init__(self, 
                 model_1_path:str, model_2_path:str,
                 policy_path:str=None,
@@ -41,16 +41,15 @@ class ModelDiffNavigation:
         diff_node = self._context_diff.apply(self._model_diff.reward, r1_node, 'subtract')
         diff_node = self._context_diff.reduce_lp(diff_node)
         self._model_diff.reward = diff_node
+        
         return diff_node
     
     def create_policy(self, mdp: MDP, context: XADD) -> Policy:
-        move_pos_x = context.import_xadd(self._policy_path + 'move_pos_x.xadd', locals=context._str_var_to_var)
-        move_pos_y = context.import_xadd(self._policy_path + 'move_pos_y.xadd', locals=context._str_var_to_var)
+        release = context.import_xadd(self._policy_path + 'release_t.xadd', locals=context._str_var_to_var)
         do_nothing = context.import_xadd(self._policy_path + 'do_nothing.xadd', locals=context._str_var_to_var)
         xadd_policy = {
-            'move-pos-x___a1': move_pos_x,
-            'move-pos-y___a1':move_pos_y,
-            'do-nothing___a1': do_nothing
+            'release___t1': release,
+            'do_nothing___t1': do_nothing
         }
         policy = Policy(mdp)
         policy_dict = {}
@@ -63,8 +62,15 @@ class ModelDiffNavigation:
         parser = Parser()
         mdp = parser.parse(model, is_linear=True)
         policy = self.create_policy(mdp, context)
+
+
         pe = PolicyEvaluation(mdp, policy, t)
         iter_id = pe.solve()
+
+        # print(pe.context._id_to_node.get(model.reward))
+        # print(iter_id)
+        print(pe.context._id_to_node.get(iter_id))
+
         return iter_id
     
     def do_VI(self, model, context, t=2):

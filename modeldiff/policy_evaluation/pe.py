@@ -38,6 +38,7 @@ class PolicyEvaluation:
 
         # Perform policy evaluation for the specified number of iterations, or until convergence
         while self._cur_iter < self._n_iter:
+
             self._prev_dd = value_dd
             
             # Compute the next value function
@@ -59,6 +60,7 @@ class PolicyEvaluation:
         """
         res_dd = self.context.ZERO      # Accumulate the value function in this variable
 
+
         # Iterate over all actions
         for aname, action in self.mdp.actions.items():
             # Compute the action value function
@@ -66,9 +68,17 @@ class PolicyEvaluation:
 
             # Multiply by pi(a|s)
             # Note: since everything's symbolic, state is not specified
+
+
             regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
+
+        
+            
             if self.mdp._is_linear:
                 regr = self.context.reduce_lp(regr)
+            
+            
+
             res_dd = self.context.apply(regr, res_dd, SUM)
         res_dd = self.mdp.standardize_dd(res_dd)
         return res_dd
@@ -76,6 +86,7 @@ class PolicyEvaluation:
     def regress(self, value_dd: int, action: Action, regress_cont: bool = False) -> int:
         # Prime the value function
         subst_dict = self.mdp.prime_subs
+
         q = self.context.substitute(value_dd, subst_dict)
 
         # Discount
@@ -112,6 +123,7 @@ class PolicyEvaluation:
             q = self.regress_action(q, action)
 
         q = self.mdp.standardize_dd(q)
+
         return q
 
     def regress_c_vars(self, q: int, a: Action, v: sp.Symbol) -> int:
