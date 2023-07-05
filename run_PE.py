@@ -66,15 +66,40 @@ context_2 = ModelDiff._context_2
 model_diff = ModelDiff._model_diff
 context_diff = ModelDiff._context_diff
 
-reward_node0 = context_diff._id_to_node.get(model_diff.reward)
-# print(reward_node0)
+reward_node_1 = context_1._id_to_node.get(model_1.reward)
+print("Reward XADD 1")
+print(reward_node_1)
+
+reward_node_2 = context_2._id_to_node.get(model_2.reward)
+print("Reward XADD 2")
+print(reward_node_2)
+
+reward_node_diff = context_diff._id_to_node.get(model_diff.reward)
+print("Reward XADD Diff")
+print(reward_node_diff)
 
 print('MDP1')
-vid_1 = ModelDiff.do_PE(model_1, context_1, 2)
+vid_1 = ModelDiff.do_PE(model_1, context_1, 5)
 print('MDP2')
-vid_2 = ModelDiff.do_PE(model_2, context_2, 2)
+vid_2 = ModelDiff.do_PE(model_2, context_2, 5)
 print('MDP_diff')
-vid_diff = ModelDiff.do_PE(model_diff, context_diff, 2)
+vid_diff = ModelDiff.do_PE(model_diff, context_diff, 5)
+
+# print(context_2._id_to_node.get(vid_2))
+# print(context_diff._id_to_node.get(vid_diff))
+
+# context_1.save_graph(model_1.reward, 'MDP1_reward_2t.png')
+# context_2.save_graph(model_2.reward, 'MDP2_reward_2t.png')
+# context_diff.save_graph(model_diff.reward, 'MDPdiff_reward_2t.png')
+
+context_1.save_graph(vid_1, 'MDP1_PE_5_reward.png')
+context_2.save_graph(vid_2, 'MDP2_PE_5_reward.png')
+context_diff.save_graph(vid_diff, 'MDPdiff_PE_5_reward.png')
+
+
+# print(len(str(context_1._id_to_node.get(vid_1))))
+# print(len(str(context_2._id_to_node.get(vid_2))))
+# print(len(str(context_diff._id_to_node.get(vid_diff))))
 
 # print(context_1._id_to_node.get(vid_1))
 # print(context_2._id_to_node.get(vid_2))

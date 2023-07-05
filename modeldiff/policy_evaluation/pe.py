@@ -69,17 +69,20 @@ class PolicyEvaluation:
             # Multiply by pi(a|s)
             # Note: since everything's symbolic, state is not specified
 
-
             regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
-
-        
-            
+ 
             if self.mdp._is_linear:
                 regr = self.context.reduce_lp(regr)
             
-            
-
             res_dd = self.context.apply(regr, res_dd, SUM)
+            
+            # print(action)
+            # print(self.context._id_to_node[res_dd])
+
+
+
+
+
         res_dd = self.mdp.standardize_dd(res_dd)
         return res_dd
     
@@ -150,14 +153,26 @@ class PolicyEvaluation:
     def regress_b_vars(self, q: int, a: Action, v: str) -> int:
         # Get the cpf for the variable
         cpf = a.get_cpf(v)
-        dec_id = self.context._expr_to_id[self.mdp.model.ns[v]]
 
-        # Marginalize out the variable
-        q = self.context.apply(q, cpf, PROD)
 
+        dec_id = self.context._expr_to_id[self.mdp.model.ns[str(v)]]
+
+
+        # # Marginalize out the variable uncomment for the original,
+        # q = self.context.apply(q, cpf, PROD)
+        
         restrict_high = self.context.op_out(q, dec_id, RESTRICT_HIGH)
         restrict_low = self.context.op_out(q, dec_id, RESTRICT_LOW)
+
+        # # Handcrafted marginalization
+        prob = float(str(self.context._id_to_node[cpf]).split()[3])
+        true_prop_id = self.context.get_leaf_node(sp.S(prob))
+        false_prop_id = self.context.get_leaf_node(sp.S(1 - prob))
+        restrict_high = self.context.apply(restrict_high, true_prop_id, PROD)
+        restrict_low = self.context.apply(restrict_low, false_prop_id, PROD)  
+
         q = self.context.apply(restrict_high, restrict_low, SUM)
+
         return q
     
     def regress_action(self, q: int, a: Action) -> int:

@@ -19,11 +19,20 @@ domain reservoir_control_dis {
 		MIN_LEVEL(reservoir): { non-fluent, real, default = 20.0 };  // The lower bound for desired reservoir level
         RELEASE_VALUE(reservoir): {non-fluent, real, default = 5 }; // 
         RAIN_VALUE(reservoir): {non-fluent, real, default = 2 };
-
+        RAIN_PROP(reservoir): {non-fluent, real, default=0.4};
         COST_OVERFLOW(reservoir) : { non-fluent, real, default =  -5.0 }; // Penalty per unit of level < MIN_LEVEL
+        RES_CONNECT(reservoir, reservoir): { non-fluent, bool, default = false }; // Indicates 2nd reservoir is forward connected to 1st reservoir
+        CONNECTED_TO_SEA(reservoir): {non-fluent, bool, default = false}; // reservoirs connected to the sea;
+        
+        // interm fluents
+       
 
         // State fluents
-        rlevel(reservoir): {state-fluent, real, default = 50.0 }; // Reservoir level
+        rlevel(reservoir): {state-fluent, real, default = 45.0 }; // Reservoir level
+        is_rain(reservoir): {state-fluent, bool, default = false };
+
+        // outflow(reservoir): {state-fluent, real, default = 0.0 };
+        // inflow(reservoir): {state-fluent, real, default = 0.0 };
 
         // Action fluents
         release(reservoir): { action-fluent, bool, default = false }; // Action to set outflow of reservoir
@@ -31,22 +40,41 @@ domain reservoir_control_dis {
     };
 
     cpfs {
-        rlevel'(?r) = if (release(?r))
-                    then min[TOP_RES(?r), max[0, rlevel(?r) + RAIN_VALUE(?r)]]
-                    else if (do_nothing(?r))
-                    then min[TOP_RES(?r), max[0, rlevel(?r) + RAIN_VALUE(?r) - RELEASE_VALUE(?r)]]
+         is_rain'(?r) = Bernoulli(RAIN_PROP(?r));
+
+         //outflow'(?r) = RELEASE_VALUE(?r);
+
+         //inflow'(?r) = RAIN_VALUE(?r) * is_rain(?r) + (sum_{?in : reservoir} [RES_CONNECT(?in,?r) * outflow(?in)]);
+                    
+         //rlevel'(?r) = if (release(?r))
+         //            then min[TOP_RES(?r), max[0, rlevel(?r) + inflow(?r) - outflow(?r)]]
+         //            else if (do_nothing(?r))
+         //            then min[TOP_RES(?r), max[0, rlevel(?r) + inflow(?r)]]
+         //           else rlevel(?r);
+
+         rlevel'(?r) = if (release(?r))
+                     then min[TOP_RES(?r), max[0, rlevel(?r) + RAIN_VALUE(?r) * is_rain(?r) + (sum_{?in : reservoir} [RES_CONNECT(?in,?r) * RELEASE_VALUE(?r)]) - RELEASE_VALUE(?r)]]
+                     else if (do_nothing(?r))
+                     then min[TOP_RES(?r), max[0, rlevel(?r) + RAIN_VALUE(?r) * is_rain(?r) + (sum_{?in : reservoir} [RES_CONNECT(?in,?r) * RELEASE_VALUE(?r)])]]
                     else rlevel(?r);
 
+ 
     };
 
+
     reward = (sum_{?r: reservoir} [if ((rlevel(?r) >= MIN_LEVEL(?r)) ^ (rlevel(?r) <= MAX_LEVEL(?r)))
-                                   then 1
-                                    else if (rlevel(?r) > TOP_RES(?r))
-                                   then -10
-                                    else if (rlevel(?r) > MAX_LEVEL(?r))
-                                   then -1
-                                    else 0
+                                    then 0
+                                   else if (rlevel(?r) > TOP_RES(?r))
+                                    then -10
+                                   else if (rlevel(?r) > MAX_LEVEL(?r))
+                                    then -1
+                                   else 0
                                    ]);
+
+    // reward = (sum_{?r: reservoir} [if (rlevel(?r) < MIN_LEVEL(?r))
+    //                                then -1
+    //                                else 0]);
+    //
 
 	state-invariants {
 

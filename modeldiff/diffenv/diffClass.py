@@ -45,14 +45,19 @@ class ModelDiffReservoir:
         return diff_node
     
     def create_policy(self, mdp: MDP, context: XADD) -> Policy:
-        release = context.import_xadd(self._policy_path + 'release_t.xadd', locals=context._str_var_to_var)
-        do_nothing = context.import_xadd(self._policy_path + 'do_nothing.xadd', locals=context._str_var_to_var)
+        release_t1 = context.import_xadd(self._policy_path + 'release_t1.xadd', locals=context._str_var_to_var)
+        do_nothing_t1 = context.import_xadd(self._policy_path + 'do_nothing_t1.xadd', locals=context._str_var_to_var)
+        release_t2 = context.import_xadd(self._policy_path + 'release_t2.xadd', locals=context._str_var_to_var)
+        do_nothing_t2 = context.import_xadd(self._policy_path + 'do_nothing_t2.xadd', locals=context._str_var_to_var)
         xadd_policy = {
-            'release___t1': release,
-            'do_nothing___t1': do_nothing
+            'release___t1': release_t1,
+            'do_nothing___t1': do_nothing_t1,
+            'release___t2': release_t2,
+            'do_nothing___t2': do_nothing_t2
         }
         policy = Policy(mdp)
         policy_dict = {}
+
         for aname, action in mdp.actions.items():
             policy_dict[action] = xadd_policy[aname]
         policy.load_policy(policy_dict)

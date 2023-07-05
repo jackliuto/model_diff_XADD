@@ -62,17 +62,17 @@ ModelDiff.build_model_with_diff_reward()
 model_1 = ModelDiff._model_1
 context_1 = ModelDiff._context_1
 
-model_2 = ModelDiff._model_2
-context_2 = ModelDiff._context_2
+# model_2 = ModelDiff._model_2
+# context_2 = ModelDiff._context_2
 
-model_diff = ModelDiff._model_diff
-context_diff = ModelDiff._context_diff
+# model_diff = ModelDiff._model_diff
+# context_diff = ModelDiff._context_diff
 
-reward_node0 = context_diff._id_to_node.get(model_diff.reward)
+# reward_node0 = context_diff._id_to_node.get(model_diff.reward)
 # print(reward_node0)
 
 print('MDP1')
-vid_1 = ModelDiff.do_PE(model_1, context_1, 2)
+vid_1 = ModelDiff.do_PE(model_1, context_1, 10)
 print(context_1._id_to_node[vid_1])
 # print(model_1.states)
 # print(model_1.interm)
