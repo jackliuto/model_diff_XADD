@@ -72,7 +72,7 @@ context_1 = ModelDiff._context_1
 # print(reward_node0)
 
 print('MDP1')
-vid_1 = ModelDiff.do_PE(model_1, context_1, 10)
+vid_1 = ModelDiff.do_PE(model_1, context_1, 2)
 print(context_1._id_to_node[vid_1])
 # print(model_1.states)
 # print(model_1.interm)
