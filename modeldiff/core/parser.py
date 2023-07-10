@@ -1,13 +1,19 @@
-import sympy as sp
 from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
+
 from modeldiff.core.action import Action
 from modeldiff.core.mdp import MDP
+
 
 class Parser:
     def __init__(self):
         pass    
 
-    def parse(self, model: RDDLModelWXADD, is_linear: bool = False) -> MDP:
+    def parse(
+            self,
+            model: RDDLModelWXADD,
+            is_linear: bool = False
+    ) -> MDP:
+        """Parses the RDDL model into an MDP."""
         mdp = MDP(model, is_linear=is_linear)
 
         # Go through all actions and get corresponding CPFs and rewards
@@ -19,7 +25,7 @@ class Parser:
             a_symbol = model.ns.get(name)
             if a_symbol is None:
                 print(f'Warning: action {name} not found in RDDLModelWXADD.actions')
-                a_symbol = model.add_sympy_var(name, atype)
+                a_symbol, a_node_id = model.add_sympy_var(name, atype)
             action_dict[a_symbol] = False
             action_type[name] = atype
         

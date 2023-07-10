@@ -36,14 +36,14 @@ class MDP:
         prime_subs = {}
         for s, ns in s_to_ns.items():
             s_var = model.ns[s]
-            ns_var = model.add_sympy_var(ns, model.gvar_to_type[ns])
+            ns_var, var_node_id = model.add_sympy_var(ns, model.gvar_to_type[ns])
             prime_subs[s_var] = ns_var
         return prime_subs
 
     def update_var_sets(self):
         model = self._model
         for v, vtype in model.gvar_to_type.items():
-            var_ = model.add_sympy_var(v, vtype)
+            var_, var_node_id = model.add_sympy_var(v, vtype)
             if v in model.next_state.values():
                 if vtype == 'bool':
                     self._bool_ns_vars.add(var_)

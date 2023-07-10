@@ -1,11 +1,9 @@
 import pathlib
-from pathlib import Path
 from typing import Optional, Union
 
 from pyRDDLGym.Core.Grounder.RDDLGrounder import RDDLGrounder
 from pyRDDLGym.Core.Parser.parser import RDDLParser
 from pyRDDLGym.Core.Parser.RDDLReader import RDDLReader
-from pyRDDLGym.Examples.ExampleManager import ExampleManager
 from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
 from xaddpy.xadd import XADD
 
@@ -13,7 +11,7 @@ from xaddpy.xadd import XADD
 # gen xadd model from a RDDLEnv
 def get_xadd_model_from_file(
         f_domain: Union[str, pathlib.PosixPath],
-        f_instance: Union[str, pathlib.PosixPath] = None,
+        f_instance: Optional[Union[str, pathlib.PosixPath]] = None,
         context: XADD = None
 ):
     if f_instance is None:
@@ -33,7 +31,7 @@ def get_xadd_model_from_file(
     model = grounder.Ground()
 
     # XADD compilation
-    xadd_model = RDDLModelWXADD(model, context=context)
+    xadd_model = RDDLModelWXADD(model, context=context, simulation=False)
     xadd_model.compile()
     context = xadd_model._context
     return xadd_model, context
