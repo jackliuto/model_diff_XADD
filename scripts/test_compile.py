@@ -65,4 +65,4 @@ xadd_model = RDDLModelWXADD(myEnv.model)
 
 print(xadd_model.cpfs)
 
-xadd_model.compile()
+xadd_model.compile(simulation=False)

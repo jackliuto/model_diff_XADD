@@ -76,10 +76,10 @@ def test_model_diff():
     xadd_model_1 = parse_xadd_model(domain_name_1, domain_path_1, instance_path_1)
     xadd_model_2 = parse_xadd_model(domain_name_2, domain_path_2, instance_path_2)
     
-    xadd_model_1.compile()
+    xadd_model_1.compile(simulation=False)
     context_1 = xadd_model_1._context
 
-    xadd_model_2.compile()
+    xadd_model_2.compile(simulation=False)
     context_2 = xadd_model_2._context
 
     xadd_diff_dict = defaultdict(list)

@@ -19,7 +19,7 @@ def gen_xadd_model(rddlModelLifted):
     grounder = RDDLGrounder(rddlModelLifted._AST)
     grounded_model = grounder.Ground()
     xadd_model = RDDLModelWXADD(grounded_model)
-    xadd_model.compile()
+    xadd_model.compile(simulation=False)
     return xadd_model, grounded_model
 
 

@@ -69,6 +69,11 @@ class PolicyEvaluation:
             # Multiply by pi(a|s)
             # Note: since everything's symbolic, state is not specified
 
+            # print('-----------------------------------')
+            # print(action)
+            # print(self.context._id_to_node[regr])
+            # print(self.context._id_to_node[self.policy.get_policy_xadd(action)])
+
             regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
  
             if self.mdp._is_linear:
@@ -78,10 +83,6 @@ class PolicyEvaluation:
             
             # print(action)
             # print(self.context._id_to_node[res_dd])
-
-
-
-
 
         res_dd = self.mdp.standardize_dd(res_dd)
         return res_dd
@@ -141,6 +142,7 @@ class PolicyEvaluation:
 
         # Perform regression via delta function substitution
         leaf_op = DeltaFunctionSubstitution(v, q, self.context)
+
         q = self.context.reduce_process_xadd_leaf(cpf, leaf_op, [], [])
         if self.mdp._is_linear:
             q = self.context.reduce_lp(q)
@@ -154,7 +156,6 @@ class PolicyEvaluation:
         # Get the cpf for the variable
         cpf = a.get_cpf(v)
 
-
         dec_id = self.context._expr_to_id[self.mdp.model.ns[str(v)]]
 
 
@@ -164,12 +165,12 @@ class PolicyEvaluation:
         restrict_high = self.context.op_out(q, dec_id, RESTRICT_HIGH)
         restrict_low = self.context.op_out(q, dec_id, RESTRICT_LOW)
 
-        # # Handcrafted marginalization
-        prob = float(str(self.context._id_to_node[cpf]).split()[3])
-        true_prop_id = self.context.get_leaf_node(sp.S(prob))
-        false_prop_id = self.context.get_leaf_node(sp.S(1 - prob))
-        restrict_high = self.context.apply(restrict_high, true_prop_id, PROD)
-        restrict_low = self.context.apply(restrict_low, false_prop_id, PROD)  
+        # # # Handcrafted marginalization
+        # prob = float(str(self.context._id_to_node[cpf]).split()[3])
+        # true_prop_id = self.context.get_leaf_node(sp.S(prob))
+        # false_prop_id = self.context.get_leaf_node(sp.S(1 - prob))
+        # restrict_high = self.context.apply(restrict_high, true_prop_id, PROD)
+        # restrict_low = self.context.apply(restrict_low, false_prop_id, PROD)  
 
         q = self.context.apply(restrict_high, restrict_low, SUM)
 

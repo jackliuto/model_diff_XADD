@@ -23,7 +23,9 @@ class Action:
         """Restricts the CPF to this particular action"""
         context = self._context
         if self._atype == 'bool':
-            subst_dict.update({self._symbol: True})
+            # subst_dict.update({self._symbol: True})
+            # subst_dict.update({self._symbol: 1.0})
+            pass
             return context.substitute(cpf, subst_dict)
         else:
             raise NotImplementedError("Continuous actions are not supported yet")

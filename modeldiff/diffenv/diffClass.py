@@ -86,11 +86,18 @@ class ModelDiffReservoir:
         iter_id = pe.solve()
         return iter_id
     
-    def eval_function(self, x, y, iter_id, model, context):
-        pos_x = model.ns['pos-x___a1']
-        pos_y = model.ns['pos-y___a1']
+    def eval_function(self, b_dict, c_dict, iter_id, model, context):
         b_assign = {}
-        c_assign = {pos_x:x, pos_y:y}
+        c_assign = {}
+        # pos_x = model.ns['pos-x___a1']
+        # pos_y = model.ns['pos-y___a1']
+        for k,v in b_dict.items():
+            b_assign[model.ns[k]] = v
+        for k,v in c_dict.items():
+            c_assign[model.ns[k]] = v
+
+        # b_assign = {}
+        # c_assign = {pos_x:x, pos_y:y}
         res = context.evaluate(iter_id, bool_assign=b_assign, cont_assign=c_assign)
         return res
 

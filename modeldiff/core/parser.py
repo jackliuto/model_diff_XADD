@@ -29,6 +29,8 @@ class Parser:
             action_dict[a_symbol] = False
             action_type[name] = atype
         
+        # print(action_dict)
+        
         for name, val in actions.items():
             atype = action_type[name]
             a_symbol = model.ns[name]
@@ -44,6 +46,7 @@ class Parser:
                 cpf = action.restrict(cpf, subst_dict)
                 var_ = model.ns[state_fluent]
                 action.add_cpf(var_, cpf)
+
             
             # Get the reward corresponding to the action
             reward = model.reward
