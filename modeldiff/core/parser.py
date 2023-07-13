@@ -29,8 +29,6 @@ class Parser:
             action_dict[a_symbol] = False
             action_type[name] = atype
         
-        # print(action_dict)
-        
         for name, val in actions.items():
             atype = action_type[name]
             a_symbol = model.ns[name]
