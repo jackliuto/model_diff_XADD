@@ -19,11 +19,11 @@ class Action:
         self._action_params = action_params
         self._cpfs = {}
     
-    def restrict(self, cpf: int, subst_dict: Dict[sp.Symbol, Union[bool, float, int]] = {}):
+    def restrict(self, cpf: int, subst_dict: Dict[sp.Symbol, Union[bool, float, int]] = {}, bool_val=True):
         """Restricts the CPF to this particular action"""
         context = self._context
         if self._atype == 'bool':
-            # subst_dict.update({self._symbol: True})
+            # subst_dict.update({self._symbol: bool_val})
             # subst_dict.update({self._symbol: 1.0})
             pass
             return context.substitute(cpf, subst_dict)
@@ -46,6 +46,6 @@ class Action:
     def reward(self, reward: int):
         self._reward = reward
 
-    def __repr__(self) -> str:
-        return self._name
+    # def __repr__(self) -> str:
+    #     return self._name
     

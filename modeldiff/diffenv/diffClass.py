@@ -45,15 +45,15 @@ class ModelDiffReservoir:
         return diff_node
     
     def create_policy(self, mdp: MDP, context: XADD) -> Policy:
-        release_t1 = context.import_xadd(self._policy_path + 'release_t1.xadd', locals=context._str_var_to_var)
-        do_nothing_t1 = context.import_xadd(self._policy_path + 'do_nothing_t1.xadd', locals=context._str_var_to_var)
-        release_t2 = context.import_xadd(self._policy_path + 'release_t2.xadd', locals=context._str_var_to_var)
-        do_nothing_t2 = context.import_xadd(self._policy_path + 'do_nothing_t2.xadd', locals=context._str_var_to_var)
+        release_t1_true = context.import_xadd(self._policy_path + 'release_t1_true.xadd', locals=context._str_var_to_var)
+        release_t1_false = context.import_xadd(self._policy_path + 'release_t1_false.xadd', locals=context._str_var_to_var)
+        # release_t2 = context.import_xadd(self._policy_path + 'release_t2.xadd', locals=context._str_var_to_var)
+        # do_nothing_t2 = context.import_xadd(self._policy_path + 'do_nothing_t2.xadd', locals=context._str_var_to_var)
         xadd_policy = {
-            'release___t1': release_t1,
-            'do_nothing___t1': do_nothing_t1,
-            'release___t2': release_t2,
-            'do_nothing___t2': do_nothing_t2
+            "{release___t1: True}": release_t1_true,
+            "{release___t1: False}": release_t1_false,
+            # 'release___t2': release_t2,
+            # 'do_nothing___t2': do_nothing_t2
         }
         policy = Policy(mdp)
         policy_dict = {}

@@ -68,12 +68,6 @@ class PolicyEvaluation:
 
             # Multiply by pi(a|s)
             # Note: since everything's symbolic, state is not specified
-
-            # print('-----------------------------------')
-            # print(action)
-            # print(self.context._id_to_node[regr])
-            # print(self.context._id_to_node[self.policy.get_policy_xadd(action)])
-
             regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
  
             if self.mdp._is_linear:
@@ -81,8 +75,6 @@ class PolicyEvaluation:
             
             res_dd = self.context.apply(regr, res_dd, SUM)
             
-            # print(action)
-            # print(self.context._id_to_node[res_dd])
 
         res_dd = self.mdp.standardize_dd(res_dd)
         return res_dd
@@ -99,6 +91,7 @@ class PolicyEvaluation:
 
         # Add reward *if* it contains primed vars that need to be regressed
         i_and_ns_vars_in_reward = self.filter_i_and_ns_vars(self.context.collect_vars(action.reward))
+
         if len(i_and_ns_vars_in_reward) > 0:
             q = self.context.apply(q, action.reward, SUM)
         
