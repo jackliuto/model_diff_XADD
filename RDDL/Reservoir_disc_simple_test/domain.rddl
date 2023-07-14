@@ -55,7 +55,7 @@ domain reservoir_control_dis {
         //                then min[TOP_RES(?r), max[0, rlevel(?r) + RAIN_VALUE(?r) * Bernoulli(RAIN_PROP(?r)) + sum_{?in : reservoir} [if (release(?in) ^ RES_CONNECT(?r, ?in)) then RELEASE_VALUE(?in) else 0] - RELEASE_VALUE(?r)]]
         //                else min[TOP_RES(?r), max[0, rlevel(?r) + RAIN_VALUE(?r) * Bernoulli(RAIN_PROP(?r)) + sum_{?in : reservoir} [if (release(?in) ^ RES_CONNECT(?r, ?in)) then RELEASE_VALUE(?in) else 0]]];
         
-        rlevel'(?r) = rlevel(?r) + Bernoulli(RAIN_PROP(?r)) * 5 - 10 * release(?r);
+        rlevel'(?r) = rlevel(?r) + Bernoulli(RAIN_PROP(?r)) * 5 - 5 * release(?r);
                         
 
     
@@ -73,7 +73,7 @@ domain reservoir_control_dis {
      //                              else 0
      //                              ]);
 // conditon * pentalty write it as non-fluents
-    reward = (sum_{?r: reservoir} [if (rlevel(?r) > 0)
+    reward = (sum_{?r: reservoir} [if (rlevel(?r) > 20)
                                     then 1
                                     else 0]);
     

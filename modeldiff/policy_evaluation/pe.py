@@ -77,6 +77,8 @@ class PolicyEvaluation:
             
 
         res_dd = self.mdp.standardize_dd(res_dd)
+
+
         return res_dd
     
     def regress(self, value_dd: int, action: Action, regress_cont: bool = False) -> int:

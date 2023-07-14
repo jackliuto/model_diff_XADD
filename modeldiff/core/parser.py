@@ -60,6 +60,8 @@ class Parser:
                 var_ = model.ns[state_fluent]
                 action.add_cpf(var_, cpf)
 
+            # print(mdp.context._id_to_node[cpf])
+
             reward = model.reward
             reward = action.restrict(reward, subst_dict)
             action.reward = reward
