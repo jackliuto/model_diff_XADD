@@ -55,6 +55,10 @@ class Parser:
 
             cpfs = model.cpfs
 
+            # for k, v in cpfs.items():
+            #     print(mdp.model._context._id_to_node[v])
+
+
             for state_fluent, cpf in cpfs.items():
                 cpf = action.restrict(cpf, subst_dict)
                 var_ = model.ns[state_fluent]

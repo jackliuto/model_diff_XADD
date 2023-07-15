@@ -18,7 +18,7 @@ domain reservoir_control_dis {
         MAX_LEVEL(reservoir): { non-fluent, real, default = 80.0 };  // The upper bound for desired reservoir level
 		MIN_LEVEL(reservoir): { non-fluent, real, default = 20.0 };  // The lower bound for desired reservoir level
         RELEASE_VALUE(reservoir): {non-fluent, real, default = 5 }; // 
-        RAIN_VALUE(reservoir): {non-fluent, real, default = 2 };
+        RAIN_VALUE(reservoir): {non-fluent, real, default = 4 };
         RAIN_PROP(reservoir): {non-fluent, real, default=0.4};
         COST_OVERFLOW(reservoir) : { non-fluent, real, default =  -5.0 }; // Penalty per unit of level < MIN_LEVEL
         COST_OVERMAX(reservoir) : { non-fluent, real, default =  -1.0 };
@@ -51,31 +51,30 @@ domain reservoir_control_dis {
         
         
         
-        // rlevel'(?r) =  if (release(?r))
-        //                then min[TOP_RES(?r), max[0, rlevel(?r) + RAIN_VALUE(?r) * Bernoulli(RAIN_PROP(?r)) + sum_{?in : reservoir} [if (release(?in) ^ RES_CONNECT(?r, ?in)) then RELEASE_VALUE(?in) else 0] - RELEASE_VALUE(?r)]]
-        //                else min[TOP_RES(?r), max[0, rlevel(?r) + RAIN_VALUE(?r) * Bernoulli(RAIN_PROP(?r)) + sum_{?in : reservoir} [if (release(?in) ^ RES_CONNECT(?r, ?in)) then RELEASE_VALUE(?in) else 0]]];
-        
-        rlevel'(?r) = rlevel(?r) + Bernoulli(RAIN_PROP(?r)) * 5 - 5 * release(?r);
+        rlevel'(?r) =  min[TOP_RES(?r), 
+                            max[0, rlevel(?r) + RAIN_VALUE(?r) * Bernoulli(RAIN_PROP(?r)) 
+                                + sum_{?in : reservoir} [RES_CONNECT(?in, ?r) * RELEASE_VALUE(?in) * release(?in)] 
+                                - RELEASE_VALUE(?r) * release(?r)]];
+
+        // rlevel'(?r) = max[0, rlevel(?r) + 1 * RAIN_VALUE(?r) - RELEASE_VALUE(?r) * release(?r)];
                         
 
     
     };
 
 
-     //reward = (sum_{?r: reservoir} [if ((rlevel(?r) >= MIN_LEVEL(?r)) ^ (rlevel(?r) <= MAX_LEVEL(?r)))
-     //                               then 0
-     //                              else if (rlevel(?r) > TOP_RES(?r))
-     //                               then COST_OVERFLOW(?r)
-     //                              else if (rlevel(?r) > MAX_LEVEL(?r))
-     //                               then  COST_OVERMAX(?r)
-     //                              else if (rlevel(?r) < MIN_LEVEL(?r))
-     //                               then COST_UNDERMIN(?r)
-     //                              else 0
-     //                              ]);
+     reward = (sum_{?r: reservoir} [if ((rlevel(?r) >= MIN_LEVEL(?r)) ^ (rlevel(?r) <= MAX_LEVEL(?r)))
+                                    then 0
+                                   else if (rlevel(?r) > MAX_LEVEL(?r))
+                                    then  COST_OVERMAX(?r)
+                                   else if (rlevel(?r) < MIN_LEVEL(?r))
+                                    then COST_UNDERMIN(?r)
+                                   else 0
+                                   ]);
 // conditon * pentalty write it as non-fluents
-    reward = (sum_{?r: reservoir} [if (rlevel(?r) > 20)
-                                    then 1
-                                    else 0]);
+    // reward = (sum_{?r: reservoir} [if (rlevel(?r) >= 0)
+    //                                then 1
+    //                                else 0]);
     
 
 	state-invariants {

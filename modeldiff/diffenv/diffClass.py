@@ -47,14 +47,23 @@ class ModelDiffReservoir:
     def create_policy(self, mdp: MDP, context: XADD) -> Policy:
         release_t1_true = context.import_xadd(self._policy_path + 'release_t1_true.xadd', locals=context._str_var_to_var)
         release_t1_false = context.import_xadd(self._policy_path + 'release_t1_false.xadd', locals=context._str_var_to_var)
-        # release_t2 = context.import_xadd(self._policy_path + 'release_t2.xadd', locals=context._str_var_to_var)
-        # do_nothing_t2 = context.import_xadd(self._policy_path + 'do_nothing_t2.xadd', locals=context._str_var_to_var)
+        # release_t2_true = context.import_xadd(self._policy_path + 'release_t2_true.xadd', locals=context._str_var_to_var)
+        # release_t2_false = context.import_xadd(self._policy_path + 'release_t2_false.xadd', locals=context._str_var_to_var)
+        release_t1_true_t2_true = context.import_xadd(self._policy_path + 'release_t1_true_t2_true.xadd', locals=context._str_var_to_var)
+        release_t1_true_t2_false = context.import_xadd(self._policy_path + 'release_t1_true_t2_false.xadd', locals=context._str_var_to_var)
+        release_t1_false_t2_true = context.import_xadd(self._policy_path + 'release_t1_false_t2_true.xadd', locals=context._str_var_to_var)
+        release_t1_false_t2_false = context.import_xadd(self._policy_path + 'release_t1_false_t2_false.xadd', locals=context._str_var_to_var)
         xadd_policy = {
             "{release___t1: True}": release_t1_true,
             "{release___t1: False}": release_t1_false,
-            # 'release___t2': release_t2,
-            # 'do_nothing___t2': do_nothing_t2
+            # "{release___t2: True}": release_t2_true,
+            # "{release___t2: False}": release_t2_false,
+            "{release___t1: True, release___t2: True}": release_t1_true_t2_true,
+            "{release___t1: True, release___t2: False}": release_t1_true_t2_false,
+            "{release___t1: False, release___t2: True}": release_t1_false_t2_true,
+            "{release___t1: False, release___t2: False}": release_t1_false_t2_false,
         }
+
         policy = Policy(mdp)
         policy_dict = {}
 

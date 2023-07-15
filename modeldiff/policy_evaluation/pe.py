@@ -78,7 +78,6 @@ class PolicyEvaluation:
 
         res_dd = self.mdp.standardize_dd(res_dd)
 
-
         return res_dd
     
     def regress(self, value_dd: int, action: Action, regress_cont: bool = False) -> int:
@@ -101,7 +100,7 @@ class PolicyEvaluation:
         # TODO: Do we need to handle topological ordering?
         # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
         vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
-
+        
         # Regress each variable
         for v in vars_to_regress:
             if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
@@ -121,7 +120,7 @@ class PolicyEvaluation:
         if regress_cont:
             q = self.regress_action(q, action)
 
-        q = self.mdp.standardize_dd(q)
+        q = self.mdp.standardize_dd(q)      
 
         return q
 

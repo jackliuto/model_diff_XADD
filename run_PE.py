@@ -4,55 +4,6 @@ from modeldiff.diffenv.diffClass import ModelDiffReservoir
 policy_path = 'policies/res/'
 m1_path = "RDDL/Reservoir_disc_simple_1/domain.rddl"
 m2_path = "RDDL/Reservoir_disc_simple_2/domain.rddl"
-title_1 = 'Value at T=2 for goal=(5,5)'
-title_2 = 'Value at T=2 for goal=(7,7)'
-title_diff = 'Value at T=2 for goal=(7,7) - goal=(5,5)'
-fpath_1_value = '../visualization/PE/value_maps/vplot771010.png'
-fpath_2_value = '../visualization/PE/value_maps/vplot551010.png'
-fpath_diff_value = '../visualization/PE/value_maps/vplot_diff_551010771010.png'
-fpath_1_xadd_reward = '../visualization/PE/xadd_graphs/xadd_reward_771010.png'
-fpath_2_xadd_reward = '../visualization/PE/xadd_graphs/xadd_reward_551010.png'
-fpath_diff_xadd_reward = '../visualization/VI/xadd_graphs/xadd_reward_diff_551010771010.png'
-fpath_1_xadd_value = '../visualization/PE/xadd_graphs/xadd_value_771010.png'
-fpath_2_xadd_value = '../visualization/PE/xadd_graphs/xadd_value_551010.png'
-fpath_diff_xadd_value = '../visualization/PE/xadd_graphs/xadd_value__diff_551010771010.png'
-
-
-# # # experiment 2
-# policy_path = '../policies/op_55/'
-# m1_path = "../RDDL/Navigation_disc_goal_551010/domain.rddl"
-# m2_path = "../RDDL/Navigation_disc_goal_501010/domain.rddl"
-# title_1 = 'Value at T=2 for goal=(5,5)'
-# title_2 = 'Value at T=2 for goal=(5,0)'
-# title_diff = 'Value at T=2 for goal=(5,0) - goal=(5,5)'
-# fpath_1_value = '../visualization/PE/value_maps/vplot551010.png'
-# fpath_2_value = '../visualization/PE/value_maps/vplot501010.png'
-# fpath_diff_value = '../visualization/PE/value_maps/vplot_diff_501010551010.png'
-# fpath_1_xadd_reward = '../visualization/PE/xadd_graphs/xadd_reward_551010.png'
-# fpath_2_xadd_reward = '../visualization/PE/xadd_graphs/xadd_reward_501010.png'
-# fpath_diff_xadd_reward = '../visualization/PE/xadd_graphs/xadd_reward_diff_501010551010.png'
-# fpath_1_xadd_value = '../visualization/PE/xadd_graphs/xadd_value_551010.png'
-# fpath_2_xadd_value = '../visualization/PE/xadd_graphs/xadd_value_501010.png'
-# fpath_diff_xadd_value = '../visualization/PE/xadd_graphs/xadd_value__diff_501010551010.png'
-
-
-# # experiment 3
-# policy_path = '../policies/op_77/'
-# m2_path = "../RDDL/Navigation_disc_goal_771010_55s/domain.rddl"
-# m1_path = "../RDDL/Navigation_disc_goal_0033_55s/domain.rddl"
-# title_1 = 'Value at T=2 for goal=(7,7)'
-# title_2 = 'Value at T=2 for goal=(3,3)'
-# title_diff = 'Value at T=2 for goal=(3,3) - goal=(7,7)'
-# fpath_1_value = '../visualization/PE/value_maps/vplot771010_55s.png'
-# fpath_2_value = '../visualization/PE/value_maps/vplot0033_55s.png'
-# fpath_diff_value = '../visualization/PE/value_maps/vplot_diff_7710100033_55s.png'
-# fpath_1_xadd_reward = '../visualization/PE/xadd_graphs/xadd_reward_771010_55s.png'
-# fpath_2_xadd_reward = '../visualization/PE/xadd_graphs/xadd_reward_0033_55s.png'
-# fpath_diff_xadd_reward = '../visualization/PE/xadd_graphs/xadd_reward_diff_7710100033_55s.png'
-# fpath_1_xadd_value = '../visualization/PE/xadd_graphs/xadd_value_771010_55s.png'
-# fpath_2_xadd_value = '../visualization/PE/xadd_graphs/xadd_value_0033_55s.png'
-# fpath_diff_xadd_value = '../visualization/PE/xadd_graphs/xadd_value__diff_7710100033_55s.png'
-
 
 ModelDiff = ModelDiffReservoir(m1_path, m2_path, policy_path)
 ModelDiff.build_model_with_diff_reward()
@@ -85,16 +36,40 @@ vid_2 = ModelDiff.do_PE(model_2, context_2, 5)
 print('MDP_diff')
 vid_diff = ModelDiff.do_PE(model_diff, context_diff, 5)
 
-# print(context_2._id_to_node.get(vid_2))
-# print(context_diff._id_to_node.get(vid_diff))
+print(context_1._id_to_node.get(vid_1))
+print(context_2._id_to_node.get(vid_2))
+print(context_diff._id_to_node.get(vid_diff))
+
+test_dict_c_1 = {'rlevel___t1':0,'rlevel___t2':0}
+test_dict_c_2 = {'rlevel___t1':0,'rlevel___t2':0}
+test_dict_c_diff = {'rlevel___t1':0,'rlevel___t2':0}
+test_dict_b = {}
+
+result_list_1 = []
+result_list_2 = []
+result_list_diff = []
+for i in range(0, 101, 5):
+    for j in range(0, 101, 5):
+        test_dict_c_1['rlevel___t1'] = i
+        test_dict_c_1['rlevel___t2'] = j
+        test_dict_c_2['rlevel___t1'] = i
+        test_dict_c_2['rlevel___t2'] = j
+        test_dict_c_diff['rlevel___t1'] = i
+        test_dict_c_diff['rlevel___t2'] = j
+        v_1 = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
+        v_2 = ModelDiff.eval_function(test_dict_b, test_dict_c_2, vid_2, model_2, context_2)
+        v_diff = ModelDiff.eval_function(test_dict_b, test_dict_c_diff, vid_diff, model_diff, context_diff)
+        print(i, v_1, v_2, v_diff, v_1 + v_diff == v_2)
+
+
 
 # context_1.save_graph(model_1.reward, 'MDP1_reward_2t.png')
 # context_2.save_graph(model_2.reward, 'MDP2_reward_2t.png')
 # context_diff.save_graph(model_diff.reward, 'MDPdiff_reward_2t.png')
 
-context_1.save_graph(vid_1, 'MDP1_PE_5_reward.png')
-context_2.save_graph(vid_2, 'MDP2_PE_5_reward.png')
-context_diff.save_graph(vid_diff, 'MDPdiff_PE_5_reward.png')
+# context_1.save_graph(vid_1, 'MDP1_PE_5_reward.png')
+# context_2.save_graph(vid_2, 'MDP2_PE_5_reward.png')
+# context_diff.save_graph(vid_diff, 'MDPdiff_PE_5_reward.png')
 
 
 # print(len(str(context_1._id_to_node.get(vid_1))))
