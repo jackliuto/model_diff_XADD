@@ -72,20 +72,20 @@ class ModelDiffReservoir:
         policy.load_policy(policy_dict)
         return policy
     
-    def do_PE(self, model, context, t=2):
+    def do_PE(self, model, context, discount=0.9, t=2):
         parser = Parser()
-        mdp = parser.parse(model, is_linear=True)
+        mdp = parser.parse(model, is_linear=True, discount=discount)
         policy = self.create_policy(mdp, context)
 
 
         pe = PolicyEvaluation(mdp, policy, t)
-        iter_id = pe.solve()
+        iter_id, q_list = pe.solve()
 
         # print(pe.context._id_to_node.get(model.reward))
         # print(iter_id)
         # print(pe.context._id_to_node.get(iter_id))
 
-        return iter_id
+        return iter_id, q_list
     
     def do_VI(self, model, context, t=2):
         parser = Parser()

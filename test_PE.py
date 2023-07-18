@@ -72,21 +72,24 @@ context_1 = ModelDiff._context_1
 # print(reward_node0)
 
 print('MDP1')
-vid_1 = ModelDiff.do_PE(model_1, context_1, 3)
+vid_1, q_1 = ModelDiff.do_PE(model_1, context_1, discount=0.9, t=2)
 print(context_1._id_to_node[vid_1])
+for i in q_1:
+    print(i[0])
+    print(context_1._id_to_node[i[1]])
 
 
 # eval_function(self, b_dict, c_dict, iter_id, model, context)
 
-test_dict_c = {'rlevel___t1':10}
-test_dict_b = {}
+# test_dict_c = {'rlevel___t1':10}
+# test_dict_b = {}
 
-result_list = []
-for i in range(0, 101, 1):
-    test_dict_c['rlevel___t1'] = i
-    v = ModelDiff.eval_function(test_dict_b, test_dict_c, vid_1, model_1, context_1)
-    result_list.append(v)
-    print(i, v)
+# result_list = []
+# for i in range(0, 101, 1):
+#     test_dict_c['rlevel___t1'] = i
+#     v = ModelDiff.eval_function(test_dict_b, test_dict_c, vid_1, model_1, context_1)
+#     result_list.append(v)
+#     print(i, v)
 
 # print(model_1.states)
 # print(model_1.interm)

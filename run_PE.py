@@ -34,7 +34,7 @@ vid_1 = ModelDiff.do_PE(model_1, context_1, 5)
 print('MDP2')
 vid_2 = ModelDiff.do_PE(model_2, context_2, 5)
 print('MDP_diff')
-vid_diff = ModelDiff.do_PE(model_diff, context_diff, 5)
+vid_diff = ModelDiff.do_PE(model_diff, context_diff, )
 
 print(context_1._id_to_node.get(vid_1))
 print(context_2._id_to_node.get(vid_2))

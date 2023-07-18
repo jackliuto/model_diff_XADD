@@ -8,12 +8,14 @@ class Action:
             self, 
             name: str,
             symbol: sp.Symbol,
+            bool_dict: dict,
             context: XADD,
             atype: str,
             action_params: dict = None
     ):
         self._name = name
         self._symbol = symbol
+        self._bool_dict = bool_dict
         self._context = context
         self._atype = atype         # action type: 'bool' or 'real'
         self._action_params = action_params

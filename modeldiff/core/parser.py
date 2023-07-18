@@ -13,10 +13,11 @@ class Parser:
     def parse(
             self,
             model: RDDLModelWXADD,
-            is_linear: bool = False
+            is_linear: bool = False,
+            discount: float = 1.0
     ) -> MDP:
         """Parses the RDDL model into an MDP."""
-        mdp = MDP(model, is_linear=is_linear)
+        mdp = MDP(model, is_linear=is_linear, discount=discount)
 
         # Go through all actions and get corresponding CPFs and rewards
         actions = model.actions
@@ -47,9 +48,12 @@ class Parser:
         for a in action_subs_list:
             atype = 'bool'
             name = str(a)
+            bool_dict = {}
+            for k, v in a.items():
+                bool_dict[str(k)] = v
             a_symbol = action_symbols
             action = Action(
-                name, a_symbol, mdp.context, atype=atype, action_params=None
+                name, a_symbol, bool_dict, mdp.context, atype=atype, action_params=None
             )    # TODO: action_params (for continuous actions)
             subst_dict = a.copy()
 
