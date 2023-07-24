@@ -29,8 +29,12 @@ print(reward_node_2)
 reward_node_diff = context_diff._id_to_node.get(model_diff.reward)
 print("Reward XADD Diff")
 print(reward_node_diff)
+print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
 
-vid_1, q_1 = ModelDiff.do_PE(model_1, context_1, 0.9, 2)
+vid_1, q_1 = ModelDiff.do_PE(model_1, context_1, 1, 2)
+
+raise ValueError
+
 vid_2, q_2 = ModelDiff.do_PE(model_2, context_2, 0.9, 2)
 vid_diff, q_diff = ModelDiff.do_PE(model_diff, context_diff, 0.9, 2)
 
@@ -42,7 +46,11 @@ save_q_function(params.save_path, 'q_source', q_1, context_1)
 save_q_function(params.save_path, 'q_target', q_2, context_2)
 save_q_function(params.save_path, 'q_diff', q_diff, context_diff)
 
+# for i in q_1:
+#     print(i[0])
+#     print(context_1._id_to_node.get(i[1]))
 
+# print(context_1._id_to_node.get(vid_1))
 
 # context_2.export_xadd(vid_2, './exported_xadds/1res_v2.xadd')
 # for i in q_2:

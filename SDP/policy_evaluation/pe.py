@@ -73,12 +73,27 @@ class PolicyEvaluation:
 
             # Multiply by pi(a|s)
             # Note: since everything's symbolic, state is not specified
+
+
+            # if self._cur_iter > 0:
+                # print(self.context._id_to_node[regr])
+                # print(self.context._id_to_node[self.policy.get_policy_xadd(action)])
+                # regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
+                # regr = self.context.reduce_lp(regr)
+                # print(self.context._id_to_node[regr])
+                # print('-------------------------------------------')
+
+
             regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
  
             if self.mdp._is_linear:
                 regr = self.context.reduce_lp(regr)
-            
+
             res_dd = self.context.apply(regr, res_dd, SUM)
+            if self._cur_iter > 0:
+                print(self.context._id_to_node[regr])
+                print(self.context._id_to_node[res_dd])
+            
             
         return res_dd, q_list
     
