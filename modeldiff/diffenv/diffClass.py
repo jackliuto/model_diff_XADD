@@ -47,8 +47,7 @@ class ModelDiffReservoir:
     def create_policy(self, mdp: MDP, context: XADD) -> Policy:
         release_t1_true = context.import_xadd(self._policy_path + 'release_t1_true.xadd', locals=context._str_var_to_var)
         release_t1_false = context.import_xadd(self._policy_path + 'release_t1_false.xadd', locals=context._str_var_to_var)
-        # release_t2_true = context.import_xadd(self._policy_path + 'release_t2_true.xadd', locals=context._str_var_to_var)
-        # release_t2_false = context.import_xadd(self._policy_path + 'release_t2_false.xadd', locals=context._str_var_to_var)
+
         release_t1_true_t2_true = context.import_xadd(self._policy_path + 'release_t1_true_t2_true.xadd', locals=context._str_var_to_var)
         release_t1_true_t2_false = context.import_xadd(self._policy_path + 'release_t1_true_t2_false.xadd', locals=context._str_var_to_var)
         release_t1_false_t2_true = context.import_xadd(self._policy_path + 'release_t1_false_t2_true.xadd', locals=context._str_var_to_var)
@@ -56,8 +55,6 @@ class ModelDiffReservoir:
         xadd_policy = {
             "{release___t1: True}": release_t1_true,
             "{release___t1: False}": release_t1_false,
-            # "{release___t2: True}": release_t2_true,
-            # "{release___t2: False}": release_t2_false,
             "{release___t1: True, release___t2: True}": release_t1_true_t2_true,
             "{release___t1: True, release___t2: False}": release_t1_true_t2_false,
             "{release___t1: False, release___t2: True}": release_t1_false_t2_true,
@@ -104,7 +101,7 @@ class ModelDiffReservoir:
             b_assign[model.ns[k]] = v
         for k,v in c_dict.items():
             c_assign[model.ns[k]] = v
-
+        
         # b_assign = {}
         # c_assign = {pos_x:x, pos_y:y}
         res = context.evaluate(iter_id, bool_assign=b_assign, cont_assign=c_assign)

@@ -61,6 +61,7 @@ class PolicyEvaluation:
         res_dd = self.context.ZERO      # Accumulate the value function in this variable
 
         q_list = []
+        
 
         # Iterate over all actions
         for aname, action in self.mdp.actions.items():
@@ -79,11 +80,6 @@ class PolicyEvaluation:
             
             res_dd = self.context.apply(regr, res_dd, SUM)
             
-
-        res_dd = self.mdp.standardize_dd(res_dd)
-
-        
-
         return res_dd, q_list
     
     def regress(self, value_dd: int, action: Action, regress_cont: bool = False) -> int:
