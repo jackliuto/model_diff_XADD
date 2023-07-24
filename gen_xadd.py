@@ -1,13 +1,12 @@
-from modeldiff.diffenv.diffClass import ModelDiffReservoir
+
+from model_generation.diffenv.diffClass import ModelDiff
+from utils.xadd_utils import *
 
 import json
 
-## experiment 1
-policy_path = 'policies/res/'
-m1_path = "/home/jackliu/model-diff/model_diff_DQN/RDDL/Reservoir_disc_1res_source/domain.rddl"
-m2_path = "/home/jackliu/model-diff/model_diff_DQN/RDDL/Reservoir_disc_1res_target/domain.rddl"
+params = Params("xadd_params.json")
 
-ModelDiff = ModelDiffReservoir(m1_path, m2_path, policy_path)
+ModelDiff = ModelDiff(params.domain_type, params.model_source_path, params.model_target_path, params.policy_path)
 ModelDiff.build_model_with_diff_reward()
 
 model_1 = ModelDiff._model_1
@@ -31,42 +30,18 @@ reward_node_diff = context_diff._id_to_node.get(model_diff.reward)
 print("Reward XADD Diff")
 print(reward_node_diff)
 
-print('MDP1')
 vid_1, q_1 = ModelDiff.do_PE(model_1, context_1, 0.9, 2)
-
-print('MDP2')
 vid_2, q_2 = ModelDiff.do_PE(model_2, context_2, 0.9, 2)
-
-print('MDP_diff')
 vid_diff, q_diff = ModelDiff.do_PE(model_diff, context_diff, 0.9, 2)
 
-def save_value_function(fpath, name, node_id, context):
-    node = context._id_to_node.get(node_id, None)
-    node.turn_off_print_node_info()
-    node_str = str(node)
-    node_dict = {name:node_str}
-    with open(fpath+name+'.json', 'w') as f:
-        json.dump(node_dict, f)
+save_value_function(params.save_path, 'v_source', vid_1, context_1)
+save_value_function(params.save_path, 'v_target', vid_2, context_2)
+save_value_function(params.save_path, 'v_diff', vid_diff, context_diff)
 
-def save_q_function(fpath, name, q_list, context):
-    q_xadd_list = []
-    for i in q_list:
-        action = i[0]
-        node_id = i[1]
-        node = context._id_to_node.get(node_id, None)
-        node.turn_off_print_node_info()
-        node_str = str(node)
-        q_xadd_list.append((action, node_str))
-    with open(fpath+name+'.json', 'w') as f:
-        json.dump(q_xadd_list, f)
+save_q_function(params.save_path, 'q_source', q_1, context_1)
+save_q_function(params.save_path, 'q_target', q_2, context_2)
+save_q_function(params.save_path, 'q_diff', q_diff, context_diff)
 
-# save_value_function('/home/jackliu/model-diff/model_diff_DQN/value_xadd/1res/', 'v_source', vid_1, context_1)
-# save_value_function('/home/jackliu/model-diff/model_diff_DQN/value_xadd/1res/', 'v_target', vid_2, context_2)
-# save_value_function('/home/jackliu/model-diff/model_diff_DQN/value_xadd/1res/', 'v_diff', vid_diff, context_diff)
-
-# save_q_function('/home/jackliu/model-diff/model_diff_DQN/value_xadd/1res/', 'q_source', q_1, context_1)
-# save_q_function('/home/jackliu/model-diff/model_diff_DQN/value_xadd/1res/', 'q_target', q_2, context_2)
-# save_q_function('/home/jackliu/model-diff/model_diff_DQN/value_xadd/1res/', 'q_diff', q_diff, context_diff)
 
 
 # context_2.export_xadd(vid_2, './exported_xadds/1res_v2.xadd')
