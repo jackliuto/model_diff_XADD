@@ -90,10 +90,9 @@ class PolicyEvaluation:
                 regr = self.context.reduce_lp(regr)
 
             res_dd = self.context.apply(regr, res_dd, SUM)
-            if self._cur_iter > 0:
-                print(self.context._id_to_node[regr])
-                print(self.context._id_to_node[res_dd])
-            
+
+            if self.mdp._is_linear:
+                res_dd = self.context.reduce_lp(res_dd)
             
         return res_dd, q_list
     

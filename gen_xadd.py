@@ -29,14 +29,14 @@ print(reward_node_2)
 reward_node_diff = context_diff._id_to_node.get(model_diff.reward)
 print("Reward XADD Diff")
 print(reward_node_diff)
-print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
 
-vid_1, q_1 = ModelDiff.do_PE(model_1, context_1, 1, 2)
+vid_1, q_1 = ModelDiff.do_PE(model_1, context_1, params.discount_rate, params.horizon_length)
+vid_2, q_2 = ModelDiff.do_PE(model_2, context_2, params.discount_rate, params.horizon_length)
+vid_diff, q_diff = ModelDiff.do_PE(model_diff, context_diff, params.discount_rate, params.horizon_length)
 
-raise ValueError
-
-vid_2, q_2 = ModelDiff.do_PE(model_2, context_2, 0.9, 2)
-vid_diff, q_diff = ModelDiff.do_PE(model_diff, context_diff, 0.9, 2)
+print("Context 1 Nodes: ", len(context_1._id_to_node))
+print("Context 2 Nodes: ",len(context_2._id_to_node))
+print("Context diff Nodes: ",len(context_diff._id_to_node))
 
 save_value_function(params.save_path, 'v_source', vid_1, context_1)
 save_value_function(params.save_path, 'v_target', vid_2, context_2)

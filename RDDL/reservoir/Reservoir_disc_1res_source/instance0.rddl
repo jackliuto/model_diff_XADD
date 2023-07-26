@@ -6,7 +6,7 @@ non-fluents Reservoir_3nf {
 	};
 
 	non-fluents {
-		TOP_RES(t1) = 100;
+		COST_UNDERMIN(t1) = -1;
 	};
 }
 
