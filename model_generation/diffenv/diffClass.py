@@ -17,27 +17,31 @@ import os
 
 class ModelDiff:
     def __init__(self, 
-                domain_type:str, 
-                model_1_path:str, 
-                model_2_path:str,
-                policy_path:str=None,
-                inst_1_path:str=None,
-                inst_2_path:str=None):
-        self.domain_type = domain_type
+                domain_type:str,
+                domain_path:str, 
+                instance_source_path:str,
+                instance_target_path:str,
+                # model_1_path:str, 
+                # model_2_path:str,
+                policy_path:str=None):
+        self._domain_type = domain_type
         self._policy_path = policy_path
-        self._model_1_path = model_1_path
-        self._inst_1_path = inst_1_path
-        self._model_2_path = model_2_path
-        self._inst_2_path = inst_2_path
-        self._model_1, self._context_1 = get_xadd_model_from_file(model_1_path, inst_1_path)
-        self._model_2, self._context_2 = get_xadd_model_from_file(model_2_path, inst_2_path)
+        self._domain_path = domain_path
+        # self._model_1_path = model_1_path
+        # self._inst_1_path = inst_1_path
+        # self._model_2_path = model_2_path
+        # self._inst_2_path = inst_2_path
+        self._instance_source_path = instance_source_path
+        self._instance_target_path = instance_target_path
+        self._model_1, self._context_1 = get_xadd_model_from_file(domain_path, instance_source_path)
+        self._model_2, self._context_2 = get_xadd_model_from_file(domain_path, instance_target_path)
         self._model_diff = None
         self._context_diff = None
         self._pe_dict = {}
     
     
     def build_model_with_diff_reward(self):
-        self._model_diff, self._context_diff = get_xadd_model_from_file(self._model_2_path, self._inst_2_path)
+        self._model_diff, self._context_diff = get_xadd_model_from_file(self._domain_path, self._instance_target_path)
 
 
         r1_path = self._context_1.export_xadd(self._model_1.reward, 'temp1.xadd')
@@ -77,10 +81,10 @@ class ModelDiff:
     def do_PE(self, model, context, discount=0.9, t=2):
         parser = Parser()
         mdp = parser.parse(model, is_linear=True, discount=discount)
-        if self.domain_type == "reservoir":
+        if "reservoir" in self._domain_type:
             policy = self.create_policy_reservoir(mdp, context)
         else:
-            raise ValueError("{} not implemneted".foramt(self.domain_type))
+            raise ValueError("{} not implemneted".foramt(self._domain_type))
 
 
         pe = PolicyEvaluation(mdp, policy, t)

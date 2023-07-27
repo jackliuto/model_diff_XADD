@@ -6,7 +6,11 @@ import json
 
 params = Params("xadd_params.json")
 
-ModelDiff = ModelDiff(params.domain_type, params.model_source_path, params.model_target_path, params.policy_path)
+ModelDiff = ModelDiff(domain_type=params.domain_type, 
+                      domain_path=params.domain_path, 
+                        instance_source_path=params.instance_source_path, 
+                        instance_target_path=params.instance_target_path, 
+                        policy_path=params.policy_path)
 ModelDiff.build_model_with_diff_reward()
 
 model_1 = ModelDiff._model_1
@@ -38,13 +42,13 @@ print("Context 1 Nodes: ", len(context_1._id_to_node))
 print("Context 2 Nodes: ",len(context_2._id_to_node))
 print("Context diff Nodes: ",len(context_diff._id_to_node))
 
-save_value_function(params.save_path, 'v_source', vid_1, context_1)
-save_value_function(params.save_path, 'v_target', vid_2, context_2)
-save_value_function(params.save_path, 'v_diff', vid_diff, context_diff)
+save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_source', vid_1, context_1)
+save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_target', vid_2, context_2)
+save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_diff', vid_diff, context_diff)
 
-save_q_function(params.save_path, 'q_source', q_1, context_1)
-save_q_function(params.save_path, 'q_target', q_2, context_2)
-save_q_function(params.save_path, 'q_diff', q_diff, context_diff)
+save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_source', q_1, context_1)
+save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_target', q_2, context_2)
+save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_diff', q_diff, context_diff)
 
 # for i in q_1:
 #     print(i[0])
@@ -79,14 +83,17 @@ save_q_function(params.save_path, 'q_diff', q_diff, context_diff)
 # result_list_1 = []
 # result_list_2 = []
 # result_list_diff = []
+
 # for i in range(0, 101, 1):
 #     test_dict_c_1['rlevel___t1'] = i
 #     test_dict_c_2['rlevel___t1'] = i
 #     test_dict_c_diff['rlevel___t1'] = i
-#     v_1 = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
-#     v_2 = ModelDiff.eval_function(test_dict_b, test_dict_c_2, vid_2, model_2, context_2)
-#     v_diff = ModelDiff.eval_function(test_dict_b, test_dict_c_diff, vid_diff, model_diff, context_diff)
-#     print(i, v_1, v_2, v_diff, v_1 + v_diff == v_2)
+#     q_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, q_1[0][1], model_1, context_1)
+#     q_2_v = ModelDiff.eval_function(test_dict_b, test_dict_c_2, q_2[0][1], model_2, context_2)
+#     q_diff_v = ModelDiff.eval_function(test_dict_b, test_dict_c_diff, q_diff[0][1], model_diff, context_diff)
+#     print(i, q_1_v, q_diff_v, q_2_v, q_1_v + q_diff_v - q_2_v, q_1_v + q_diff_v == q_2_v)
+
+# ## Tests q values to see if they are the same
 
 # test_dict_c_1 = {'rlevel___t1':0,'rlevel___t2':0}
 # test_dict_c_2 = {'rlevel___t1':0,'rlevel___t2':0}
@@ -96,15 +103,23 @@ save_q_function(params.save_path, 'q_diff', q_diff, context_diff)
 # result_list_1 = []
 # result_list_2 = []
 # result_list_diff = []
-# for i in range(0, 101, 5):
-#     for j in range(0, 101, 5):
-#         test_dict_c_1['rlevel___t1'] = i
-#         test_dict_c_1['rlevel___t2'] = j
-#         test_dict_c_2['rlevel___t1'] = i
-#         test_dict_c_2['rlevel___t2'] = j
-#         test_dict_c_diff['rlevel___t1'] = i
-#         test_dict_c_diff['rlevel___t2'] = j
-#         v_1 = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
-#         v_2 = ModelDiff.eval_function(test_dict_b, test_dict_c_2, vid_2, model_2, context_2)
-#         v_diff = ModelDiff.eval_function(test_dict_b, test_dict_c_diff, vid_diff, model_diff, context_diff)
-#         print(i, v_1, v_2, v_diff, v_1 + v_diff == v_2)
+
+# max_error = 0
+
+# for n in range(4):
+#     for i in range(0, 101, 1):
+#         for j in range(0, 101, 1):
+#             test_dict_c_1['rlevel___t1'] = i
+#             test_dict_c_1['rlevel___t2'] = j
+#             test_dict_c_2['rlevel___t1'] = i
+#             test_dict_c_2['rlevel___t2'] = j
+#             test_dict_c_diff['rlevel___t1'] = i
+#             test_dict_c_diff['rlevel___t2'] = j
+#             q_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, q_1[n][1], model_1, context_1)
+#             q_2_v = ModelDiff.eval_function(test_dict_b, test_dict_c_2, q_2[n][1], model_2, context_2)
+#             q_diff_v = ModelDiff.eval_function(test_dict_b, test_dict_c_diff, q_diff[n][1], model_diff, context_diff)
+#             # print(i,j, q_1_v, q_2_v, q_diff_v, q_1_v + q_diff_v,  q_1_v + q_diff_v - q_2_v, q_1_v + q_diff_v == q_2_v)
+#             if max_error < abs(q_1_v + q_diff_v - q_2_v):
+#                 max_error = abs(q_1_v + q_diff_v - q_2_v)
+
+# print(max_error)

@@ -1,13 +1,14 @@
 {
     "model_version": "2res_DQN",
-    "mdp_path": "./RDDL/reservoir/Reservoir_disc_2res_target/",
-    "value_xadd_path": {"v_source":"./exported_xadd/reservoir/2res/v_source.json", 
-                        "v_target":"./exported_xadd/reservoir/2res/v_target.json", 
-                        "v_diff":"./exported_xadd/reservoir/2res/v_diff.json" 
+    "domain_path": "./RDDL/reservoir/Reservoir_disc/domain.rddl",
+    "instance_path": "./RDDL/reservoir/Reservoir_disc/instance_2res_target.rddl", 
+    "value_xadd_path": {"v_source":"./exported_xadd/reservoir/2res/10_step/v_source.json", 
+                        "v_target":"./exported_xadd/reservoir/2res/10_step/v_target.json", 
+                        "v_diff":"./exported_xadd/reservoir/2res/10_step/v_diff.json" 
                     },
-    "q_xadd_path": {"q_source":"./exported_xadd/reservoir/2res/q_source.json", 
-                    "q_target":"./exported_xadd/reservoir/2res/q_target.json", 
-                    "q_diff":"./exported_xadd/reservoir/2res/q_diff.json" 
+    "q_xadd_path": {"q_source":"./exported_xadd/reservoir/2res/10_step/q_source.json", 
+                    "q_target":"./exported_xadd/reservoir/2res/10_step/q_target.json", 
+                    "q_diff":"./exported_xadd/reservoir/2res/10_step/q_diff.json" 
                 },                        
     "num_episodes": 100,
     "eps_length": 10,
@@ -18,6 +19,6 @@
     "seed": 0,
     "learning_rate": 0.005,
     "update_rate": 1,
-    "agent_type": "lowerbound"
+    "agent_type": "rewardshaping"
 
 }

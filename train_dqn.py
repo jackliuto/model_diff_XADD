@@ -16,10 +16,11 @@ params = Params("dqn_params.json")
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-MDP_PATH = params.mdp_path
+DOMAIN_PATH = params.domain_path
+INSTANCE_PATH = params.instance_path
 
-myEnv = RDDLEnv.RDDLEnv(domain=MDP_PATH+'domain.rddl', instance=MDP_PATH+'instance0.rddl')
-model, context = get_xadd_model_from_file(f_domain=MDP_PATH+'domain.rddl', f_instance=MDP_PATH+'instance0.rddl')
+myEnv = RDDLEnv.RDDLEnv(domain=DOMAIN_PATH, instance=INSTANCE_PATH)
+model, context = get_xadd_model_from_file(f_domain=DOMAIN_PATH, f_instance=INSTANCE_PATH)
 
 
 agent = DQN_Agent(env=myEnv, model=model, context=context, value_xadd_path=params.value_xadd_path, q_xadd_path=params.q_xadd_path, replay_memory_size=params.replay_memory_size, 

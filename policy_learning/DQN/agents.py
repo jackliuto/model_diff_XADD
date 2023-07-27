@@ -57,7 +57,7 @@ class DQN_Agent():
 
         self.t_step = 0
 
-        self.psi = 1.0
+        self.psi = 0.5
     
     def create_value_xadd(self, context, value_xadd_path):
         value_xadd_nodes = {}        
@@ -149,6 +149,8 @@ class DQN_Agent():
 
 
 
+
+
     def step(self, state, action, reward, next_state, done):
         
         self.memory.add(state, action, reward, next_state, done)
@@ -182,9 +184,43 @@ class DQN_Agent():
         action = self.vec_to_action(action_vec)
 
         return state_vec, action_vec, action
+
+    def cal_shaped_reward(self, states, actions, next_states, shape):
+        shaped_reward_list = []
+        for s, a, ns in zip(states.detach().cpu().numpy(), actions.detach().cpu().numpy(), next_states.detach().cpu().numpy()):
+            
+            state_vec = list(s)
+            state = self.vec_to_state(state_vec)
+            state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
+
+            next_state_vec = list(ns)
+            action_vec = a
+            next_state = self.vec_to_state(next_state_vec)
+            next_state_c_assign = {self.context._str_var_to_var[k]:v for k,v in next_state.items()}
+
+            v_source_node = self.value_xadd_nodes['v_source']
+            # v_diff_node = self.value_xadd_nodes['v_diff']
+            # v_target_node = self.value_xadd_nodes['v_target']
+            v_node = v_source_node
+
+            potential_current_s = self.context.evaluate(v_node, bool_assign={}, cont_assign=state_c_assign)
+            potential_next_s = self.context.evaluate(v_node, bool_assign={}, cont_assign=next_state_c_assign)
+
+            shaped_reward = potential_next_s - potential_current_s
+
+            shaped_reward_list.append(shaped_reward)
+        
+        rs_tensor = np.array(shaped_reward_list, dtype='float32').reshape(shape)
+        rs_tensor = torch.as_tensor(rs_tensor).to(self.device)
+
+        return rs_tensor
+
+        
     
     def cal_lowerbound(self, states, actions, rewards, next_states, shape):
         lowerbound_list = []
+
+        # p_set = set()
 
         # use using q value
         for s, a in zip(states.detach().cpu().numpy(), actions.detach().cpu().numpy()):
@@ -197,18 +233,15 @@ class DQN_Agent():
 
             q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == action][0]
             q_diff_node = [i[1] for i in self.q_xadd_nodes['q_diff'] if i[0] == action][0]
-            q_target_node = [i[1] for i in self.q_xadd_nodes['q_target'] if i[0] == action][0]
-
-            
+            # q_target_node = [i[1] for i in self.q_xadd_nodes['q_target'] if i[0] == action][0]
             
             q_source_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign) 
             q_diff_v = self.context.evaluate(q_diff_node, bool_assign={}, cont_assign=state_c_assign)
-            q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
-        
-            print(q_source_v, q_diff_v, q_target_v)
-            print(q_target_v - (q_source_v + q_diff_v))
+            # q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
 
             lowerbound = q_source_v + q_diff_v
+            # lowerbound = q_target_v
+            # lowerbound = q_source_v
 
             lowerbound_list.append(lowerbound)
 
@@ -269,7 +302,9 @@ class DQN_Agent():
             lowerbounds = self.cal_lowerbound(states, actions, rewards, next_states, shape=Qsa_targets.shape)
             y = torch.maximum(lowerbounds, Qsa_targets)
             Qsa_targets = y
-
+        elif self.agent_type =='rewardshaping':
+            shaped_reward = self.cal_shaped_reward(states, actions, next_states, shape=Qsa_targets.shape)
+            Qsa_targets = Qsa_targets + shaped_reward
         
         # Compute loss (error)
         loss = F.mse_loss(Qsa, Qsa_targets)
