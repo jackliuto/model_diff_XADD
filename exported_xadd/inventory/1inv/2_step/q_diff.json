@@ -1,0 +1,1 @@
+[[{"order___i1": false}, "( [stock___i1 - 57.5 <= 0]\n\t( [stock___i1 - 7.5 <= 0]\n\t\t( [0.5*stock___i1] ) \n\t\t( [0.95*stock___i1 - 3.375] ) \n\t)  \n\t( [0.5*stock___i1 + 22.5] ) \n) "], [{"order___i1": true}, "( [stock___i1 - 52.5 <= 0]\n\t( [stock___i1 - 2.5 <= 0]\n\t\t( [0.5*stock___i1] ) \n\t\t( [0.95*stock___i1 - 1.125] ) \n\t)  \n\t( [0.5*stock___i1 + 22.5] ) \n) "]]

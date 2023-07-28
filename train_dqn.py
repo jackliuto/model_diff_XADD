@@ -12,7 +12,8 @@ from utils.dqn_utils import *
 
 
 params = Params("./params/dqn_params_inventory.json")
-# source_q_xadd_list = params.
+print('-----------------------------')
+print(params.model_version, params.agent_type)
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -89,7 +90,8 @@ print('total reward {}'.format(total_reward))
 
 results_dict = {'train_reward':train_list, 'eval_reward':eval_list, 'params':params.params}
 
-with open('./results/{}_{}.json'.format(params.model_version, params.agent_type),'w') as f:
-    json.dump(results_dict, f)
+if params.save:
+    with open('./results/{}_{}.json'.format(params.model_version, params.agent_type),'w') as f:
+        json.dump(results_dict, f)
 
 myEnv.close()

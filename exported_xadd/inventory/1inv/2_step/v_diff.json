@@ -1,0 +1,1 @@
+{"v_diff": "( [stock___i1 - 25 <= 0]\n\t( [stock___i1 - 2.5 <= 0]\n\t\t( [0.5*stock___i1] ) \n\t\t( [0.95*stock___i1 - 1.125] ) \n\t)  \n\t( [stock___i1 - 57.5 <= 0]\n\t\t( [0.95*stock___i1 - 3.375] ) \n\t\t( [0.5*stock___i1 + 22.5] ) \n\t)  \n) "}

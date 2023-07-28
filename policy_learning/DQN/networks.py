@@ -12,12 +12,12 @@ class QNetwork(nn.Module):
         self.fc2 = nn.Linear(fc1_units, fc2_units)
         self.fc3 = nn.Linear(fc2_units, action_size)
 
-        self.init_weights()
+        # self.init_weights()
 
-    def init_weights(self):
-        nn.init.constant_(self.fc1.weight, 0)
-        nn.init.constant_(self.fc2.weight, 0)
-        nn.init.constant_(self.fc3.weight, 0)
+    # def init_weights(self, n):
+    #     nn.init.constant_(self.fc1.weight, 0) // [-1, 0, 1]
+    #     nn.init.constant_(self.fc2.weight, 0) // [-1, 0, 1]
+    #     nn.init.constant_(self.fc3.weight, 0) // [-1, 0, 1]
 
     """
     ###################################################

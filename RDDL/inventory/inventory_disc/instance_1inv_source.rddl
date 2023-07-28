@@ -16,7 +16,7 @@ instance inventory_0 {
 	non-fluents = inventory_1nf;
 
 	init-state{
-		stock(i1) = 25;
+		stock(i1) = 35;
 	};
 
 	max-nondef-actions = pos-inf;

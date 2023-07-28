@@ -142,7 +142,7 @@ class ModelDiff:
             b_assign[model.ns[k]] = v
         for k,v in c_dict.items():
             c_assign[model.ns[k]] = v
-        
+       
         # b_assign = {}
         # c_assign = {pos_x:x, pos_y:y}
 

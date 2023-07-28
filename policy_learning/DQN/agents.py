@@ -129,7 +129,7 @@ class DQN_Agent():
     def ppr_action(self, state, action_values, eps, psi):
         best_action_val = -99999999999
         if np.random.random() < psi:
-            self.psi = psi*0.9
+            self.psi = psi*0.99
             state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
             for i, a in self.action_index_dict.items():
                 q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == a][0]
