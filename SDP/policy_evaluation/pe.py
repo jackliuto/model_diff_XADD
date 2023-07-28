@@ -76,12 +76,13 @@ class PolicyEvaluation:
 
 
             # if self._cur_iter > 0:
-                # print(self.context._id_to_node[regr])
-                # print(self.context._id_to_node[self.policy.get_policy_xadd(action)])
-                # regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
-                # regr = self.context.reduce_lp(regr)
-                # print(self.context._id_to_node[regr])
-                # print('-------------------------------------------')
+            #     print(self.context._id_to_node[regr])
+            #     print(self.context._id_to_node[self.policy.get_policy_xadd(action)])
+            #     regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
+            #     regr = self.context.reduce_lp(regr)
+            #     print(self.context._id_to_node[regr])
+            #     print('-------------------------------------------')
+            #     raise ValueError
 
 
             regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
@@ -111,18 +112,26 @@ class PolicyEvaluation:
 
         if len(i_and_ns_vars_in_reward) > 0:
             q = self.context.apply(q, action.reward, SUM)
+
         
         # Get variables to eliminate
         # TODO: Do we need to handle topological ordering?
         # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
         vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
-        
+
         # Regress each variable
-        for v in vars_to_regress:
-            if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
-                q = self.regress_c_vars(q, action, v)
-            elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
-                q = self.regress_b_vars(q, action, v)
+        while len(vars_to_regress) > 0:
+            for v in vars_to_regress:
+                if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
+                    q = self.regress_c_vars(q, action, v)
+                elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
+                    q = self.regress_b_vars(q, action, v)
+            vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
+            # print(v)
+            # print(self.context._id_to_node[q])
+        
+        
+
         
         # Add the reward
         if len(i_and_ns_vars_in_reward) == 0:
@@ -143,22 +152,27 @@ class PolicyEvaluation:
     def regress_c_vars(self, q: int, a: Action, v: sp.Symbol) -> int:
         # Get the cpf for the variable
         cpf = a.get_cpf(v)
-        
+
         # Check regression cache
         key = (str(v), cpf, q)
         res = self.mdp._cont_regr_cache.get(key)
+
         if res is not None:
             return res
 
         # Perform regression via delta function substitution
         leaf_op = DeltaFunctionSubstitution(v, q, self.context)
-
+        
         q = self.context.reduce_process_xadd_leaf(cpf, leaf_op, [], [])
+
+        # raise ValueError
+
         if self.mdp._is_linear:
             q = self.context.reduce_lp(q)
         
         # Cache result
         self.mdp._cont_regr_cache[key] = q
+
 
         return q
     

@@ -11,7 +11,7 @@ from utils.dqn_utils import *
 
 
 
-params = Params("dqn_params.json")
+params = Params("./params/dqn_params_inventory.json")
 # source_q_xadd_list = params.
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

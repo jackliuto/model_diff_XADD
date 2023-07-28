@@ -1,0 +1,59 @@
+// Simple linear inventory control problem
+// Taken from Bertsekas, Dynamic Programming and Optimal Control, Vol. 1, 3rd Ed., Section 4.2
+
+domain inventory{
+
+	types {
+		item : object;
+	};
+
+	pvariables {
+
+		// constants
+		HOLDING-COST(item) : { non-fluent, real, default = 1.0 };		// holding cost for excess inventory
+		// UNFUFILL-COST(item) : {non-fluent, real, default = 4.0}
+		UNIT-PRICE(item) : { non-fluent, real, default = 3.0 };  // purchase price of unit
+		UNIT-COST(item) : { non-fluent, real, default = 1.0 }; 
+		MAX-ITEMS(item) : { non-fluent, real, default = 50.0 };       // max number of items that can be held
+		DEMAND-PROB-BASE(item) : { non-fluent, real, default = 0.75 };   // Bernoulli probability
+		DEMAND-VALUE-BASE(item) : { non-fluent, real, default = 10.0 };
+		ORDER-AMOUNT(item) : {non-fluent, real, default = 5.0 };
+		//DEMAND-PROB-EXCESS(item) : { non-fluent, real, default = 0.2 };
+		//DEMAND-VALUE-EXCESS(item) : { non-fluent, real, default = 2.0 };
+
+
+		// iterm fluent
+		demand(item) : { interm-fluent, real }; // demand in current epoch
+		purchased(item) : { interm-fluent, real };
+
+		// states
+		stock(item) : { state-fluent, real, default = 10.0 };   // stock on hand at beginning of epoch
+
+		// actions
+		order(item) : { action-fluent, bool, default = false };    // how many units to purchase
+	};
+
+	cpfs {
+		demand(?i) = Bernoulli(DEMAND-PROB-BASE(?i)) * DEMAND-VALUE-BASE(?i);
+
+		purchased(?i) = ORDER-AMOUNT(?i) * order(?i);
+
+		stock'(?i) = max[0,
+							min[MAX-ITEMS(?i), 
+								stock(?i) + purchased(?i) - demand(?i)
+							]
+		                ]; 
+	};
+
+	reward = sum_{?i : item} [
+							 UNIT-PRICE(?i) * min[demand(?i), stock(?i)]
+							  - UNIT-COST(?i) * purchased(?i)
+							  - HOLDING-COST(?i) * stock(?i)
+							 ];
+
+	action-preconditions {
+	};
+
+	state-invariants {
+	};
+}

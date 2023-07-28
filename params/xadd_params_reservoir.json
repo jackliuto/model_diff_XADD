@@ -1,13 +1,14 @@
 {   
     "model_name" : "reservoir_xadd",
     "domain_type" : "reservoir_2res",
-    "domain_path":"./RDDL/reservoir/Reservoir_disc/domain.rddl",
+    "domain_path":"./RDDL/reservoir/reservoir_disc/domain.rddl",
     "instance_source_path":"./RDDL/reservoir/Reservoir_disc/instance_2res_source.rddl",
     "instance_target_path":"./RDDL/reservoir/Reservoir_disc/instance_2res_target.rddl",
     "policy_path": "./model_generation/policies/reservoir/",
-    "save_path":"./exported_xadd/reservoir/2res/",
-    "horizon_length": 10,
+    "save_path":"./exported_xadd/reservoir/1res/",
+    "horizon_length": 2,
     "discount_rate": 0.9,
-    "display_xadd":false
+    "display_xadd":false,
+    "save_xadds":false
 
 }

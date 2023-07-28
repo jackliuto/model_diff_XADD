@@ -1,7 +1,7 @@
 {
     "model_version": "2res_DQN",
-    "domain_path": "./RDDL/reservoir/Reservoir_disc/domain.rddl",
-    "instance_path": "./RDDL/reservoir/Reservoir_disc/instance_2res_target.rddl", 
+    "domain_path": "./RDDL/reservoir/reservoir_disc/domain.rddl",
+    "instance_path": "./RDDL/reservoir/reservoir_disc/instance_2res_target.rddl", 
     "value_xadd_path": {"v_source":"./exported_xadd/reservoir/2res/10_step/v_source.json", 
                         "v_target":"./exported_xadd/reservoir/2res/10_step/v_target.json", 
                         "v_diff":"./exported_xadd/reservoir/2res/10_step/v_diff.json" 

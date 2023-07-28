@@ -2,9 +2,11 @@
 from model_generation.diffenv.diffClass import ModelDiff
 from utils.xadd_utils import *
 
+import pathlib
+
 import json
 
-params = Params("xadd_params.json")
+params = Params("./params/xadd_params_inventory.json")
 
 ModelDiff = ModelDiff(domain_type=params.domain_type, 
                       domain_path=params.domain_path, 
@@ -38,17 +40,27 @@ vid_1, q_1 = ModelDiff.do_PE(model_1, context_1, params.discount_rate, params.ho
 vid_2, q_2 = ModelDiff.do_PE(model_2, context_2, params.discount_rate, params.horizon_length)
 vid_diff, q_diff = ModelDiff.do_PE(model_diff, context_diff, params.discount_rate, params.horizon_length)
 
+# print('--------------------------')
+# print(context_1._id_to_node[vid_1])
+
 print("Context 1 Nodes: ", len(context_1._id_to_node))
 print("Context 2 Nodes: ",len(context_2._id_to_node))
 print("Context diff Nodes: ",len(context_diff._id_to_node))
 
-save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_source', vid_1, context_1)
-save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_target', vid_2, context_2)
-save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_diff', vid_diff, context_diff)
+print(context_1._id_to_node[vid_1])
 
-save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_source', q_1, context_1)
-save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_target', q_2, context_2)
-save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_diff', q_diff, context_diff)
+
+if params.save_xadds:
+  xadd_path = pathlib.Path(params.save_path+'{}_step/'.format(params.horizon_length))
+  xadd_path.mkdir(parents=True, exist_ok=True)
+
+  save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_source', vid_1, context_1)
+  save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_target', vid_2, context_2)
+  save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_diff', vid_diff, context_diff)
+
+  save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_source', q_1, context_1)
+  save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_target', q_2, context_2)
+  save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_diff', q_diff, context_diff)
 
 # for i in q_1:
 #     print(i[0])
@@ -75,9 +87,27 @@ save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_di
 # print(context_2._id_to_node.get(vid_2))
 # print(context_diff._id_to_node.get(vid_diff))
 
-# test_dict_c_1 = {'rlevel___t1':0}
-# test_dict_c_2 = {'rlevel___t1':0}
-# test_dict_c_diff = {'rlevel___t1':0}
+test_dict_c_1 = {'stock___i1':0}
+test_dict_c_2 = {'stock___i1':0}
+test_dict_c_diff = {'stock___i1':0}
+test_dict_b = {}
+
+result_list_1 = []
+result_list_2 = []
+result_list_diff = []
+
+for i in range(0, 51, 1):
+    test_dict_c_1['stock___i1'] = i
+    test_dict_c_2['stock___i1'] = i
+    test_dict_c_diff['stock___i1'] = i
+    q_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, q_1[0][1], model_1, context_1)
+    q_2_v = ModelDiff.eval_function(test_dict_b, test_dict_c_2, q_2[0][1], model_2, context_2)
+    q_diff_v = ModelDiff.eval_function(test_dict_b, test_dict_c_diff, q_diff[0][1], model_diff, context_diff)
+    print(i, q_1_v, q_diff_v, q_2_v, q_1_v + q_diff_v - q_2_v, q_1_v + q_diff_v == q_2_v)
+
+# test_dict_c_1 = {'stock___i1':0}
+# test_dict_c_2 = {'stock___i1':0}
+# test_dict_c_diff = {'stock___i1':0}
 # test_dict_b = {}
 
 # result_list_1 = []
@@ -85,9 +115,9 @@ save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_di
 # result_list_diff = []
 
 # for i in range(0, 101, 1):
-#     test_dict_c_1['rlevel___t1'] = i
-#     test_dict_c_2['rlevel___t1'] = i
-#     test_dict_c_diff['rlevel___t1'] = i
+#     test_dict_c_1['stock___i1'] = i
+#     test_dict_c_2['stock___i1'] = i
+#     test_dict_c_diff['stock___i1'] = i
 #     q_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, q_1[0][1], model_1, context_1)
 #     q_2_v = ModelDiff.eval_function(test_dict_b, test_dict_c_2, q_2[0][1], model_2, context_2)
 #     q_diff_v = ModelDiff.eval_function(test_dict_b, test_dict_c_diff, q_diff[0][1], model_diff, context_diff)
@@ -95,9 +125,9 @@ save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_di
 
 # ## Tests q values to see if they are the same
 
-# test_dict_c_1 = {'rlevel___t1':0,'rlevel___t2':0}
-# test_dict_c_2 = {'rlevel___t1':0,'rlevel___t2':0}
-# test_dict_c_diff = {'rlevel___t1':0,'rlevel___t2':0}
+# test_dict_c_1 = {'stock___i1':0,'stock___i2':0}
+# test_dict_c_2 = {'stock___i1':0,'stock___i2':0}
+# test_dict_c_diff = {'stock___i1':0,'stock___i2':0}
 # test_dict_b = {}
 
 # result_list_1 = []
@@ -107,18 +137,18 @@ save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_di
 # max_error = 0
 
 # for n in range(4):
-#     for i in range(0, 101, 1):
-#         for j in range(0, 101, 1):
-#             test_dict_c_1['rlevel___t1'] = i
-#             test_dict_c_1['rlevel___t2'] = j
-#             test_dict_c_2['rlevel___t1'] = i
-#             test_dict_c_2['rlevel___t2'] = j
-#             test_dict_c_diff['rlevel___t1'] = i
-#             test_dict_c_diff['rlevel___t2'] = j
+#     for i in range(0, 51, 2):
+#         for j in range(0, 51, 2):
+#             test_dict_c_1['stock___i1'] = i
+#             test_dict_c_1['stock___i2'] = j
+#             test_dict_c_2['stock___i1'] = i
+#             test_dict_c_2['stock___i2'] = j
+#             test_dict_c_diff['stock___i1'] = i
+#             test_dict_c_diff['stock___i2'] = j
 #             q_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, q_1[n][1], model_1, context_1)
 #             q_2_v = ModelDiff.eval_function(test_dict_b, test_dict_c_2, q_2[n][1], model_2, context_2)
 #             q_diff_v = ModelDiff.eval_function(test_dict_b, test_dict_c_diff, q_diff[n][1], model_diff, context_diff)
-#             # print(i,j, q_1_v, q_2_v, q_diff_v, q_1_v + q_diff_v,  q_1_v + q_diff_v - q_2_v, q_1_v + q_diff_v == q_2_v)
+#             print(i,j, q_1_v, q_2_v, q_diff_v, q_1_v + q_diff_v,  q_1_v + q_diff_v - q_2_v, q_1_v + q_diff_v == q_2_v)
 #             if max_error < abs(q_1_v + q_diff_v - q_2_v):
 #                 max_error = abs(q_1_v + q_diff_v - q_2_v)
 

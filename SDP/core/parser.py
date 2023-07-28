@@ -62,13 +62,11 @@ class Parser:
             # for k, v in cpfs.items():
             #     print(mdp.model._context._id_to_node[v])
 
-
             for state_fluent, cpf in cpfs.items():
                 cpf = action.restrict(cpf, subst_dict)
                 var_ = model.ns[state_fluent]
                 action.add_cpf(var_, cpf)
 
-            # print(mdp.context._id_to_node[cpf])
 
             reward = model.reward
             reward = action.restrict(reward, subst_dict)

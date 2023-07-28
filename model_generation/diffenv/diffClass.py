@@ -38,6 +38,7 @@ class ModelDiff:
         self._model_diff = None
         self._context_diff = None
         self._pe_dict = {}
+        self.THRESHOLD = 45
     
     
     def build_model_with_diff_reward(self):
@@ -54,21 +55,45 @@ class ModelDiff:
         return diff_node
     
     def create_policy_reservoir(self, mdp: MDP, context: XADD) -> Policy:
-        release_t1_true = context.import_xadd(self._policy_path + 'release_t1_true.xadd', locals=context._str_var_to_var)
-        release_t1_false = context.import_xadd(self._policy_path + 'release_t1_false.xadd', locals=context._str_var_to_var)
+        threshold = self.THRESHOLD
+        xadd_policy = {}
+        for aname, action in mdp.actions.items():
+            policy_id = context.ONE
+            for i in aname[1:-1].split(','):
+                res_name = i.strip().split('___')[1][0:2]
+                bool_val = i.strip().split(' ')[1]
+                if bool_val == "True":
+                    policy_str = "( [rlevel___{} - {} <= 0] ( [0] ) ( [1] ) )".format(res_name, threshold)
+                else:
+                    policy_str = "( [rlevel___{} - {} <= 0] ( [1] ) ( [0] ) )".format(res_name, threshold)
+                a_id = context.import_xadd(xadd_str=policy_str)
+                policy_id = context.apply(policy_id, a_id, 'prod')
+            xadd_policy[aname] = policy_id
 
-        release_t1_true_t2_true = context.import_xadd(self._policy_path + 'release_t1_true_t2_true.xadd', locals=context._str_var_to_var)
-        release_t1_true_t2_false = context.import_xadd(self._policy_path + 'release_t1_true_t2_false.xadd', locals=context._str_var_to_var)
-        release_t1_false_t2_true = context.import_xadd(self._policy_path + 'release_t1_false_t2_true.xadd', locals=context._str_var_to_var)
-        release_t1_false_t2_false = context.import_xadd(self._policy_path + 'release_t1_false_t2_false.xadd', locals=context._str_var_to_var)
-        xadd_policy = {
-            "{release___t1: True}": release_t1_true,
-            "{release___t1: False}": release_t1_false,
-            "{release___t1: True, release___t2: True}": release_t1_true_t2_true,
-            "{release___t1: True, release___t2: False}": release_t1_true_t2_false,
-            "{release___t1: False, release___t2: True}": release_t1_false_t2_true,
-            "{release___t1: False, release___t2: False}": release_t1_false_t2_false,
-        }
+        policy = Policy(mdp)
+        policy_dict = {}
+
+        for aname, action in mdp.actions.items():
+            policy_dict[action] = xadd_policy[aname]
+        policy.load_policy(policy_dict)
+        return policy
+    
+    def create_policy_inventory(self, mdp: MDP, context: XADD) -> Policy:
+        threshold = self.THRESHOLD
+        threshold = 25
+        xadd_policy = {}
+        for aname, action in mdp.actions.items():
+            policy_id = context.ONE
+            for i in aname[1:-1].split(','):
+                res_name = i.strip().split('___')[1][0:2]
+                bool_val = i.strip().split(' ')[1]
+                if bool_val == "True":
+                    policy_str = "( [stock___{} - {} <= 0] ( [1] ) ( [0] ) )".format(res_name, threshold)
+                else:
+                    policy_str = "( [stock___{} - {} <= 0] ( [0] ) ( [1] ) )".format(res_name, threshold)
+                a_id = context.import_xadd(xadd_str=policy_str)
+                policy_id = context.apply(policy_id, a_id, 'prod')
+            xadd_policy[aname] = policy_id
 
         policy = Policy(mdp)
         policy_dict = {}
@@ -83,8 +108,10 @@ class ModelDiff:
         mdp = parser.parse(model, is_linear=True, discount=discount)
         if "reservoir" in self._domain_type:
             policy = self.create_policy_reservoir(mdp, context)
+        elif "inventory" in self._domain_type:
+            policy = self.create_policy_inventory(mdp, context)
         else:
-            raise ValueError("{} not implemneted".foramt(self._domain_type))
+            raise ValueError("{} not implemneted".format(self._domain_type))
 
 
         pe = PolicyEvaluation(mdp, policy, t)
@@ -107,6 +134,8 @@ class ModelDiff:
     def eval_function(self, b_dict, c_dict, iter_id, model, context):
         b_assign = {}
         c_assign = {}
+        # print(b_dict)
+        # print(c_dict)
         # pos_x = model.ns['pos-x___a1']
         # pos_y = model.ns['pos-y___a1']
         for k,v in b_dict.items():
@@ -116,6 +145,7 @@ class ModelDiff:
         
         # b_assign = {}
         # c_assign = {pos_x:x, pos_y:y}
+
         res = context.evaluate(iter_id, bool_assign=b_assign, cont_assign=c_assign)
         return res
 

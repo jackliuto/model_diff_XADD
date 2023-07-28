@@ -231,11 +231,13 @@ class DQN_Agent():
 
             action = self.vec_to_action(action_vec)
 
+
             q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == action][0]
             q_diff_node = [i[1] for i in self.q_xadd_nodes['q_diff'] if i[0] == action][0]
             # q_target_node = [i[1] for i in self.q_xadd_nodes['q_target'] if i[0] == action][0]
-            
-            q_source_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign) 
+
+            q_source_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
+
             q_diff_v = self.context.evaluate(q_diff_node, bool_assign={}, cont_assign=state_c_assign)
             # q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
 
@@ -302,6 +304,7 @@ class DQN_Agent():
             lowerbounds = self.cal_lowerbound(states, actions, rewards, next_states, shape=Qsa_targets.shape)
             y = torch.maximum(lowerbounds, Qsa_targets)
             Qsa_targets = y
+            
         elif self.agent_type =='rewardshaping':
             shaped_reward = self.cal_shaped_reward(states, actions, next_states, shape=Qsa_targets.shape)
             Qsa_targets = Qsa_targets + shaped_reward

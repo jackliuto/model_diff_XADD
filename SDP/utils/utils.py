@@ -39,6 +39,19 @@ def get_xadd_model_from_file(
     # XADD compilation
     xadd_model = RDDLModelWXADD(model, context=context)
     xadd_model.compile(simulation=False)
+
+    # for s in xadd_model.states.keys():
+    #     for i in xadd_model.interm.keys():
+    #         r_node = 
+    #         s_node = xadd_model._var_name_to_node_id[s]
+    #         i_node = xadd_model._var_name_to_node_id[i]
+    #         print(s, s_node)
+    #         print(i, i_node)
+    # print(xadd_model.interm)
+    # print(xadd_model.states)
+    # print(xadd_model._var_name_to_node_id)
+    # raise ValueError
+
     context = xadd_model._context
     return xadd_model, context
 
