@@ -6,7 +6,7 @@ import pathlib
 
 import json
 
-params = Params("./params/xadd_params_reservoir.json")
+params = Params("./params/xadd_params_inventory.json")
 
 ModelDiff = ModelDiff(domain_type=params.domain_type, 
                       domain_path=params.domain_path, 
@@ -45,6 +45,14 @@ print("Context 2 Nodes: ",len(context_2._id_to_node))
 print("Context diff Nodes: ",len(context_diff._id_to_node))
 
 print(context_1._id_to_node[vid_1])
+
+## testing for values
+# test_dict_c_1 = {'rlevel___t1':0}
+test_dict_c_1 = {'stock___i1':37}
+test_dict_b = {}
+result_list_1 = []
+v_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
+print(v_1_v)
 
 
 ### testing for values
