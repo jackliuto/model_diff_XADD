@@ -126,10 +126,11 @@ class DQN_Agent():
             action_tensor = random.choice(np.arange(self.action_size))
         return action_tensor
     
-    def ppr_action(self, state, action_values, eps, psi):
-        best_action_val = -99999999999
+    # ppr select source policy using q value of previous source MDP using psi, psi is discounted every step
+    def ppr_action(self, state, action_values, eps, psi_disc=0.9):
+        best_action_val = -9999999999999
         if np.random.random() < psi:
-            self.psi = psi*0.99
+            self.psi = psi*psi_disc
             state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
             for i, a in self.action_index_dict.items():
                 q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == a][0]
@@ -185,7 +186,8 @@ class DQN_Agent():
 
         return state_vec, action_vec, action
 
-    def cal_shaped_reward(self, states, actions, next_states, shape):
+    # shaped reward use value function from the srouce MDP as 
+    def cal_potential_diff(self, states, actions, next_states, shape):
         shaped_reward_list = []
         for s, a, ns in zip(states.detach().cpu().numpy(), actions.detach().cpu().numpy(), next_states.detach().cpu().numpy()):
             
@@ -206,7 +208,7 @@ class DQN_Agent():
             potential_current_s = self.context.evaluate(v_node, bool_assign={}, cont_assign=state_c_assign)
             potential_next_s = self.context.evaluate(v_node, bool_assign={}, cont_assign=next_state_c_assign)
 
-            shaped_reward = potential_next_s - potential_current_s
+            shaped_reward = self.gamma * potential_next_s - potential_current_s
 
             shaped_reward_list.append(shaped_reward)
         
@@ -306,8 +308,8 @@ class DQN_Agent():
             Qsa_targets = y
             
         elif self.agent_type =='rewardshaping':
-            shaped_reward = self.cal_shaped_reward(states, actions, next_states, shape=Qsa_targets.shape)
-            Qsa_targets = Qsa_targets + shaped_reward
+            reward_potential = self.cal_potential_diff(states, actions, next_states, shape=Qsa_targets.shape)
+            Qsa_targets = Qsa_targets + reward_potential
         
         # Compute loss (error)
         loss = F.mse_loss(Qsa, Qsa_targets)
