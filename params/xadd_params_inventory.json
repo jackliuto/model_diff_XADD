@@ -6,7 +6,7 @@
     "instance_target_path":"./RDDL/inventory/inventory_disc/instance_1inv_target.rddl",
     "policy_path": "",
     "save_path":"./exported_xadd/inventory/1inv/",
-    "horizon_length": 2,
+    "horizon_length": 5,
     "discount_rate": 0.9,
     "display_xadd":false,
     "save_xadds":false

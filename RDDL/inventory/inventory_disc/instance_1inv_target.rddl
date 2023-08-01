@@ -6,7 +6,10 @@ non-fluents inventory_1nf {
 	};
 
 	non-fluents {
-		HOLDING-COST(i1) = 0.5;
+		// UNFUFILL-COST(i1) = 0.5;
+		HOLDING-COST(i1) = 1.0;
+		HOLDING-SAVING(i1) = 10;
+		// UNIT-PRICE(i1) = 3.5;
 	};
 
 }

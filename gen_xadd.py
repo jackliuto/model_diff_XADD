@@ -45,14 +45,16 @@ print("Context 2 Nodes: ",len(context_2._id_to_node))
 print("Context diff Nodes: ",len(context_diff._id_to_node))
 
 print(context_1._id_to_node[vid_1])
+print(context_1._id_to_node[q_1[0][1]])
+print(context_1._id_to_node[q_1[1][1]])
 
-## testing for values
-# test_dict_c_1 = {'rlevel___t1':0}
-test_dict_c_1 = {'stock___i1':37}
-test_dict_b = {}
-result_list_1 = []
-v_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
-print(v_1_v)
+# ## testing for values
+# # test_dict_c_1 = {'rlevel___t1':0}
+# test_dict_c_1 = {'stock___i1':37}
+# test_dict_b = {}
+# result_list_1 = []
+# v_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
+# print(v_1_v)
 
 
 ### testing for values
@@ -103,27 +105,39 @@ if params.save_xadds:
 # print(context_diff._id_to_node.get(vid_diff))
 
 ###############################################
+## TEST SINGLE VALUE
 
-# test_dict_c_1 = {'stock___i1':0}
-# test_dict_c_2 = {'stock___i1':0}
-# test_dict_c_diff = {'stock___i1':0}
-# test_dict_b = {}
 
-# result_list_1 = []
-# result_list_2 = []
-# result_list_diff = []
+###############################################
 
-# for i in range(0, 51, 1):
-#     test_dict_c_1['stock___i1'] = i
-#     test_dict_c_2['stock___i1'] = i
-#     test_dict_c_diff['stock___i1'] = i
-#     q_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, q_1[0][1], model_1, context_1)
-#     q_2_v = ModelDiff.eval_function(test_dict_b, test_dict_c_2, q_2[0][1], model_2, context_2)
-#     q_diff_v = ModelDiff.eval_function(test_dict_b, test_dict_c_diff, q_diff[0][1], model_diff, context_diff)
-#     v_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
-#     v_2_v = ModelDiff.eval_function(test_dict_b, test_dict_c_2, vid_2, model_1, context_2)
-#     print(i, v_1_v, v_2_v)
-#     # print(i, q_1_v, q_diff_v, q_2_v, q_1_v + q_diff_v - q_2_v, q_1_v + q_diff_v == q_2_v)
+test_dict_c_1 = {'stock___i1':0}
+test_dict_c_2 = {'stock___i1':0}
+test_dict_c_diff = {'stock___i1':0}
+test_dict_b = {}
+
+result_list_1 = []
+result_list_2 = []
+result_list_diff = []
+
+for i in range(0, 51, 1):
+    test_dict_c_1['stock___i1'] = i
+    test_dict_c_2['stock___i1'] = i
+    test_dict_c_diff['stock___i1'] = i
+    q_1_v_0 = ModelDiff.eval_function(test_dict_b, test_dict_c_1, q_1[0][1], model_1, context_1)
+    q_1_v_1 = ModelDiff.eval_function(test_dict_b, test_dict_c_1, q_1[1][1], model_1, context_1)
+    q_2_v_0 = ModelDiff.eval_function(test_dict_b, test_dict_c_2, q_2[0][1], model_2, context_2)
+    q_2_v_1 = ModelDiff.eval_function(test_dict_b, test_dict_c_2, q_2[1][1], model_2, context_2)
+    v_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
+    v_2_v = ModelDiff.eval_function(test_dict_b, test_dict_c_2, vid_2, model_1, context_2)
+    # print(i, (q_1_v_0 > q_1_v_1) == (q_2_v_0 > q_2_v_1))
+    print(i, q_1_v_0, q_1_v_1, 'x', q_2_v_0,  q_2_v_1)
+    # print(i, v_1_v, v_2_v)
+
+    # q_diff_v = ModelDiff.eval_function(test_dict_b, test_dict_c_diff, q_diff[0][1], model_diff, context_diff)
+    # v_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
+    # v_2_v = ModelDiff.eval_function(test_dict_b, test_dict_c_2, vid_2, model_1, context_2)
+    # print(i, v_1_v, v_2_v)
+    # print(i, q_1_v, q_diff_v, q_2_v, q_1_v + q_diff_v - q_2_v, q_1_v + q_diff_v == q_2_v)
 
 
 # ## Tests q values to see if they are the same

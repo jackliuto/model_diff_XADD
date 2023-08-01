@@ -127,7 +127,7 @@ class DQN_Agent():
         return action_tensor
     
     # ppr select source policy using q value of previous source MDP using psi, psi is discounted every step
-    def ppr_action(self, state, action_values, eps, psi_disc=0.9):
+    def ppr_action(self, state, action_values, eps, psi, psi_disc=0.9):
         best_action_val = -9999999999999
         if np.random.random() < psi:
             self.psi = psi*psi_disc

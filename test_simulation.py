@@ -9,6 +9,8 @@ from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
 from policy_learning.DQN.agents import DQN_Agent
 from utils.dqn_utils import *
 
+from pyRDDLGym.Policies.Agents import RandomAgent
+
 
 
 params = Params("./params/dqn_params_inventory.json")
@@ -23,75 +25,22 @@ INSTANCE_PATH = params.instance_path
 myEnv = RDDLEnv.RDDLEnv(domain=DOMAIN_PATH, instance=INSTANCE_PATH)
 model, context = get_xadd_model_from_file(f_domain=DOMAIN_PATH, f_instance=INSTANCE_PATH)
 
-
-agent = DQN_Agent(env=myEnv, model=model, context=context, value_xadd_path=params.value_xadd_path, q_xadd_path=params.q_xadd_path, replay_memory_size=params.replay_memory_size, 
-                    batch_size=params.batch_size, gamma=params.gamma, learning_rate=params.learning_rate, update_rate=params.update_rate, 
-                    seed=params.seed, device=device, agent_type=params.agent_type)
+agent = RandomAgent(action_space=myEnv.action_space, num_actions=myEnv.numConcurrentActions)
 
 total_reward = 0
-
-set_logger('train.log')
-
-
-train_list = []
-eval_list = []
-for eps in range(params.num_episodes*2):
-    state = myEnv.reset()
-    step = 0
-    eps_reward = 0
-    if eps % 2 == 0:
-        epsilon = params.epsilon
-        mode = 'train'
-    else:
-        epsilon = 0.0
-        mode = 'eval'
-    
-    # a_lst = [{'release___t1': True, 'release___t2': True},
-    #         {'release___t1': True, 'release___t2': False},
-    #         {'release___t1': False, 'release___t2': True},
-    #         {'release___t1': False, 'release___t2': False}]
-    
-    # for action in a_lst:
-    #     next_state, reward, done, info = myEnv.step(action)
-    #     print('step       = {}'.format(step))
-    #     print('state      = {}'.format(state))
-    #     print('action     = {}'.format(action))
-    #     print('next state = {}'.format(next_state))
-    #     print('reward     = {}'.format(reward))
-    #     state = next_state
-
-    while step < params.eps_length:
-        step +=1
-        # state_tensor = state_to_vec(state)
-        state_vec, action_vec, action = agent.act(state, epsilon)
-        next_state, reward, done, info = myEnv.step(action)
-        next_state_vec = agent.state_to_vec(next_state)
-        done = int(False)
-        if mode == 'train':
-            agent.step(state_vec, action_vec, reward, next_state_vec, done)
-        eps_reward += reward*params.gamma**step
-        # eps_reward += reward
-        # print()
-        # print('step       = {}'.format(step))
-        # print('state      = {}'.format(state))
-        # print('action     = {}'.format(action))
-        # print('next state = {}'.format(next_state))
-        # print('reward     = {}'.format(reward))
-        state = next_state
-    # raise ValueError
-    if mode == 'eval':
-        eval_list.append(eps_reward)
-        total_reward += eps_reward
-        print("episode {} ended with reward {}".format(eps, eps_reward))
-    else:
-        train_list.append(eps_reward)
-
-print('total reward {}'.format(total_reward))
-
-results_dict = {'train_reward':train_list, 'eval_reward':eval_list, 'params':params.params}
-
-if params.save:
-    with open('./results/{}_{}.json'.format(params.model_version, params.agent_type),'w') as f:
-        json.dump(results_dict, f)
-
+state = myEnv.reset()
+for step in range(myEnv.horizon):
+    action = agent.sample_action()
+    next_state, reward, done, info = myEnv.step(action)
+    total_reward += reward
+    print()
+    print('step       = {}'.format(step))
+    print('state      = {}'.format(state))
+    print('action     = {}'.format(action))
+    print('next state = {}'.format(next_state))
+    print('reward     = {}'.format(reward))
+    state = next_state
+    if done:
+        break
+print("episode ended with reward {}".format(total_reward))
 myEnv.close()
