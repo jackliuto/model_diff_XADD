@@ -38,15 +38,16 @@ class ValueIteration:
 
         # Perform policy evaluation for the specified number of iterations, or until convergence
         while self._cur_iter < self._n_iter:
+
             self._prev_dd = value_dd
             
             # Compute the next value function
-            value_dd = self.bellman_backup(value_dd)
+            value_dd, q_list = self.bellman_backup(value_dd)
 
             # Increment the iteration counter
             self._cur_iter += 1
         self._final_iter = self._cur_iter
-        return value_dd
+        return value_dd, q_list
     
     def bellman_backup(self, value_dd: int) -> int:
         """Performs a single iteration of the Bellman backup.
@@ -59,29 +60,48 @@ class ValueIteration:
         """
         res_dd = self.context.ZERO      # Accumulate the value function in this variable
 
+        q_list = []
+        
+
         # Iterate over all actions
         for aname, action in self.mdp.actions.items():
             # Compute the action value function
-
-
-
             regr = self.regress(value_dd, action)
 
+            # get q value 
+            q_list.append((action._bool_dict, regr))
 
             # Multiply by pi(a|s)
             # Note: since everything's symbolic, state is not specified
 
+
+            # if self._cur_iter > 0:
+            #     print(self.context._id_to_node[regr])
+            #     print(self.context._id_to_node[self.policy.get_policy_xadd(action)])
+            #     regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
+            #     regr = self.context.reduce_lp(regr)
+            #     print(self.context._id_to_node[regr])
+            #     print('-------------------------------------------')
+            #     raise ValueError
+
+
             # regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
-  
+ 
             if self.mdp._is_linear:
                 regr = self.context.reduce_lp(regr)
-            res_dd = self.context.apply(regr, res_dd, MAX) # annotate turn on update depend on one is larger
-        res_dd = self.mdp.standardize_dd(res_dd)
-        return res_dd
+            
+            # res_dd = self.context.apply(regr, res_dd, SUM)
+            res_dd = self.context.apply(regr, res_dd, MAX)
+
+            if self.mdp._is_linear:
+                res_dd = self.context.reduce_lp(res_dd)
+            
+        return res_dd, q_list
     
     def regress(self, value_dd: int, action: Action, regress_cont: bool = False) -> int:
         # Prime the value function
         subst_dict = self.mdp.prime_subs
+
         q = self.context.substitute(value_dd, subst_dict)
 
         # Discount
@@ -90,8 +110,10 @@ class ValueIteration:
 
         # Add reward *if* it contains primed vars that need to be regressed
         i_and_ns_vars_in_reward = self.filter_i_and_ns_vars(self.context.collect_vars(action.reward))
+
         if len(i_and_ns_vars_in_reward) > 0:
             q = self.context.apply(q, action.reward, SUM)
+
         
         # Get variables to eliminate
         # TODO: Do we need to handle topological ordering?
@@ -99,11 +121,18 @@ class ValueIteration:
         vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
 
         # Regress each variable
-        for v in vars_to_regress:
-            if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
-                q = self.regress_c_vars(q, action, v)
-            elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
-                q = self.regress_b_vars(q, action, v)
+        while len(vars_to_regress) > 0:
+            for v in vars_to_regress:
+                if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
+                    q = self.regress_c_vars(q, action, v)
+                elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
+                    q = self.regress_b_vars(q, action, v)
+            vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
+            # print(v)
+            # print(self.context._id_to_node[q])
+        
+        
+
         
         # Add the reward
         if len(i_and_ns_vars_in_reward) == 0:
@@ -117,41 +146,59 @@ class ValueIteration:
         if regress_cont:
             q = self.regress_action(q, action)
 
-        q = self.mdp.standardize_dd(q)
+        q = self.mdp.standardize_dd(q)      
+
         return q
 
     def regress_c_vars(self, q: int, a: Action, v: sp.Symbol) -> int:
         # Get the cpf for the variable
         cpf = a.get_cpf(v)
-        
+
         # Check regression cache
         key = (str(v), cpf, q)
         res = self.mdp._cont_regr_cache.get(key)
+
         if res is not None:
             return res
 
         # Perform regression via delta function substitution
         leaf_op = DeltaFunctionSubstitution(v, q, self.context)
+        
         q = self.context.reduce_process_xadd_leaf(cpf, leaf_op, [], [])
+
+        # raise ValueError
+
         if self.mdp._is_linear:
             q = self.context.reduce_lp(q)
         
         # Cache result
         self.mdp._cont_regr_cache[key] = q
 
+
         return q
     
     def regress_b_vars(self, q: int, a: Action, v: str) -> int:
         # Get the cpf for the variable
         cpf = a.get_cpf(v)
-        dec_id = self.context._expr_to_id[self.mdp.model.ns[v]]
 
-        # Marginalize out the variable
-        q = self.context.apply(q, cpf, PROD)
+        dec_id = self.context._expr_to_id[self.mdp.model.ns[str(v)]]
 
+
+        # # Marginalize out the variable uncomment for the original,
+        # q = self.context.apply(q, cpf, PROD)
+        
         restrict_high = self.context.op_out(q, dec_id, RESTRICT_HIGH)
         restrict_low = self.context.op_out(q, dec_id, RESTRICT_LOW)
+
+        # # # Handcrafted marginalization
+        # prob = float(str(self.context._id_to_node[cpf]).split()[3])
+        # true_prop_id = self.context.get_leaf_node(sp.S(prob))
+        # false_prop_id = self.context.get_leaf_node(sp.S(1 - prob))
+        # restrict_high = self.context.apply(restrict_high, true_prop_id, PROD)
+        # restrict_low = self.context.apply(restrict_low, false_prop_id, PROD)  
+
         q = self.context.apply(restrict_high, restrict_low, SUM)
+
         return q
     
     def regress_action(self, q: int, a: Action) -> int:

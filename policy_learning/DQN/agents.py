@@ -56,8 +56,6 @@ class DQN_Agent():
         self.memory = ReplayBuffer(self.action_size, self.buffer_size, self.batch_size, seed, device)
 
         self.t_step = 0
-
-        self.psi = 0.5
     
     def create_value_xadd(self, context, value_xadd_path):
         value_xadd_nodes = {}        
@@ -127,10 +125,9 @@ class DQN_Agent():
         return action_tensor
     
     # ppr select source policy using q value of previous source MDP using psi, psi is discounted every step
-    def ppr_action(self, state, action_values, eps, psi, psi_disc=0.9):
-        best_action_val = -9999999999999
+    def ppr_action(self, state, action_values, eps, psi):
+        best_action_val = -np.inf
         if np.random.random() < psi:
-            self.psi = psi*psi_disc
             state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
             for i, a in self.action_index_dict.items():
                 q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == a][0]
@@ -146,10 +143,6 @@ class DQN_Agent():
             else:
                 action_tensor = random.choice(np.arange(self.action_size))
             return action_tensor
-    
-
-
-
 
 
     def step(self, state, action, reward, next_state, done):
@@ -163,7 +156,7 @@ class DQN_Agent():
                 self.learn(experiences, self.gamma)
 
 
-    def act(self, state, eps=0.0):
+    def act(self, state, eps, psi):
         """Returns actions for given state as per current policy.
         
         Params
@@ -178,7 +171,7 @@ class DQN_Agent():
             action_values = self.network(state_tensor)
         self.network.train()
         if self.agent_type == "ppr":
-            action_vec = self.ppr_action(state, action_values, eps, self.psi)
+            action_vec = self.ppr_action(state, action_values, eps, psi)
         else:
             action_vec = self.e_greedy_action(action_values, eps)
 
@@ -234,24 +227,24 @@ class DQN_Agent():
             action = self.vec_to_action(action_vec)
 
 
-            q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == action][0]
-            q_diff_node = [i[1] for i in self.q_xadd_nodes['q_diff'] if i[0] == action][0]
-            # q_target_node = [i[1] for i in self.q_xadd_nodes['q_target'] if i[0] == action][0]
+            # q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == action][0]
+            # q_diff_node = [i[1] for i in self.q_xadd_nodes['q_diff'] if i[0] == action][0]
+            q_target_node = [i[1] for i in self.q_xadd_nodes['q_target'] if i[0] == action][0]
 
-            q_source_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
+            # q_source_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
 
-            q_diff_v = self.context.evaluate(q_diff_node, bool_assign={}, cont_assign=state_c_assign)
-            # q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
+            # q_diff_v = self.context.evaluate(q_diff_node, bool_assign={}, cont_assign=state_c_assign)
+            q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
 
-            lowerbound = q_source_v + q_diff_v
-            # lowerbound = q_target_v
+            # lowerbound = q_source_v + q_diff_v
+            lowerbound = q_target_v
             # lowerbound = q_source_v
 
             lowerbound_list.append(lowerbound)
 
         ##########################################################################################
 
-        # ## use v diff to calculate q
+        # ## use v diff to calculate q legency code for backup
         # for s, a, r, ns in zip(states.detach().cpu().numpy(), actions.detach().cpu().numpy(), rewards, next_states.detach().cpu().numpy()):
 
         #     next_state_vec = list(ns)

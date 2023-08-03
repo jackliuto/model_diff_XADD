@@ -80,7 +80,7 @@ class ModelDiff:
     
     def create_policy_inventory(self, mdp: MDP, context: XADD) -> Policy:
         threshold = self.THRESHOLD
-        threshold = 25
+        threshold = 6
         xadd_policy = {}
         for aname, action in mdp.actions.items():
             policy_id = context.ONE
@@ -103,7 +103,7 @@ class ModelDiff:
         policy.load_policy(policy_dict)
         return policy
     
-    def do_PE(self, model, context, discount=0.9, t=2):
+    def do_SDP(self, model, context, mode="PE", discount=0.9, t=2):
         parser = Parser()
         mdp = parser.parse(model, is_linear=True, discount=discount)
         if "reservoir" in self._domain_type:
@@ -113,9 +113,12 @@ class ModelDiff:
         else:
             raise ValueError("{} not implemneted".format(self._domain_type))
 
-
-        pe = PolicyEvaluation(mdp, policy, t)
-        iter_id, q_list = pe.solve()
+        if mode == "PE":
+            pe = PolicyEvaluation(mdp, policy, t)
+            iter_id, q_list = pe.solve()
+        elif mode == "VI":
+            vi = ValueIteration(mdp, policy, t)
+            iter_id, q_list = vi.solve()
 
         # print(pe.context._id_to_node.get(model.reward))
         # print(iter_id)

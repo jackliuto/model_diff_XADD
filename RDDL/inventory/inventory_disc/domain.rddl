@@ -10,8 +10,8 @@ domain inventory{
 	pvariables {
 
 		// constants
-		HOLDING-COST(item) : { non-fluent, real, default = 1.0 };		// holding cost for excess inventory
-		HOLDING-SAVING(item) : { non-fluent, real, default = 0.0 }; // addtional cost when capacity is halfway full
+		HOLDING-COST(item) : { non-fluent, real, default = 2.0 };		// holding cost for excess inventory
+		// HOLDING-SAVING(item) : { non-fluent, real, default = 0.0 }; // addtional cost when capacity is halfway full
 		// UNFUFILL-COST(item) : {non-fluent, real, default = 2.0};
 		UNIT-PRICE(item) : { non-fluent, real, default = 3.0 };  // purchase price of unit
 		UNIT-COST(item) : { non-fluent, real, default = 1.0 }; 
@@ -29,7 +29,7 @@ domain inventory{
 		purchased(item) : { interm-fluent, real };
 		// extra-cost(item) : { interm-fluent, real };
 		// unfufilled-demand(item) : { interm-fluent, real };
-		// net-stock(item) : { interm-fluent, real };
+		net-stock(item) : { interm-fluent, real };
 
 		// states
 		stock(item) : { state-fluent, real, default = 10.0 };   // stock on hand at beginning of epoch
@@ -49,7 +49,7 @@ domain inventory{
 
 		// unfufilled-demand(?i) = min[0, stock(?i) + purchased(?i) - demand(?i)];
 
-		// net-stock(?i) = stock(?i) + purchased(?i) - demand(?i);
+		net-stock(?i) = stock(?i) + purchased(?i) - demand(?i);
 
 		stock'(?i) = max[0,
 							min[MAX-ITEMS(?i), 
@@ -62,9 +62,9 @@ domain inventory{
 							 UNIT-PRICE(?i) * min[demand(?i), stock(?i)]
 							 - UNIT-COST(?i) * purchased(?i)
 							 - HOLDING-COST(?i) * stock(?i)
-							 + if (stock(?i) >= MAX-ITEMS(?i)*0.5)
-								then HOLDING-SAVING(?i)
-								else 0
+							 //+ if (stock(?i) >= MAX-ITEMS(?i)*0.5)
+							 //	then HOLDING-SAVING(?i)
+							 //	else 0
 							 ];
 
 	action-preconditions {

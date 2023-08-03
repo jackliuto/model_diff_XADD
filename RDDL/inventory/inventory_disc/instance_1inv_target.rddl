@@ -8,8 +8,8 @@ non-fluents inventory_1nf {
 	non-fluents {
 		// UNFUFILL-COST(i1) = 0.5;
 		HOLDING-COST(i1) = 1.0;
-		HOLDING-SAVING(i1) = 10;
-		// UNIT-PRICE(i1) = 3.5;
+		// HOLDING-SAVING(i1) = 10;
+		// UNIT-PRICE(i1) = 1;
 	};
 
 }
@@ -19,7 +19,7 @@ instance inventory_0 {
 	non-fluents = inventory_1nf;
 
 	init-state{
-		stock(i1) = 35;
+		stock(i1) = 5.0;
 	};
 
 	max-nondef-actions = pos-inf;

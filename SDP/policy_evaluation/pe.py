@@ -8,7 +8,7 @@ from xaddpy.xadd.xadd import XADD, DeltaFunctionSubstitution
 from SDP.core.action import Action
 from SDP.core.mdp import MDP
 from SDP.core.policy import Policy
-from SDP.utils.global_vars import SUM, PROD, RESTRICT_HIGH, RESTRICT_LOW
+from SDP.utils.global_vars import SUM, PROD, RESTRICT_HIGH, RESTRICT_LOW, MAX
 
 
 class PolicyEvaluation:
@@ -89,7 +89,7 @@ class PolicyEvaluation:
  
             if self.mdp._is_linear:
                 regr = self.context.reduce_lp(regr)
-
+            
             res_dd = self.context.apply(regr, res_dd, SUM)
 
             if self.mdp._is_linear:

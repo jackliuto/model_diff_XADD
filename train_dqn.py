@@ -11,7 +11,7 @@ from utils.dqn_utils import *
 
 
 
-params = Params("./params/dqn_params_inventory.json")
+params = Params("./params/dqn_params_reservoir.json")
 print('-----------------------------')
 print(params.model_version, params.agent_type)
 
@@ -41,32 +41,20 @@ for eps in range(params.num_episodes*2):
     eps_reward = 0
     if eps % 2 == 0:
         epsilon = params.epsilon
+        psi = params.psi
         mode = 'train'
     else:
         epsilon = 0.0
+        psi = 0.0
         mode = 'eval'
-    
-    # a_lst = [{'release___t1': True, 'release___t2': True},
-    #         {'release___t1': True, 'release___t2': False},
-    #         {'release___t1': False, 'release___t2': True},
-    #         {'release___t1': False, 'release___t2': False}]
-    
-    # for action in a_lst:
-    #     next_state, reward, done, info = myEnv.step(action)
-    #     print('step       = {}'.format(step))
-    #     print('state      = {}'.format(state))
-    #     print('action     = {}'.format(action))
-    #     print('next state = {}'.format(next_state))
-    #     print('reward     = {}'.format(reward))
-    #     state = next_state
 
     while step < params.eps_length:
         step +=1
         # state_tensor = state_to_vec(state)
-        state_vec, action_vec, action = agent.act(state, epsilon)
+        state_vec, action_vec, action = agent.act(state, epsilon, psi)
         next_state, reward, done, info = myEnv.step(action)
         next_state_vec = agent.state_to_vec(next_state)
-        done = int(False)
+        done = int(False) ## no terminal state thus have done all set to false
         if mode == 'train':
             agent.step(state_vec, action_vec, reward, next_state_vec, done)
         eps_reward += reward*params.gamma**step
