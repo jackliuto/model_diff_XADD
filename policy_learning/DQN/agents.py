@@ -227,17 +227,16 @@ class DQN_Agent():
             action = self.vec_to_action(action_vec)
 
 
-            # q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == action][0]
-            # q_diff_node = [i[1] for i in self.q_xadd_nodes['q_diff'] if i[0] == action][0]
-            q_target_node = [i[1] for i in self.q_xadd_nodes['q_target'] if i[0] == action][0]
+            q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == action][0]
+            q_diff_node = [i[1] for i in self.q_xadd_nodes['q_diff'] if i[0] == action][0]
+            # q_target_node = [i[1] for i in self.q_xadd_nodes['q_target'] if i[0] == action][0]
 
-            # q_source_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
+            q_source_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
+            q_diff_v = self.context.evaluate(q_diff_node, bool_assign={}, cont_assign=state_c_assign)
+            # q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
 
-            # q_diff_v = self.context.evaluate(q_diff_node, bool_assign={}, cont_assign=state_c_assign)
-            q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
-
-            # lowerbound = q_source_v + q_diff_v
-            lowerbound = q_target_v
+            lowerbound = q_source_v + q_diff_v
+            # lowerbound = q_target_v
             # lowerbound = q_source_v
 
             lowerbound_list.append(lowerbound)
@@ -267,12 +266,8 @@ class DQN_Agent():
 
         #     lowerbound_list.append(lowerbound)
 
-        
         lb_tensor = np.array(lowerbound_list, dtype='float32').reshape(shape)
         lb_tensor = torch.as_tensor(lb_tensor).to(self.device)
-
-
-        
 
         return lb_tensor
 
