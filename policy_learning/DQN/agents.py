@@ -18,7 +18,7 @@ from .memory import ReplayBuffer
 class DQN_Agent():
 
     def __init__(self, env, model, context, value_xadd_path, q_xadd_path, dqn_type='DQN', replay_memory_size=1e5, batch_size=64, gamma=0.99,
-    	learning_rate=1e-3, target_tau=2e-3, update_rate=4, seed=0, device='cuda:0',agent_type="vanilla"):
+    	learning_rate=1e-3, target_tau=2e-3, update_rate=4, seed=0, device='cuda:0',agent_type="vanilla", domain_type="None"):
         
         self.env = env
         self.value_xadd_path = value_xadd_path
@@ -50,6 +50,7 @@ class DQN_Agent():
         self.seed = random.seed(seed)
         self.device = device
         self.agent_type = agent_type
+        self.domain_type = domain_type
 
         self.network = QNetwork(self.state_size, self.action_size, seed).to(self.device)
         self.optimizer = optim.Adam(self.network.parameters(), lr=self.learn_rate)
@@ -113,8 +114,51 @@ class DQN_Agent():
             if k == action_vec:
                 return v
     
-    def vec_to_state(self, state_vec):
+    def vec_to_state(self):
         return {self.state_index_dict[i]:v for i,v in enumerate(state_vec)}
+    
+    # this function generate a dict which mapes a tuple state values into a value calcualted by XADD
+    def gen_value_cache(self):
+        state_size = len(self.state_index_dict)
+        if "reservoir" in self.domain_type:
+            state_range = 50
+        elif "navigation" in self.domain_type:
+            state_range = 10
+        else:
+            raise ValueError('{} not implemnted in cache generation'.format(self.domain_type))
+        state_tuple_dict = {}
+        q_tyuple_dict = {}
+        range_list = []
+        for r in range(state_size):
+            range_list.append(range(0,state_range+1,1))
+        
+        all_int_states = list(itertools.product(*range_list))
+
+        value_xadd_cache = {}
+        q_xadd_cache = {}
+        for v_type, v_node in self.value_xadd_nodes.items():
+            value_xadd_cache[v_type] = {}
+        
+        for a_type, q_lst in self.q_xadd_nodes.items():
+            temp_q_lst = []
+            for t in q_lst:
+                temp_q_lst.append((t[0],{}))
+            q_xadd_cache[a_type] = temp_q_lst       
+        
+        for state_tuple in all_int_states:
+            state = {v:state_tuple[k] for k,v in self.state_index_dict.items()}
+            state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
+            for v_type, v_node in self.value_xadd_nodes.items():
+                state_value = self.context.evaluate(v_node, bool_assign={}, cont_assign=state_c_assign)
+                value_xadd_cache[v_type][state_tuple] = state_value
+            for q_type, q_lst in self.q_xadd_nodes.items():
+                for i, q in enumerate(q_lst):
+                    q_value = self.context.evaluate(q[1], bool_assign={}, cont_assign=state_c_assign)
+                    q_xadd_cache[q_type][i][1][state_tuple] = q_value
+
+                    if not q[0] == q_xadd_cache[q_type][i][0]:
+                        print(q[0])
+                        print(q_xadd_cache[q_type][i][0])
 
 
     def e_greedy_action(self, action_values, eps):

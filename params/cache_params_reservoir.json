@@ -1,8 +1,10 @@
 {
-    "model_version": "2res_DQN",
     "domain_type" : "reservoir",
-    "domain_path": "./RDDL/reservoir/reservoir_disc/domain.rddl",
-    "instance_path": "./RDDL/reservoir/reservoir_disc/instance_2res_target.rddl", 
+    "agent_name": "res",
+    "num_agent": 2,
+    "num_xadd_steps": 5,
+    "rddl_path": "./RDDL/reservoir/reservoir_disc/",
+    "load_xadd_path":"./exported_xadd/reservoir/",
     "value_xadd_path": {"v_source":"./exported_xadd/reservoir/2res/5_step/v_source.json", 
                         "v_target":"./exported_xadd/reservoir/2res/5_step/v_target.json", 
                         "v_diff":"./exported_xadd/reservoir/2res/5_step/v_diff.json" 
@@ -22,7 +24,5 @@
     "learning_rate": 0.005,
     "update_rate": 1,
     "agent_type": "lowerbound",
-    "save":false,
-    "load_cache":true
-
+    "save_cache": true
 }

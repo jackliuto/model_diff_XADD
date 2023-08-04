@@ -3,15 +3,32 @@ import numpy as np
 
 import json
 
+
+
+
 res1_lb_dict = json.load(open('./results/2res_DQN_lowerbound.json'))
 res1_dqn_dict = json.load(open('./results/2res_DQN_dqn.json'))
 res1_ppr_dict = json.load(open('./results/2res_DQN_ppr.json'))
 res1_rs_dict = json.load(open('./results/2res_DQN_rewardshaping.json'))
 
-res1_lb_list = [sum(res1_lb_dict['eval_reward'][:i])/(i+1) for i, v in enumerate(res1_lb_dict['eval_reward'])]
-res1_dqn_list = [sum(res1_dqn_dict['eval_reward'][:i])/(i+1) for i, v in enumerate(res1_dqn_dict['eval_reward'])]
-res1_ppr_list = [sum(res1_ppr_dict['eval_reward'][:i])/(i+1) for i, v in enumerate(res1_ppr_dict['eval_reward'])]
-res1_rs_list = [sum(res1_rs_dict['eval_reward'][:i])/(i+1) for i, v in enumerate(res1_rs_dict['eval_reward'])]
+# res1_lb_list = [sum(res1_lb_dict['eval_reward'][:i])/(i+1) for i, v in enumerate(res1_lb_dict['eval_reward'])]
+# res1_dqn_list = [sum(res1_dqn_dict['eval_reward'][:i])/(i+1) for i, v in enumerate(res1_dqn_dict['eval_reward'])]
+# res1_ppr_list = [sum(res1_ppr_dict['eval_reward'][:i])/(i+1) for i, v in enumerate(res1_ppr_dict['eval_reward'])]
+# res1_rs_list = [sum(res1_rs_dict['eval_reward'][:i])/(i+1) for i, v in enumerate(res1_rs_dict['eval_reward'])]
+
+res1_lb_list = [res1_lb_dict['eval_reward'][i] for i, v in enumerate(res1_lb_dict['eval_reward'])]
+res1_dqn_list = [res1_dqn_dict['eval_reward'][i] for i, v in enumerate(res1_dqn_dict['eval_reward'])]
+res1_ppr_list = [res1_ppr_dict['eval_reward'][i] for i, v in enumerate(res1_ppr_dict['eval_reward'])]
+res1_rs_list = [res1_rs_dict['eval_reward'][i] for i, v in enumerate(res1_rs_dict['eval_reward'])]
+
+def running_mean(x, N):
+    cumsum = np.cumsum(np.insert(x, 0, 0)) 
+    return (cumsum[N:] - cumsum[:-N]) / float(N)
+
+res1_lb_list = running_mean(res1_lb_list, 5)
+res1_dqn_list = running_mean(res1_dqn_list, 5)
+res1_ppr_list = running_mean(res1_ppr_list, 5)
+res1_rs_list = running_mean(res1_rs_list, 5)
 
 x = list(range(0, len(res1_lb_list)))
 
@@ -23,7 +40,8 @@ plt.title("Reservoir 2Res")
 plt.xlabel("epsisode")
 plt.ylabel("Average Dis Reward per eps")
 plt.legend()
-plt.savefig("Reservoir 2Res 10")
+plt.show()
+# plt.savefig("Reservoir 2Res 10")
 
 
 # res2_lb_dict = json.load(open('/home/jackliu/model-diff/model_diff_DQN/results/2res_DQN_lowerbound.json'))
