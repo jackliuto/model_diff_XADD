@@ -38,16 +38,17 @@ domain navigation_discrete {
 
     cpfs {
 
-        pos-x'(?a) =  min[pos-x(?a) + move-pos-x(?a) *  MOVE-DISTANCE(?abs), MAX-POS-X(?a)]
-        pos-y'(?a) =  min[pos-y(?a) + move-pos-y(?a) *  MOVE-DISTANCE(?abs), MAX-POS-Y(?a)]
+        pos-x'(?a) =  min[pos-x(?a) + move-pos-x(?a) *  MOVE-DISTANCE(?a), MAX-POS-X(?a)];
+        pos-y'(?a) =  min[pos-y(?a) + move-pos-y(?a) *  MOVE-DISTANCE(?a), MAX-POS-Y(?a)];
 
     };
 
     // negative distance to the goal
-    reward = -sum_{?a : agent}[
-                                ( (pos-x(?a) >= GOAL-POS-X-MIN(?a)) ^ (pos-x(?a) <= GOAL-POS-X-MAX(?a)) )
-                               ^ ( (pos-y(?a) >= GOAL-POS-Y-MIN(?a)) ^ (pos-y(?a) <= GOAL-POS-Y-MAX(?a)) ) 
-                               * GOAL-REWARD(?a)
+    reward = sum_{?a : agent}[
+                                if ( ( (pos-x(?a) >= GOAL-POS-X-MIN(?a)) ^ (pos-x(?a) <= GOAL-POS-X-MAX(?a)) )
+                                     ^ ( (pos-y(?a) >= GOAL-POS-Y-MIN(?a)) ^ (pos-y(?a) <= GOAL-POS-Y-MAX(?a)) ) )
+                                    then  GOAL-REWARD(?a)
+                                else pos(?a) * 0.1 *  
                               ];
 
     state-invariants {

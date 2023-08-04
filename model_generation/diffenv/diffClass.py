@@ -103,6 +103,39 @@ class ModelDiff:
         policy.load_policy(policy_dict)
         return policy
     
+    def create_policy_navigation(self, mdp: MDP, context: XADD) -> Policy:
+        threshold = self.THRESHOLD
+        x_goal = 9
+        y_goal = 9
+        xadd_policy = {}
+        for aname, action in mdp.actions.items():
+            policy_id = context.ONE
+            for i in aname[1:-1].split(','):
+                agent_name = i.strip().split('___')[1][0:2]
+                pos = i.strip().split('_')[2]
+                bool_val = i.strip().split(' ')[1]
+                if bool_val == "True":
+                    if pos == 'x':
+                        policy_str = "( [pos_{}___{} - {} <= 0] ( [1] ) ( [0] ) )".format(pos, agent_name, x_goal)
+                    else:
+                        policy_str = "( [pos_{}___{} - {} <= 0] ( [1] ) ( [0] ) )".format(pos, agent_name, y_goal)
+                else:
+                    if pos == 'x':
+                        policy_str = "( [pos_{}___{} - {} <= 0] ( [0] ) ( [1] ) )".format(pos, agent_name, x_goal)
+                    else:
+                        policy_str = "( [pos_{}___{} - {} <= 0] ( [0] ) ( [1] ) )".format(pos, agent_name, y_goal)
+                a_id = context.import_xadd(xadd_str=policy_str)
+                policy_id = context.apply(policy_id, a_id, 'prod')
+            xadd_policy[aname] = policy_id
+
+        policy = Policy(mdp)
+        policy_dict = {}
+
+        for aname, action in mdp.actions.items():
+            policy_dict[action] = xadd_policy[aname]
+        policy.load_policy(policy_dict)
+        return policy
+    
     def do_SDP(self, model, context, mode="PE", discount=0.9, t=2):
         parser = Parser()
         mdp = parser.parse(model, is_linear=True, discount=discount)
@@ -110,6 +143,8 @@ class ModelDiff:
             policy = self.create_policy_reservoir(mdp, context)
         elif "inventory" in self._domain_type:
             policy = self.create_policy_inventory(mdp, context)
+        elif "navigation" in self._domain_type:
+            policy = self.create_policy_navigation(mdp, context)
         else:
             raise ValueError("{} not implemneted".format(self._domain_type))
 

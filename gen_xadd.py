@@ -9,7 +9,7 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 
-params = Params("./params/xadd_params_inventory.json")
+params = Params("./params/xadd_params_navigation.json")
 
 ModelDiff = ModelDiff(domain_type=params.domain_type, 
                       domain_path=params.domain_path, 
@@ -48,8 +48,11 @@ print("Context 2 Nodes: ",len(context_2._id_to_node))
 print("Context diff Nodes: ",len(context_diff._id_to_node))
 
 print(context_1._id_to_node[vid_1])
-print(context_1._id_to_node[q_1[0][1]])
-print(context_1._id_to_node[q_1[1][1]])
+print(len(str(context_1._id_to_node[vid_1])))
+print(len(str(context_2._id_to_node[vid_2])))
+print(len(str(context_diff._id_to_node[vid_diff])))
+# print(context_1._id_to_node[q_1[0][1]])
+# print(context_1._id_to_node[q_1[1][1]])
 
 # ## testing for values
 # # test_dict_c_1 = {'rlevel___t1':0}

@@ -1,0 +1,55 @@
+////////////////////////////////////////////////////////////////////
+//Simple 2D navigaiton with discrete actions
+//
+////////////////////////////////////////////////////////////////////
+domain navigation_discrete {
+
+    requirements = {
+        reward-deterministic
+    };
+
+    types {
+		agent : object;
+	}; 
+
+    pvariables {
+
+
+        // minerals constants
+        GOAL_POS_X(agent): { non-fluent, real, default = 10 };            // goal x location
+        GOAL_POS_Y(agent): { non-fluent, real, default = 10 };            // goal y location
+        MAX_POS_X(agent): { non-fluent, real, default = 10 };            // goal x location
+        MAX_POS_Y(agent): { non-fluent, real, default = 10 };            // goal y location
+        MOVE_DISTANCE(agent) : { non-fluent, real, default = 1 };
+        GOAL_REWARD(agent) : { non-fluent, real, default = 1 };
+
+        // states
+        pos_x(agent)    : { state-fluent, real, default = 0 };          // rover x position
+        pos_y(agent)    : { state-fluent, real, default = 0 };          // rover y position
+
+        // actions
+        move_pos_x(agent)     : { action-fluent, bool, default = false };     // force input in y direction
+        move_pos_y(agent)      : { action-fluent, bool, default = false };     // force input in x direction
+
+       
+    };
+
+    cpfs {
+
+        pos_x'(?a) =  min[pos_x(?a) + move_pos_x(?a) *  MOVE_DISTANCE(?a), MAX_POS_X(?a)];
+        pos_y'(?a) =  min[pos_y(?a) + move_pos_y(?a) *  MOVE_DISTANCE(?a), MAX_POS_Y(?a)];
+
+    };
+
+    // negative distance to the goal
+    reward = - sum_{?a : agent}[  abs[GOAL_POS_X(?a) - pos_x(?a)] * GOAL_REWARD(?a)
+                                + abs[GOAL_POS_Y(?a) - pos_y(?a)] * GOAL_REWARD(?a)
+                              ];
+
+    state-invariants {
+    };
+
+    action-preconditions {
+    };
+
+}

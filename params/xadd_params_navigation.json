@@ -1,0 +1,15 @@
+{   
+    "model_name" : "navigation_xadd",
+    "domain_type" : "navigation_1agent",
+    "domain_path":"./RDDL/navigation/navigation_disc/domain.rddl",
+    "instance_source_path":"./RDDL/navigation/navigation_disc/instance_1agent_source.rddl",
+    "instance_target_path":"./RDDL/navigation/navigation_disc/instance_1agent_target.rddl",
+    "policy_path": "",
+    "save_path":"./exported_xadd/navigation/1agent/",
+    "horizon_length": 10,
+    "discount_rate": 0.9,
+    "sdp_mode": "PE",
+    "display_xadd":false,
+    "save_xadds":true
+
+}

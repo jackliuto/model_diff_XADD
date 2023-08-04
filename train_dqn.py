@@ -11,7 +11,7 @@ from utils.dqn_utils import *
 
 
 
-params = Params("./params/dqn_params_reservoir.json")
+params = Params("./params/dqn_params_navigation.json")
 print('-----------------------------')
 print(params.model_version, params.agent_type)
 
