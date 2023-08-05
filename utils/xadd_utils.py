@@ -222,3 +222,8 @@ def save_q_function(fpath, name, q_list, context):
     with open(fpath+name+'.json', 'w') as f:
         json.dump(q_xadd_list, f)
 
+
+def save_cache(fpath, cache_dict):
+    for k,v in cache_dict.items():
+        with open(fpath+k+'.json', 'w') as f:
+            json.dump(v, f)

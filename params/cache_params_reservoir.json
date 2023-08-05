@@ -5,24 +5,6 @@
     "num_xadd_steps": 5,
     "rddl_path": "./RDDL/reservoir/reservoir_disc/",
     "load_xadd_path":"./exported_xadd/reservoir/",
-    "value_xadd_path": {"v_source":"./exported_xadd/reservoir/2res/5_step/v_source.json", 
-                        "v_target":"./exported_xadd/reservoir/2res/5_step/v_target.json", 
-                        "v_diff":"./exported_xadd/reservoir/2res/5_step/v_diff.json" 
-                    },
-    "q_xadd_path": {"q_source":"./exported_xadd/reservoir/2res/5_step/q_source.json", 
-                    "q_target":"./exported_xadd/reservoir/2res/5_step/q_target.json", 
-                    "q_diff":"./exported_xadd/reservoir/2res/5_step/q_diff.json" 
-                },                        
-    "num_episodes": 500,
-    "eps_length": 30,
-    "epsilon": 0.1,
-    "psi": 0.2, 
-    "replay_memory_size": 1000,
-    "batch_size": 256,
-    "gamma": 0.9,
-    "seed": 0,
-    "learning_rate": 0.005,
-    "update_rate": 1,
-    "agent_type": "lowerbound",
+    "save_cache_path": "./exported_cache/reservoir/",                   
     "save_cache": true
 }

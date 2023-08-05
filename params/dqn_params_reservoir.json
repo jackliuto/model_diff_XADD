@@ -1,16 +1,11 @@
 {
-    "model_version": "2res_DQN",
     "domain_type" : "reservoir",
-    "domain_path": "./RDDL/reservoir/reservoir_disc/domain.rddl",
-    "instance_path": "./RDDL/reservoir/reservoir_disc/instance_2res_target.rddl", 
-    "value_xadd_path": {"v_source":"./exported_xadd/reservoir/2res/5_step/v_source.json", 
-                        "v_target":"./exported_xadd/reservoir/2res/5_step/v_target.json", 
-                        "v_diff":"./exported_xadd/reservoir/2res/5_step/v_diff.json" 
-                    },
-    "q_xadd_path": {"q_source":"./exported_xadd/reservoir/2res/5_step/q_source.json", 
-                    "q_target":"./exported_xadd/reservoir/2res/5_step/q_target.json", 
-                    "q_diff":"./exported_xadd/reservoir/2res/5_step/q_diff.json" 
-                },                        
+    "agent_name": "res",
+    "num_agent": 2,
+    "num_xadd_steps": 5,
+    "rddl_path": "./RDDL/reservoir/reservoir_disc/",
+    "load_xadd_path":"./exported_xadd/reservoir/",
+    "load_cache_path":  "./exported_cache/reservoir/",                       
     "num_episodes": 500,
     "eps_length": 30,
     "epsilon": 0.1,
@@ -21,8 +16,8 @@
     "seed": 0,
     "learning_rate": 0.005,
     "update_rate": 1,
-    "agent_type": "lowerbound",
+    "agent_type": "ppr",
     "save":false,
-    "load_cache":true
+    "use_cache":true
 
 }

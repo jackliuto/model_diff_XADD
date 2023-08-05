@@ -17,12 +17,16 @@ from .memory import ReplayBuffer
 
 class DQN_Agent():
 
-    def __init__(self, env, model, context, value_xadd_path, q_xadd_path, dqn_type='DQN', replay_memory_size=1e5, batch_size=64, gamma=0.99,
-    	learning_rate=1e-3, target_tau=2e-3, update_rate=4, seed=0, device='cuda:0',agent_type="vanilla", domain_type="None"):
+    def __init__(self, env, model, context, value_xadd_path='', q_xadd_path='', value_cache_path='', q_cache_path='', dqn_type='DQN', replay_memory_size=1e5, batch_size=64, gamma=0.99,
+    	learning_rate=1e-3, target_tau=2e-3, update_rate=4, seed=0, device='cuda:0',agent_type="vanilla", domain_type="None", use_cache=False):
         
         self.env = env
         self.value_xadd_path = value_xadd_path
         self.q_xadd_path = q_xadd_path
+        
+        self.value_cache_path = value_cache_path
+        self.q_cache_path = q_cache_path
+
         self.model = model
         self.context = context
 
@@ -57,7 +61,29 @@ class DQN_Agent():
         self.memory = ReplayBuffer(self.action_size, self.buffer_size, self.batch_size, seed, device)
 
         self.t_step = 0
+
+        self.use_cache = use_cache
     
+        self.value_cache = {}
+        self.q_cache = {}
+
+        if self.use_cache:
+            self.load_cache()
+
+
+    def load_cache(self):
+        for k, v in self.value_cache_path.items():
+            with open(v) as data_file:
+                value_cache_dict = json.load(data_file)
+                self.value_cache[k] = value_cache_dict
+        for k, v in self.q_cache_path.items():
+            with open(v) as data_file:
+                q_xadd_dict = json.load(data_file)
+                self.q_cache[k] = q_xadd_dict
+        
+                    
+
+
     def create_value_xadd(self, context, value_xadd_path):
         value_xadd_nodes = {}        
         for k, v in value_xadd_path.items():
@@ -114,20 +140,18 @@ class DQN_Agent():
             if k == action_vec:
                 return v
     
-    def vec_to_state(self):
+    def vec_to_state(self, state_vec):
         return {self.state_index_dict[i]:v for i,v in enumerate(state_vec)}
     
     # this function generate a dict which mapes a tuple state values into a value calcualted by XADD
     def gen_value_cache(self):
         state_size = len(self.state_index_dict)
         if "reservoir" in self.domain_type:
-            state_range = 50
+            state_range = 100
         elif "navigation" in self.domain_type:
             state_range = 10
         else:
             raise ValueError('{} not implemnted in cache generation'.format(self.domain_type))
-        state_tuple_dict = {}
-        q_tyuple_dict = {}
         range_list = []
         for r in range(state_size):
             range_list.append(range(0,state_range+1,1))
@@ -150,15 +174,13 @@ class DQN_Agent():
             state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
             for v_type, v_node in self.value_xadd_nodes.items():
                 state_value = self.context.evaluate(v_node, bool_assign={}, cont_assign=state_c_assign)
-                value_xadd_cache[v_type][state_tuple] = state_value
+                value_xadd_cache[v_type][str(state_tuple)] = str(state_value)
             for q_type, q_lst in self.q_xadd_nodes.items():
                 for i, q in enumerate(q_lst):
                     q_value = self.context.evaluate(q[1], bool_assign={}, cont_assign=state_c_assign)
-                    q_xadd_cache[q_type][i][1][state_tuple] = q_value
+                    q_xadd_cache[q_type][i][1][str(state_tuple)] = str(q_value)
 
-                    if not q[0] == q_xadd_cache[q_type][i][0]:
-                        print(q[0])
-                        print(q_xadd_cache[q_type][i][0])
+        return value_xadd_cache, q_xadd_cache
 
 
     def e_greedy_action(self, action_values, eps):
@@ -172,10 +194,14 @@ class DQN_Agent():
     def ppr_action(self, state, action_values, eps, psi):
         best_action_val = -np.inf
         if np.random.random() < psi:
-            state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
             for i, a in self.action_index_dict.items():
-                q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == a][0]
-                q_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
+                if self.use_cache:
+                    state_str = str(tuple([int(i) for i in self.state_to_vec(state)]))
+                    q_v = float([i[1][state_str] for i in self.q_cache['q_source'] if i[0] == a][0])
+                else:
+                    state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
+                    q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == a][0]
+                    q_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
                 if q_v >= best_action_val:
                     best_action_val = q_v
                     best_action_idx = i
@@ -183,10 +209,10 @@ class DQN_Agent():
             
         else:
             if random.random() > eps:
-                action_tensor = np.argmax(action_values.cpu().data.numpy())
+                action = np.argmax(action_values.cpu().data.numpy())
             else:
-                action_tensor = random.choice(np.arange(self.action_size))
-            return action_tensor
+                action = random.choice(np.arange(self.action_size))
+            return action
 
 
     def step(self, state, action, reward, next_state, done):
@@ -237,13 +263,22 @@ class DQN_Agent():
             next_state = self.vec_to_state(next_state_vec)
             next_state_c_assign = {self.context._str_var_to_var[k]:v for k,v in next_state.items()}
 
-            v_source_node = self.value_xadd_nodes['v_source']
-            # v_diff_node = self.value_xadd_nodes['v_diff']
-            # v_target_node = self.value_xadd_nodes['v_target']
-            v_node = v_source_node
+            if self.use_cache:
+                state_str = str(tuple([int(i) for i in state_vec]))
+                next_state_str = str(tuple([int(i) for i in next_state_vec]))
+                potential_current_s = float(self.value_cache['v_source'][state_str])
+                # potential_current_s = float(self.value_cache['v_target'][state_str])
 
-            potential_current_s = self.context.evaluate(v_node, bool_assign={}, cont_assign=state_c_assign)
-            potential_next_s = self.context.evaluate(v_node, bool_assign={}, cont_assign=next_state_c_assign)
+                potential_next_s = float(self.value_cache['v_source'][next_state_str])
+                # potential_next_s = float(self.value_cache['v_target'][next_state_str])
+            else:
+                v_source_node = self.value_xadd_nodes['v_source']
+                # v_diff_node = self.value_xadd_nodes['v_diff']
+                # v_target_node = self.value_xadd_nodes['v_target']
+                v_node = v_source_node
+
+                potential_current_s = self.context.evaluate(v_node, bool_assign={}, cont_assign=state_c_assign)
+                potential_next_s = self.context.evaluate(v_node, bool_assign={}, cont_assign=next_state_c_assign)
 
             shaped_reward = self.gamma * potential_next_s - potential_current_s
 
@@ -270,14 +305,20 @@ class DQN_Agent():
 
             action = self.vec_to_action(action_vec)
 
+            if self.use_cache:
+                state_str = str(tuple([int(i) for i in state_vec]))
+                q_source_v = float([i[1][state_str] for i in self.q_cache['q_source'] if i[0] == action][0])
+                q_diff_v = float([i[1][state_str] for i in self.q_cache['q_diff'] if i[0] == action][0])
+                # q_target_v = float([i[1][state_str] for i in self.q_cache['q_target'] if i[0] == action][0])
 
-            q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == action][0]
-            q_diff_node = [i[1] for i in self.q_xadd_nodes['q_diff'] if i[0] == action][0]
-            # q_target_node = [i[1] for i in self.q_xadd_nodes['q_target'] if i[0] == action][0]
+            else:
+                q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == action][0]
+                q_diff_node = [i[1] for i in self.q_xadd_nodes['q_diff'] if i[0] == action][0]
+                # q_target_node = [i[1] for i in self.q_xadd_nodes['q_target'] if i[0] == action][0]
 
-            q_source_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
-            q_diff_v = self.context.evaluate(q_diff_node, bool_assign={}, cont_assign=state_c_assign)
-            # q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
+                q_source_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
+                q_diff_v = self.context.evaluate(q_diff_node, bool_assign={}, cont_assign=state_c_assign)
+                # q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
 
             lowerbound = q_source_v + q_diff_v
             # lowerbound = q_target_v

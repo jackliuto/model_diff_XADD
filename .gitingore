@@ -1,4 +1,5 @@
-exported_xadd
+exported_xadd/
+exported_cache/
 
 
 .pyc

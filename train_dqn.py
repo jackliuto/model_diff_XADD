@@ -13,7 +13,31 @@ from utils.dqn_utils import *
 
 params = Params("./params/dqn_params_reservoir.json")
 print('-----------------------------')
-print(params.model_version, params.agent_type)
+print(params.agent_type)
+
+
+
+
+params.domain_path = params.rddl_path + 'domain.rddl'
+params.instance_path = params.rddl_path + "instance_{}_target.rddl".format(str(params.num_agent)+params.agent_name)
+params.value_xadd_path = {"v_source":params.load_xadd_path+"{}/{}_step/v_source.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps), 
+                        "v_target":params.load_xadd_path+"{}/{}_step/v_target.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps),
+                        "v_diff":params.load_xadd_path+"{}/{}_step/v_diff.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps),
+                    }
+params.q_xadd_path = {"q_source":params.load_xadd_path+"{}/{}_step/q_source.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps), 
+                      "q_target":params.load_xadd_path+"{}/{}_step/q_target.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps),
+                      "q_diff":params.load_xadd_path+"{}/{}_step/q_diff.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps),
+                    }
+
+params.value_cache_path = {"v_source":params.load_cache_path+"{}/{}_step/v_source.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps), 
+                        "v_target":params.load_cache_path+"{}/{}_step/v_target.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps),
+                        "v_diff":params.load_cache_path+"{}/{}_step/v_diff.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps),
+                    }
+params.q_cache_path = {"q_source":params.load_cache_path+"{}/{}_step/q_source.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps), 
+                      "q_target":params.load_cache_path+"{}/{}_step/q_target.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps),
+                      "q_diff":params.load_cache_path+"{}/{}_step/q_diff.json".format(str(params.num_agent)+params.agent_name, params.num_xadd_steps),
+                    }
+
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -24,14 +48,18 @@ myEnv = RDDLEnv.RDDLEnv(domain=DOMAIN_PATH, instance=INSTANCE_PATH)
 model, context = get_xadd_model_from_file(f_domain=DOMAIN_PATH, f_instance=INSTANCE_PATH)
 
 
-agent = DQN_Agent(env=myEnv, model=model, context=context, value_xadd_path=params.value_xadd_path, q_xadd_path=params.q_xadd_path, replay_memory_size=params.replay_memory_size, 
-                    batch_size=params.batch_size, gamma=params.gamma, learning_rate=params.learning_rate, update_rate=params.update_rate, 
-                    seed=params.seed, device=device, agent_type=params.agent_type)
+agent = DQN_Agent(env=myEnv, model=model, context=context, 
+                  value_xadd_path=params.value_xadd_path, q_xadd_path=params.q_xadd_path,
+                  value_cache_path=params.value_cache_path, q_cache_path=params.q_cache_path, 
+                  replay_memory_size=params.replay_memory_size, batch_size=params.batch_size, 
+                  gamma=params.gamma, learning_rate=params.learning_rate, update_rate=params.update_rate, 
+                    seed=params.seed, device=device, agent_type=params.agent_type, use_cache=params.use_cache)
 
-total_reward = 0
+
 
 set_logger('train.log')
 
+total_reward = 0
 
 train_list = []
 eval_list = []
