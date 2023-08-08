@@ -56,6 +56,7 @@ class ModelDiff:
     
     def create_policy_reservoir(self, mdp: MDP, context: XADD) -> Policy:
         threshold = self.THRESHOLD
+        threshold = 45
         xadd_policy = {}
         for aname, action in mdp.actions.items():
             policy_id = context.ONE

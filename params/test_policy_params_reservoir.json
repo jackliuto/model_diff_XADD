@@ -1,0 +1,12 @@
+{
+    "domain_type" : "reservoir",
+    "agent_name": "res",
+    "num_agent": 1,
+    "num_xadd_steps": 30,
+    "rddl_path": "./RDDL/reservoir/reservoir_disc/",
+    "load_xadd_path":"./exported_xadd/reservoir/",
+    "load_cache_path":  "./exported_cache/reservoir/",                       
+    "save":false,
+    "use_cache":true
+
+}

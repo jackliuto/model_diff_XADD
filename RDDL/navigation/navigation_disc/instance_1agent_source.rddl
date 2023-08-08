@@ -25,7 +25,7 @@ instance inst_mars_rover {
 	non-fluents = navigation_d;
 
 	init-state{
-		pos_(a1) = 0;
+		pos_x(a1) = 0;
 	};
 
 

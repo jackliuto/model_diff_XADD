@@ -6,7 +6,8 @@ non-fluents Reservoir_3nf {
 	};
 
 	non-fluents {
-		COST_UNDERMIN(t1) = -1.0;
+		// COST_UNDERMIN(t1) = 2.0;
+		MIN_LEVEL(t1) = 35;
 	};
 }
 
@@ -15,7 +16,7 @@ instance Reservoir_dis_0 {
 	non-fluents = Reservoir_3nf;
 
 	init-state{
-		rlevel(t1) = 45.0;
+		rlevel(t1) = 25.0;
 	};
 
 	max-nondef-actions = pos-inf;

@@ -1,0 +1,10 @@
+{
+    "domain_type" : "navigation",
+    "agent_name": "agent",
+    "num_agent": 1,
+    "num_xadd_steps": [1, 5, 10, 15, 20],
+    "rddl_path": "./RDDL/navigation/navigation_disc/",
+    "load_xadd_path":"./exported_xadd/navigation/",
+    "save_cache_path": "./exported_cache/navigation/",                   
+    "save_cache": true
+}

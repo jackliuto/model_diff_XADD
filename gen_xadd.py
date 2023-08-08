@@ -9,7 +9,9 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 
-params = Params("./params/xadd_params_navigation.json")
+import multiprocessing
+
+params = Params("./params/xadd_params_reservoir.json")
 
 ModelDiff = ModelDiff(domain_type=params.domain_type, 
                       domain_path=params.domain_path, 
@@ -39,55 +41,54 @@ reward_node_diff = context_diff._id_to_node.get(model_diff.reward)
 print("Reward XADD Diff")
 print(reward_node_diff)
 
-vid_1, q_1 = ModelDiff.do_SDP(model_1, context_1, params.sdp_mode, params.discount_rate, params.horizon_length)
-vid_2, q_2 = ModelDiff.do_SDP(model_2, context_2, params.sdp_mode, params.discount_rate, params.horizon_length)
-vid_diff, q_diff = ModelDiff.do_SDP(model_diff, context_diff, params.sdp_mode, params.discount_rate, params.horizon_length)
+def gen_xadd_files(horizon_length):
+  print('{} xadd horizon is porcessing.......'.format(horizon_length))
 
-print("Context 1 Nodes: ", len(context_1._id_to_node))
-print("Context 2 Nodes: ",len(context_2._id_to_node))
-print("Context diff Nodes: ",len(context_diff._id_to_node))
+  vid_1, q_1 = ModelDiff.do_SDP(model_1, context_1, params.sdp_mode, params.discount_rate, horizon_length)
+  vid_2, q_2 = ModelDiff.do_SDP(model_2, context_2, params.sdp_mode, params.discount_rate, horizon_length)
+  vid_diff, q_diff = ModelDiff.do_SDP(model_diff, context_diff, params.sdp_mode, params.discount_rate, horizon_length)
 
-print(context_1._id_to_node[vid_1])
-print(len(str(context_1._id_to_node[vid_1])))
-print(len(str(context_2._id_to_node[vid_2])))
-print(len(str(context_diff._id_to_node[vid_diff])))
-# print(context_1._id_to_node[q_1[0][1]])
-# print(context_1._id_to_node[q_1[1][1]])
+  print("Context 1 Nodes: ", len(context_1._id_to_node))
+  print("Context 2 Nodes: ",len(context_2._id_to_node))
+  print("Context diff Nodes: ",len(context_diff._id_to_node))
 
-# ## testing for values
-# # test_dict_c_1 = {'rlevel___t1':0}
-# test_dict_c_1 = {'stock___i1':37}
-# test_dict_b = {}
-# result_list_1 = []
-# v_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
-# print(v_1_v)
+  print(len(str(context_1._id_to_node[vid_1])))
+  print(len(str(context_2._id_to_node[vid_2])))
+  print(len(str(context_diff._id_to_node[vid_diff])))
 
 
-### testing for values
-# # test_dict_c_1 = {'rlevel___t1':0}
-# test_dict_c_1 = {'stock___i1':0}
-# test_dict_b = {}
-# result_list_1 = []
-# v_1_v = ModelDiff.eval_function(test_dict_b, test_dict_c_1, vid_1, model_1, context_1)
+  if params.save_xadds:
+    xadd_path = pathlib.Path(params.save_path+'{}_step/'.format(horizon_length))
+    xadd_path.mkdir(parents=True, exist_ok=True)
 
-def gen_int_cache(context, node):
-  pass
+    save_value_function(params.save_path+'{}_step/'.format(horizon_length), 'v_source', vid_1, context_1)
+    save_value_function(params.save_path+'{}_step/'.format(horizon_length), 'v_target', vid_2, context_2)
+    save_value_function(params.save_path+'{}_step/'.format(horizon_length), 'v_diff', vid_diff, context_diff)
+
+    save_q_function(params.save_path+'{}_step/'.format(horizon_length), 'q_source', q_1, context_1)
+    save_q_function(params.save_path+'{}_step/'.format(horizon_length), 'q_target', q_2, context_2)
+    save_q_function(params.save_path+'{}_step/'.format(horizon_length), 'q_diff', q_diff, context_diff)
+
+  print('{} xadd horizon completed.'.format(horizon_length))
   
 
+def main():
+
+  num_processes = multiprocessing.cpu_count()
+  pool = multiprocessing.Pool(processes=num_processes)
+
+  results = pool.map(gen_xadd_files, params.horizon_length)
+
+  pool.close()
+
+  pool.join()
+
+  print('all jobs completed')
+
+main()
+     
 
 
-
-if params.save_xadds:
-  xadd_path = pathlib.Path(params.save_path+'{}_step/'.format(params.horizon_length))
-  xadd_path.mkdir(parents=True, exist_ok=True)
-
-  save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_source', vid_1, context_1)
-  save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_target', vid_2, context_2)
-  save_value_function(params.save_path+'{}_step/'.format(params.horizon_length), 'v_diff', vid_diff, context_diff)
-
-  save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_source', q_1, context_1)
-  save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_target', q_2, context_2)
-  save_q_function(params.save_path+'{}_step/'.format(params.horizon_length), 'q_diff', q_diff, context_diff)
 
 # for i in q_1:
 #     print(i[0])

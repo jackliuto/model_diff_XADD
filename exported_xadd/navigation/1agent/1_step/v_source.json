@@ -1,0 +1,1 @@
+{"v_source": "( [pos_x___a1 - 9 <= 0]\n\t( [pos_y___a1 - 9 <= 0]\n\t\t( [pos_x___a1 + pos_y___a1 - 18] ) \n\t\t( [pos_x___a1 - pos_y___a1] ) \n\t)  \n\t( [pos_y___a1 - 9 <= 0]\n\t\t( [-pos_x___a1 + pos_y___a1] ) \n\t\t( [-pos_x___a1 - pos_y___a1 + 18] ) \n\t)  \n) "}

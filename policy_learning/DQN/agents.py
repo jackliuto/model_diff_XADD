@@ -30,8 +30,9 @@ class DQN_Agent():
         self.model = model
         self.context = context
 
-        self.value_xadd_nodes = self.create_value_xadd(self.context, self.value_xadd_path)
-        self.q_xadd_nodes = self.create_q_xadd(self.context, self.q_xadd_path)
+        if agent_type.lower() != 'dqn':
+            self.value_xadd_nodes = self.create_value_xadd(self.context, self.value_xadd_path)
+            self.q_xadd_nodes = self.create_q_xadd(self.context, self.q_xadd_path)
 
         # print(self.value_xadd_nodes)
         # print(self.q_xadd_nodes)
@@ -70,6 +71,12 @@ class DQN_Agent():
         if self.use_cache:
             self.load_cache()
 
+    def reset(self, seed=0):
+        random.seed(seed)
+        self.network = QNetwork(self.state_size, self.action_size, seed).to(self.device)
+        self.optimizer = optim.Adam(self.network.parameters(), lr=self.learn_rate)
+        self.memory = ReplayBuffer(self.action_size, self.buffer_size, self.batch_size, seed, self.device)
+        self.env.reset()
 
     def load_cache(self):
         for k, v in self.value_cache_path.items():
@@ -213,6 +220,27 @@ class DQN_Agent():
             else:
                 action = random.choice(np.arange(self.action_size))
             return action
+        
+    def baseline_action(self, state):
+        best_action_val = -np.inf
+        if 'source' in self.agent_type:
+            policy = 'q_source'
+        elif 'target' in self.agent_type:
+            policy = 'q_target'
+        for i, a in self.action_index_dict.items():
+            if self.use_cache:
+                state_str = str(tuple([int(i) for i in self.state_to_vec(state)]))
+                q_v = float([i[1][state_str] for i in self.q_cache[policy] if i[0] == a][0])
+            else:
+                state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
+                q_source_node = [i[1] for i in self.q_xadd_nodes[policy] if i[0] == a][0]
+                q_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
+            if q_v >= best_action_val:
+                best_action_val = q_v
+                best_action_idx = i
+        return best_action_idx
+            
+
 
 
     def step(self, state, action, reward, next_state, done):
@@ -223,7 +251,8 @@ class DQN_Agent():
         if self.t_step == 0:
             if len(self.memory) > self.batch_size:
                 experiences = self.memory.sample()
-                self.learn(experiences, self.gamma)
+                if self.agent_type not in ["source_policy", "target_policy"]:
+                    self.learn(experiences, self.gamma)
 
 
     def act(self, state, eps, psi):
@@ -242,6 +271,8 @@ class DQN_Agent():
         self.network.train()
         if self.agent_type == "ppr":
             action_vec = self.ppr_action(state, action_values, eps, psi)
+        elif self.agent_type == "source_policy" or self.agent_type == "target_policy":
+            action_vec = self.baseline_action(state)
         else:
             action_vec = self.e_greedy_action(action_values, eps)
 
@@ -307,9 +338,9 @@ class DQN_Agent():
 
             if self.use_cache:
                 state_str = str(tuple([int(i) for i in state_vec]))
-                q_source_v = float([i[1][state_str] for i in self.q_cache['q_source'] if i[0] == action][0])
-                q_diff_v = float([i[1][state_str] for i in self.q_cache['q_diff'] if i[0] == action][0])
-                # q_target_v = float([i[1][state_str] for i in self.q_cache['q_target'] if i[0] == action][0])
+                # q_source_v = float([i[1][state_str] for i in self.q_cache['q_source'] if i[0] == action][0])
+                # q_diff_v = float([i[1][state_str] for i in self.q_cache['q_diff'] if i[0] == action][0])
+                q_target_v = float([i[1][state_str] for i in self.q_cache['q_target'] if i[0] == action][0])
 
             else:
                 q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == action][0]
@@ -320,8 +351,8 @@ class DQN_Agent():
                 q_diff_v = self.context.evaluate(q_diff_node, bool_assign={}, cont_assign=state_c_assign)
                 # q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
 
-            lowerbound = q_source_v + q_diff_v
-            # lowerbound = q_target_v
+            # lowerbound = q_source_v + q_diff_v
+            lowerbound = q_target_v
             # lowerbound = q_source_v
 
             lowerbound_list.append(lowerbound)
@@ -358,6 +389,49 @@ class DQN_Agent():
 
 
 
+    def gen_counterfactual_values(self, states, all_Qs, actions):
+
+
+        target_Qs = np.zeros(all_Qs.shape)        
+
+        # p_set = set()
+
+        # use using q value
+        s_idx = 0
+        for s, a in zip(states.detach().cpu().numpy(), actions.detach().cpu().numpy()):
+            state_vec = list(s)
+            action_vec = a[0]
+            state = self.vec_to_state(state_vec)
+            state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
+            action = self.vec_to_action(action_vec)
+
+            for a in self.action_index_dict.keys():
+                if a == action_vec:
+                    target_Qs[s_idx][a] == all_Qs[s_idx][a]
+                else:
+                    if self.use_cache:
+                        state_str = str(tuple([int(i) for i in state_vec]))
+                        # q_source_v = float([i[1][state_str] for i in self.q_cache['q_source'] if i[0] == action][0])
+                        # q_diff_v = float([i[1][state_str] for i in self.q_cache['q_diff'] if i[0] == action][0])
+                        q_target_v = float([i[1][state_str] for i in self.q_cache['q_target'] if i[0] == action][0])
+
+                    else:
+                        q_source_node = [i[1] for i in self.q_xadd_nodes['q_source'] if i[0] == action][0]
+                        q_diff_node = [i[1] for i in self.q_xadd_nodes['q_diff'] if i[0] == action][0]
+                        # q_target_node = [i[1] for i in self.q_xadd_nodes['q_target'] if i[0] == action][0]
+
+                        q_source_v = self.context.evaluate(q_source_node, bool_assign={}, cont_assign=state_c_assign)
+                        q_diff_v = self.context.evaluate(q_diff_node, bool_assign={}, cont_assign=state_c_assign)
+                        # q_target_v = self.context.evaluate(q_target_node, bool_assign={}, cont_assign=state_c_assign)
+                    lowerbound = q_target_v     
+                    target_Qs[s_idx][a] = max([lowerbound,  all_Qs[s_idx][a]])
+            s_idx += 1
+            
+        return target_Qs
+
+
+
+
 
         
 
@@ -366,6 +440,23 @@ class DQN_Agent():
         
         states, actions, rewards, next_states, dones = experiences
 
+                
+        if "counterfactual" in self.agent_type:
+            all_Qs = self.network(states)
+            cf_update = self.gen_counterfactual_values(states, all_Qs, actions)
+            cf_update = torch.from_numpy(cf_update).float().to(self.device)
+            for i in self.action_index_dict.keys():
+                all_Qs = self.network(states)
+                idx_tensor = torch.full(actions.size(), i).to(self.device)
+                qsa = all_Qs.gather(1, idx_tensor).clone()
+                qsa_target = cf_update.gather(1, idx_tensor).clone()
+                loss = F.mse_loss(qsa, qsa_target)
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+
+
+        all_Qs = self.network(states)
         Qsa = self.network(states).gather(1, actions)
 
         if (self.dqn_type == 'DQN'):
@@ -375,15 +466,35 @@ class DQN_Agent():
         # Compute Q targets for current states 
         Qsa_targets = rewards + (gamma * Qsa_prime_targets * (1 - dones))
 
-        if self.agent_type =='lowerbound':
+        if  'lowerbound' in self.agent_type:
             lowerbounds = self.cal_lowerbound(states, actions, rewards, next_states, shape=Qsa_targets.shape)
             y = torch.maximum(lowerbounds, Qsa_targets)
+            # print(Qsa_targets)
+            # raise ValueError
             Qsa_targets = y
-            
-        elif self.agent_type =='rewardshaping':
+        elif 'rewardshaping' in self.agent_type:
             reward_potential = self.cal_potential_diff(states, actions, next_states, shape=Qsa_targets.shape)
             Qsa_targets = Qsa_targets + reward_potential
+
         
+        # if "lowerbound" == self.agent_type:
+
+           
+        #     cf_update = self.gen_counterfactual_values(states, all_Qs, actions)
+        #     cf_update = torch.from_numpy(cf_update).float().to(self.device)
+
+        #     for i in self.action_index_dict.keys():
+        #         all_Qs = self.network(states)
+        #         idx_tensor = torch.full(actions.size(), i).to(self.device)
+        #         qsa = all_Qs.gather(1, idx_tensor).clone()
+        #         qsa_target = cf_update.gather(1, idx_tensor).clone()
+        #         loss = F.mse_loss(qsa, qsa_target)
+        #         self.optimizer.zero_grad()
+        #         loss.backward()
+        #         self.optimizer.step()
+               
+
+
         # Compute loss (error)
         loss = F.mse_loss(Qsa, Qsa_targets)
 

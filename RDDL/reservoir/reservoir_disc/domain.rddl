@@ -16,20 +16,22 @@ domain reservoir_control_dis {
 		// Constants
         TOP_RES(reservoir): { non-fluent, real, default = 100.0 }; // Overflowing amount
         MAX_LEVEL(reservoir): { non-fluent, real, default = 55.0 };  // The upper bound for desired reservoir level
-		MIN_LEVEL(reservoir): { non-fluent, real, default = 35.0 };  // The lower bound for desired reservoir level
+		MIN_LEVEL(reservoir): { non-fluent, real, default = 45.0 };  // The lower bound for desired reservoir level
         RELEASE_VALUE(reservoir): {non-fluent, real, default = 5.0 }; // 
-        RAIN_VALUE(reservoir): {non-fluent, real, default = 5.0 };
-        RAIN_PROP(reservoir): {non-fluent, real, default=0.25};
+        RAIN_VALUE(reservoir): {non-fluent, real, default = 8.0 };
+        // RAIN_VALUE_EXCESS(reservoir): {non-fluent, real, default = 2.0 };
+        RAIN_PROP(reservoir): {non-fluent, real, default=0.5};
+        // RAIN_PROP_EXCESS(reservoir): {non-fluent, real, default=0.2};
         COST_OVERMAX(reservoir) : { non-fluent, real, default =  -1.0 };
         COST_UNDERMIN(reservoir) : { non-fluent, real, default =  -1.0 };
-        MAINTAIN_REWARD(reservoir) : { non-fluent, real, default =  1.0 };
+        MAINTAIN_REWARD(reservoir) : { non-fluent, real, default =  0.0 };
         RES_CONNECT(reservoir, reservoir): { non-fluent, bool, default = false }; // Indicates 2nd reservoir is forward connected to 1st reservoir
         
         // interm fluents
         // is_rain(reservoir): {interm-fluent, real};
 
         // State fluents
-        rlevel(reservoir): {state-fluent, real, default = 45.0 }; // Reservoir level
+        rlevel(reservoir): {state-fluent, real, default = 100.0 }; // Reservoir level
 
         // Action fluents
         release(reservoir): { action-fluent, bool, default = false}; // Action to set outflow of reservoir
@@ -38,7 +40,9 @@ domain reservoir_control_dis {
     cpfs {
         rlevel'(?r) = min[TOP_RES(?r), 
                             max[0, 
-                                rlevel(?r) + RAIN_VALUE(?r) * Bernoulli(RAIN_PROP(?r)) 
+                                rlevel(?r) 
+                                + RAIN_VALUE(?r) * Bernoulli(RAIN_PROP(?r)) 
+                                // + RAIN_VALUE_EXCESS(?r) * Bernoulli(RAIN_PROP_EXCESS(?r))
                                 - release(?r) * RELEASE_VALUE(?r) 
                                 + sum_{?in : reservoir} [
                                                         RES_CONNECT(?in, ?r) * release(?in) * RELEASE_VALUE(?in)

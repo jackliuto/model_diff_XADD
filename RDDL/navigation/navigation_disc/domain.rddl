@@ -21,7 +21,7 @@ domain navigation_discrete {
         MAX_POS_X(agent): { non-fluent, real, default = 10 };            // goal x location
         MAX_POS_Y(agent): { non-fluent, real, default = 10 };            // goal y location
         MOVE_DISTANCE(agent) : { non-fluent, real, default = 1 };
-        GOAL_REWARD(agent) : { non-fluent, real, default = 1 };
+        DISTANCE_PENALTY(agent) : { non-fluent, real, default = 1 };
 
         // states
         pos_x(agent)    : { state-fluent, real, default = 0 };          // rover x position
@@ -42,8 +42,8 @@ domain navigation_discrete {
     };
 
     // negative distance to the goal
-    reward = - sum_{?a : agent}[  abs[GOAL_POS_X(?a) - pos_x(?a)] * GOAL_REWARD(?a)
-                                + abs[GOAL_POS_Y(?a) - pos_y(?a)] * GOAL_REWARD(?a)
+    reward = - sum_{?a : agent}[  abs[GOAL_POS_X(?a) - pos_x(?a)] * DISTANCE_PENALTY(?a)
+                                + abs[GOAL_POS_Y(?a) - pos_y(?a)] * DISTANCE_PENALTY(?a)
                               ];
 
     state-invariants {

@@ -21,7 +21,7 @@ instance Reservoir_dis_0 {
 	init-state{
 		rlevel(t1) = 45.0;
 		rlevel(t2) = 45.0;
-		rlevel(t4) = 45.0;
+		rlevel(t3) = 45.0;
 	};
 
 	max-nondef-actions = pos-inf;
