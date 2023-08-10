@@ -16,6 +16,7 @@
     "seed": 0,
     "learning_rate": 0.001,
     "update_rate": 1,
+    "tau": 0.005,
     "agent_type": "ppr",
     "save":true,
     "use_cache":true,

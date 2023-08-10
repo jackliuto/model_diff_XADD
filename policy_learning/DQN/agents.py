@@ -18,7 +18,7 @@ from .memory import ReplayBuffer
 class DQN_Agent():
 
     def __init__(self, env, model, context, value_xadd_path='', q_xadd_path='', value_cache_path='', q_cache_path='', dqn_type='DQN', replay_memory_size=1e5, batch_size=64, gamma=0.99,
-    	learning_rate=1e-3, target_tau=2e-3, update_rate=4, seed=0, device='cuda:0',agent_type="vanilla", domain_type="None", use_cache=False):
+    	learning_rate=1e-3, tau=0.05, update_rate=4, seed=0, device='cuda:0',agent_type="vanilla", domain_type="None", use_cache=False):
         
         self.env = env
         self.value_xadd_path = value_xadd_path
@@ -50,7 +50,7 @@ class DQN_Agent():
         self.batch_size = batch_size
         self.gamma = gamma
         self.learn_rate = learning_rate
-        self.tau = target_tau
+        self.tau = tau
         self.update_rate = update_rate
         self.seed = random.seed(seed)
         self.device = device
@@ -58,6 +58,7 @@ class DQN_Agent():
         self.domain_type = domain_type
 
         self.network = QNetwork(self.state_size, self.action_size, seed).to(self.device)
+        self.target_network = QNetwork(self.state_size, self.action_size, seed).to(self.device)
         self.optimizer = optim.Adam(self.network.parameters(), lr=self.learn_rate)
         self.memory = ReplayBuffer(self.action_size, self.buffer_size, self.batch_size, seed, device)
 
@@ -431,10 +432,6 @@ class DQN_Agent():
 
 
 
-
-
-        
-
     
     def learn(self, experiences, gamma, DQN=True):
         
@@ -460,7 +457,7 @@ class DQN_Agent():
         Qsa = self.network(states).gather(1, actions)
 
         if (self.dqn_type == 'DQN'):
-            Qsa_prime_target_values = self.network(next_states).detach()
+            Qsa_prime_target_values = self.target_network(next_states).detach()
             Qsa_prime_targets = Qsa_prime_target_values.max(1)[0].unsqueeze(1)
         
         # Compute Q targets for current states 
@@ -469,30 +466,10 @@ class DQN_Agent():
         if  'lowerbound' in self.agent_type:
             lowerbounds = self.cal_lowerbound(states, actions, rewards, next_states, shape=Qsa_targets.shape)
             y = torch.maximum(lowerbounds, Qsa_targets)
-            # print(Qsa_targets)
-            # raise ValueError
             Qsa_targets = y
         elif 'rewardshaping' in self.agent_type:
             reward_potential = self.cal_potential_diff(states, actions, next_states, shape=Qsa_targets.shape)
             Qsa_targets = Qsa_targets + reward_potential
-
-        
-        # if "lowerbound" == self.agent_type:
-
-           
-        #     cf_update = self.gen_counterfactual_values(states, all_Qs, actions)
-        #     cf_update = torch.from_numpy(cf_update).float().to(self.device)
-
-        #     for i in self.action_index_dict.keys():
-        #         all_Qs = self.network(states)
-        #         idx_tensor = torch.full(actions.size(), i).to(self.device)
-        #         qsa = all_Qs.gather(1, idx_tensor).clone()
-        #         qsa_target = cf_update.gather(1, idx_tensor).clone()
-        #         loss = F.mse_loss(qsa, qsa_target)
-        #         self.optimizer.zero_grad()
-        #         loss.backward()
-        #         self.optimizer.step()
-               
 
 
         # Compute loss (error)
@@ -502,6 +479,13 @@ class DQN_Agent():
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+
+        for target_param, local_param in zip(self.target_network.parameters(), self.network.parameters()):
+            target_param.data.copy_(self.tau*local_param.data + (1.0-self.tau)*target_param.data)
+
+    
+
+
 
     
     

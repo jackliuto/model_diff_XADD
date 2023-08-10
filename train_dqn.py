@@ -12,7 +12,7 @@ from policy_learning.DQN.agents import DQN_Agent
 from utils.dqn_utils import *
 
 
-params = Params("./params/dqn_params_reservoir.json")
+params = Params("./params/dqn_params_navigation.json")
 print('-----------------------------')
 print(params.agent_type)
 
@@ -56,7 +56,7 @@ agent = DQN_Agent(env=myEnv, model=model, context=context,
                 value_xadd_path=params.value_xadd_path, q_xadd_path=params.q_xadd_path,
                 value_cache_path=params.value_cache_path, q_cache_path=params.q_cache_path, 
                 replay_memory_size=params.replay_memory_size, batch_size=params.batch_size, 
-                gamma=params.gamma, learning_rate=params.learning_rate, update_rate=params.update_rate, 
+                gamma=params.gamma, learning_rate=params.learning_rate, update_rate=params.update_rate, tau=params.tau, 
                     seed=params.seed, device=device, agent_type=params.agent_type, use_cache=params.use_cache)
 
 for i in range(params.num_runs):
