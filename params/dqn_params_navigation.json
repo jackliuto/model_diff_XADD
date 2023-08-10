@@ -6,20 +6,20 @@
     "rddl_path": "./RDDL/navigation/navigation_disc/",
     "load_xadd_path":"./exported_xadd/navigation/",
     "load_cache_path":  "./exported_cache/navigation/",                       
-    "num_episodes": 1000,
+    "num_episodes": 500,
     "eps_length": 20,
     "epsilon": 0.1,
     "psi": 0.1, 
-    "replay_memory_size": 1000,
-    "batch_size": 128,
+    "replay_memory_size": 2000,
+    "batch_size": 256,
     "gamma": 0.9,
     "seed": 0,
     "learning_rate": 0.001,
     "update_rate": 1,
-    "tau": 0.005,
+    "tau": 1.0,
     "agent_type": "dqn",
-    "save":true,
+    "save":false,
     "use_cache":true,
-    "num_runs": 2
+    "num_runs": 1
 
 }
