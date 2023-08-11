@@ -14,10 +14,10 @@ import json
 # res1_cf_dict = json.load(open('./results/reservoir_2res_20steps_lowerbound_counterfactual.json'))
 
 
-res1_dqn_dict = json.load(open('./results/navigation/1agent_10steps_10eps_dqn.json'))
-# res1_ppr_dict = json.load(open('./results/navigation/reservoir_2res_20steps_ppr.json'))
-res1_rs_dict = json.load(open('./results/navigation/1agent_10steps_10eps_rewardshaping.json'))
-res1_lb_dict = json.load(open('./results/navigation/1agent_10steps_10eps_lowerbound.json'))
+res1_dqn_dict = json.load(open('./results/navigation/1agent_20steps_10eps_dqn.json'))
+res1_ppr_dict = json.load(open('./results/navigation/1agent_20steps_10eps_ppr.json'))
+res1_rs_dict = json.load(open('./results/navigation/1agent_20steps_10eps_rewardshaping.json'))
+res1_lb_dict = json.load(open('./results/navigation/1agent_20steps_10eps_lowerbound.json'))
 # res1_cf_dict = json.load(open('./results/navigation/reservoir_2res_20steps_lowerbound_counterfactual.json'))
 
 
@@ -35,7 +35,7 @@ res1_lb_dict = json.load(open('./results/navigation/1agent_10steps_10eps_lowerbo
 
 avg_dqn_list = np.mean(res1_dqn_dict['eval_reward'], axis=0)
 avg_lb_list = np.mean(res1_lb_dict['eval_reward'], axis=0)
-# avg_ppr_list = np.mean(res1_ppr_dict['eval_reward'], axis=0)
+avg_ppr_list = np.mean(res1_ppr_dict['eval_reward'], axis=0)
 avg_rs_list = np.mean(res1_rs_dict['eval_reward'], axis=0)
 # avg_cf_list = np.mean(res1_cf_dict['eval_reward'], axis=0)
 
@@ -49,17 +49,17 @@ def running_mean(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0)) 
     return (cumsum[N:] - cumsum[:-N]) / float(N)
 
-res1_lb_list = running_mean(avg_lb_list, 10)
-res1_dqn_list = running_mean(avg_dqn_list, 10)
-# res1_ppr_list = running_mean(avg_ppr_list, 50)
-res1_rs_list = running_mean(avg_rs_list, 10)
-# res1_cf_list = running_mean(avg_cf_list, 50)
+res1_lb_list = running_mean(avg_lb_list, 50)
+res1_dqn_list = running_mean(avg_dqn_list, 50)
+res1_ppr_list = running_mean(avg_ppr_list, 50)
+res1_rs_list = running_mean(avg_rs_list, 50)
+# res1_cf_list = running_mean(avg_cf_list, 10)
 
 x = list(range(0, len(res1_dqn_list)))
 
 plt.plot(x, res1_lb_list, label = "lowerbound")
 plt.plot(x, res1_dqn_list, label = "DQN",  linestyle='-.')
-# plt.plot(x, res1_ppr_list, label = "ppr",  linestyle='-.')
+plt.plot(x, res1_ppr_list, label = "ppr",  linestyle='-.')
 plt.plot(x, res1_rs_list, label = "reward shaping",  linestyle='-.')
 # plt.plot(x, res1_cf_list, label = "Lowerbound CF")
 plt.title("Reservoir")
