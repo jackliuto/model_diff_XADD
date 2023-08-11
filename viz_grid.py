@@ -69,7 +69,7 @@ np.set_printoptions(precision=2)
 
 for i in range(11):
     for j in range(11):
-        coor_str = '({}, {})'.format(i,j)
+        coor_str = '({}, {}, {}, {})'.format(i,j,i,j)
         v_source = float(value_dict['v_source'][coor_str])
         v_target = float(value_dict['v_target'][coor_str])
         viz_source[i][j] = v_source
