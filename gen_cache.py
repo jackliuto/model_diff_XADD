@@ -12,7 +12,7 @@ from utils.xadd_utils import *
 
 import multiprocessing
 
-params = Params("./params/cache_params_reservoir.json")
+params = Params("./params/cache_params_navigation.json")
 print('-----------------------------')
 print(params.domain_type)
 

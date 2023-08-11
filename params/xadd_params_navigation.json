@@ -6,7 +6,7 @@
     "instance_target_path":"./RDDL/navigation/navigation_disc/instance_1agent_target.rddl",
     "policy_path": "",
     "save_path":"./exported_xadd/navigation/1agent/",
-    "horizon_length": [1, 5, 10, 15, 20],
+    "horizon_length": [5],
     "discount_rate": 0.9,
     "sdp_mode": "PE",
     "display_xadd":false,

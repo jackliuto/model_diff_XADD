@@ -106,8 +106,8 @@ class ModelDiff:
     
     def create_policy_navigation(self, mdp: MDP, context: XADD) -> Policy:
         threshold = self.THRESHOLD
-        x_goal = 9
-        y_goal = 9
+        x_goal = 10
+        y_goal = 10
         xadd_policy = {}
         for aname, action in mdp.actions.items():
             policy_id = context.ONE

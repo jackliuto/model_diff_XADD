@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 class QNetwork(nn.Module):
 
-    def __init__(self, state_size, action_size, seed, fc1_units=64, fc2_units=32):
+    def __init__(self, state_size, action_size, seed, fc1_units=16, fc2_units=8):
 
         super(QNetwork, self).__init__()
         self.seed = torch.manual_seed(seed)
@@ -25,6 +25,6 @@ class QNetwork(nn.Module):
     """
     def forward(self, state):
         
-        x = F.sigmoid(self.fc1(state))
-        x = F.sigmoid(self.fc2(x))
+        x = F.relu(self.fc1(state))
+        x = F.relu(self.fc2(x))
         return self.fc3(x)

@@ -16,12 +16,14 @@ domain navigation_discrete {
 
 
         // minerals constants
-        GOAL_POS_X(agent): { non-fluent, real, default = 10 };            // goal x location
-        GOAL_POS_Y(agent): { non-fluent, real, default = 10 };            // goal y location
+        GOAL_POS_X_MAX(agent): { non-fluent, real, default = 10 };            // goal x location
+        GOAL_POS_Y_MAX(agent): { non-fluent, real, default = 10 };            // goal y location
+        GOAL_POS_X_MIN(agent): { non-fluent, real, default = 9 };            // goal x location
+        GOAL_POS_Y_MIN(agent): { non-fluent, real, default = 9 };            // goal y location
         MAX_POS_X(agent): { non-fluent, real, default = 10 };            // goal x location
         MAX_POS_Y(agent): { non-fluent, real, default = 10 };            // goal y location
         MOVE_DISTANCE(agent) : { non-fluent, real, default = 1 };
-        DISTANCE_PENALTY(agent) : { non-fluent, real, default = 1 };
+        GOAL_REWARD(agent) : { non-fluent, real, default = 1 };              
 
         // states
         pos_x(agent)    : { state-fluent, real, default = 0 };          // rover x position
@@ -42,8 +44,11 @@ domain navigation_discrete {
     };
 
     // negative distance to the goal
-    reward = - sum_{?a : agent}[  abs[GOAL_POS_X(?a) - pos_x(?a)] * DISTANCE_PENALTY(?a)
-                                + abs[GOAL_POS_Y(?a) - pos_y(?a)] * DISTANCE_PENALTY(?a)
+    reward = sum_{?a : agent}[
+                                if ( ( (pos_x(?a) >= GOAL_POS_X_MIN(?a)) ^ (pos_x(?a) <= GOAL_POS_X_MAX(?a)) )
+                                     ^ ( (pos_y(?a) >= GOAL_POS_Y_MIN(?a)) ^ (pos_y(?a) <= GOAL_POS_Y_MAX(?a)) ) )
+                                    then  GOAL_REWARD(?a)
+                                else 0
                               ];
 
     state-invariants {

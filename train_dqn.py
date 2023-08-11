@@ -3,6 +3,8 @@ import logging
 
 import random
 
+import os
+
 import torch
 
 from pyRDDLGym import RDDLEnv
@@ -101,11 +103,11 @@ for i in range(params.num_runs):
         if mode == 'eval':
             eval_list.append(eps_reward)
             total_reward += eps_reward
-            print("episode {} ended with reward {}".format(eps, eps_reward))
+            # print("episode {} ended with reward {}".format(eps, eps_reward))
         else:
             train_list.append(eps_reward)
 
-    print('total reward {}'.format(total_reward))
+    print('esp {} total reward {}'.format(total_reward, step))
 
     results_dict["train_reward"].append(train_list)
     results_dict["eval_reward"].append(eval_list)
@@ -121,8 +123,19 @@ for i in range(params.num_runs):
 
 
 if params.save:
-    with open('./results/{}_{}_{}steps_{}.json'.format(params.domain_type, str(params.num_agent)+params.agent_name, 
-                                                    params.eps_length, params.agent_type),'w') as f:
+
+    file_path = params.save_path+params.domain_type+'/'
+
+    if not os.path.exists(file_path ):
+        os.makedirs(file_path)
+
+    save_path = file_path+'{}_{}steps_{}eps_{}.json'.format(str(params.num_agent)+params.agent_name, 
+                                                    params.eps_length, params.num_runs, params.agent_type)
+    
+
+    with open(save_path,'w') as f:
         json.dump(results_dict, f)
+
+    print('save_path')
 
 myEnv.close()
