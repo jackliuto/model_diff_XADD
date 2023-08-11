@@ -10,16 +10,10 @@ non-fluents navigation_d {
 	};
 
 	non-fluents {
-	//	GOAL_POS_X_MIN(a1) = 9;
-	//	GOAL_POS_Y_MIN(a1) = 9;
-	//	GOAL_POS_X_MAX(a1) = 10;
-	//	GOAL_POS_X_MAX(a1) = 10;
-
-
-		GOAL_POS_X_MIN(a2) = 9;
-		GOAL_POS_Y_MIN(a2) = 9;
-		GOAL_POS_X_MAX(a2) = 10;
-		GOAL_POS_Y_MAX(a2) = 10;
+		GOAL_POS_X_MIN(a2) = 7;
+		GOAL_POS_Y_MIN(a2) = 7;
+		GOAL_POS_X_MAX(a2) = 9;
+		GOAL_POS_Y_MAX(a2) = 9;
 
 	};
 

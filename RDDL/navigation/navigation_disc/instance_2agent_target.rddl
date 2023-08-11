@@ -6,16 +6,14 @@ non-fluents navigation_d {
     domain = navigation_discrete;
 
     objects {
-		agent : {a1};
+		agent : {a1, a2};
 	};
 
 	non-fluents {
-
-		GOAL_POS_X_MIN(a1) = 5;
-		GOAL_POS_Y_MIN(a1) = 5;
-		GOAL_POS_X_MAX(a1) = 6;
-		GOAL_POS_Y_MAX(a1) = 6;
-
+		GOAL_POS_X_MIN(a2) = 7;
+		GOAL_POS_Y_MIN(a2) = 0;
+		GOAL_POS_X_MAX(a2) = 10;
+		GOAL_POS_Y_MAX(a2) = 3;
 	};
 
 }
