@@ -1,0 +1,9 @@
+1. Remove bn then Clip Gradient
+2. Do double DQN
+3. seperate memory update/ remove baseline code in act
+4. move update to end of eps * (see bset practice)
+5. Have one baseagent with inherent other types of agent (act should be smaller)
+6. Seperate explore and act eps (instead of 0.0 eps)
+7. Change R buffer to 100000
+8. Batch size 64
+9. add no grad not detach

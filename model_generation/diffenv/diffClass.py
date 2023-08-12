@@ -153,7 +153,7 @@ class ModelDiff:
             pe = PolicyEvaluation(mdp, policy, t)
             iter_id, q_list = pe.solve()
         elif mode == "VI":
-            vi = ValueIteration(mdp, policy, t)
+            vi = ValueIteration(mdp, t)
             iter_id, q_list = vi.solve()
 
         # print(pe.context._id_to_node.get(model.reward))
@@ -166,7 +166,7 @@ class ModelDiff:
         parser = Parser()
         mdp = parser.parse(model, is_linear=True)
         policy = self.create_policy(mdp, context)
-        pe = ValueIteration(mdp, policy, t)
+        pe = ValueIteration(mdp, t)
         iter_id = pe.solve()
         return iter_id
     

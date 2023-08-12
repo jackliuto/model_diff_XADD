@@ -453,6 +453,7 @@ class DQN_Agent():
             Qsa = self.network(states).gather(1, actions)
 
             if (self.dqn_type == 'DQN'):
+                ## add no grad not detach
                 Qsa_prime_target_values = self.target_network(next_states).detach()
                 Qsa_prime_targets = Qsa_prime_target_values.max(1)[0].unsqueeze(1)
             

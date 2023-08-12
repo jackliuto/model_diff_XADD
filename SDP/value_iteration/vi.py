@@ -13,7 +13,7 @@ from SDP.utils.global_vars import SUM, PROD, RESTRICT_HIGH, RESTRICT_LOW, MAX
 
 class ValueIteration:
 
-    def __init__(self, mdp: MDP, policy: Policy, iter: int):
+    def __init__(self, mdp: MDP, iter: int):
         """Performs policy evaluation for the specified number of iterations, or until convergence.
         
         Args:
@@ -22,7 +22,6 @@ class ValueIteration:
             iter (int): The number of iterations to perform.
         """
         self.mdp = mdp
-        self.policy = policy
         self._cur_iter = 0
         self._final_iter = 0
         self._n_iter = iter
@@ -73,24 +72,6 @@ class ValueIteration:
 
             # Multiply by pi(a|s)
             # Note: since everything's symbolic, state is not specified
-
-
-            # if self._cur_iter > 0:
-            #     print(self.context._id_to_node[regr])
-            #     print(self.context._id_to_node[self.policy.get_policy_xadd(action)])
-            #     regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
-            #     regr = self.context.reduce_lp(regr)
-            #     print(self.context._id_to_node[regr])
-            #     print('-------------------------------------------')
-            #     raise ValueError
-
-
-            # regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
- 
-            if self.mdp._is_linear:
-                regr = self.context.reduce_lp(regr)
-            
-            # res_dd = self.context.apply(regr, res_dd, SUM)
             res_dd = self.context.apply(regr, res_dd, MAX)
 
             if self.mdp._is_linear:
@@ -128,11 +109,6 @@ class ValueIteration:
                 elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
                     q = self.regress_b_vars(q, action, v)
             vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
-            # print(v)
-            # print(self.context._id_to_node[q])
-        
-        
-
         
         # Add the reward
         if len(i_and_ns_vars_in_reward) == 0:
@@ -189,13 +165,6 @@ class ValueIteration:
         
         restrict_high = self.context.op_out(q, dec_id, RESTRICT_HIGH)
         restrict_low = self.context.op_out(q, dec_id, RESTRICT_LOW)
-
-        # # # Handcrafted marginalization
-        # prob = float(str(self.context._id_to_node[cpf]).split()[3])
-        # true_prop_id = self.context.get_leaf_node(sp.S(prob))
-        # false_prop_id = self.context.get_leaf_node(sp.S(1 - prob))
-        # restrict_high = self.context.apply(restrict_high, true_prop_id, PROD)
-        # restrict_low = self.context.apply(restrict_low, false_prop_id, PROD)  
 
         q = self.context.apply(restrict_high, restrict_low, SUM)
 
