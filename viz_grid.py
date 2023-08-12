@@ -66,11 +66,13 @@ q_dict = agent.q_cache
 viz_source = np.zeros((11,11))
 viz_target = np.zeros((11,11))
 
+print(agent.state_index_dict)
+
 np.set_printoptions(precision=2)
 
 for i in range(11):
     for j in range(11):
-        coor_str = '({}, {}, {}, {})'.format(0,0,i,j)
+        coor_str = '({}, {}, {}, {})'.format(i,j,i,j)
         v_source = float(value_dict['v_source'][coor_str])
         v_target = float(value_dict['v_target'][coor_str])
         viz_source[i][j] = v_source

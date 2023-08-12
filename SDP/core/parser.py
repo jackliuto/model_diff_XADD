@@ -59,9 +59,6 @@ class Parser:
 
             cpfs = model.cpfs
 
-            # for k, v in cpfs.items():
-            #     print(mdp.model._context._id_to_node[v])
-
             for state_fluent, cpf in cpfs.items():
                 cpf = action.restrict(cpf, subst_dict)
                 var_ = model.ns[state_fluent]
@@ -74,31 +71,4 @@ class Parser:
 
             mdp.add_action(action)
             
-        # Old code
-        # for name, val in actions.items():
-        #     atype = action_type[name]
-        #     a_symbol = model.ns[name]
-        #     action = Action(
-        #         name, a_symbol, mdp.context, atype=atype, action_params=None
-        #     )    # TODO: action_params (for continuous actions)
-
-
-        #     # Get the cpfs corresponding to the action
-        #     subst_dict = action_dict.copy()
-        #     subst_dict[a_symbol] = True
-        #     cpfs = model.cpfs
-
-            
-        #     for state_fluent, cpf in cpfs.items():
-        #         cpf = action.restrict(cpf, subst_dict)
-        #         var_ = model.ns[state_fluent]
-        #         action.add_cpf(var_, cpf)            
-            
-        #     # Get the reward corresponding to the action
-        #     reward = model.reward
-        #     reward = action.restrict(reward, subst_dict)
-        #     action.reward = reward
-
-        #     mdp.add_action(action)
-        
         return mdp
