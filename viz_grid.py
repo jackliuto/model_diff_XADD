@@ -58,6 +58,7 @@ agent = DQN_Agent(env=myEnv, model=model, context=context,
                 gamma=params.gamma, learning_rate=params.learning_rate, update_rate=params.update_rate, tau=params.tau, 
                     seed=params.seed, device=device, agent_type=params.agent_type, use_cache=params.use_cache)
 
+print(agent.state_index_dict)
 
 value_dict = agent.value_cache
 q_dict = agent.q_cache
@@ -69,7 +70,7 @@ np.set_printoptions(precision=2)
 
 for i in range(11):
     for j in range(11):
-        coor_str = '({}, {}, {}, {})'.format(i,j,i,j)
+        coor_str = '({}, {}, {}, {})'.format(0,0,i,j)
         v_source = float(value_dict['v_source'][coor_str])
         v_target = float(value_dict['v_target'][coor_str])
         viz_source[i][j] = v_source
