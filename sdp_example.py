@@ -1,10 +1,4 @@
 
-from pyRDDLGym.Core.Grounder.RDDLGrounder import RDDLGrounder
-from pyRDDLGym.Core.Parser.parser import RDDLParser
-from pyRDDLGym.Core.Parser.RDDLReader import RDDLReader
-from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
-from xaddpy.xadd import XADD
-
 from SDP.utils.utils import get_xadd_model_from_file
 from SDP.core.parser import Parser
 from SDP.core.mdp import MDP
@@ -23,7 +17,6 @@ f_instance = './RDDL/reservoir/reservoir_disc/instance_1res_source.rddl'
 # load xadd model and context see SDP.utils for details
 model, context = get_xadd_model_from_file(f_domain, f_instance)
 
-
 ### Value Iteration
 parser = Parser()
 mdp = parser.parse(model, is_linear=True, discount=DISCOUNT) ## SDP currently only handle linear cases
@@ -31,6 +24,7 @@ mdp = parser.parse(model, is_linear=True, discount=DISCOUNT) ## SDP currently on
 vi= ValueIteration(mdp, N_STEPS)
 value_id_vi, q_id_list_vi = vi.solve()
 
+# can printout value XADD using print function in VI
 print(vi.print(value_id_vi))
 
 ### Policy PolicyEvaluation
