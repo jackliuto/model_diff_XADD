@@ -57,25 +57,37 @@ class ValueIteration:
         Returns:
             int: The next value function.
         """
-        res_dd = self.context.ZERO      # Accumulate the value function in this variable
+        # res_dd = self.context.ZERO      # Accumulate the value function in this variable
 
         q_list = []
         
-
+        n_iter = 0
         # Iterate over all actions
         for aname, action in self.mdp.actions.items():
             # Compute the action value function
             regr = self.regress(value_dd, action)
+
+            # initialize res_dd to the first action
+            if n_iter == 0:
+                res_dd = regr
 
             # get q value 
             q_list.append((action._bool_dict, regr))
 
             # Multiply by pi(a|s)
             # Note: since everything's symbolic, state is not specified
+
+            # regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
+ 
+            if self.mdp._is_linear:
+                regr = self.context.reduce_lp(regr)
+            
             res_dd = self.context.apply(regr, res_dd, MAX)
 
             if self.mdp._is_linear:
                 res_dd = self.context.reduce_lp(res_dd)
+            
+            n_iter += 1
             
         return res_dd, q_list
     
