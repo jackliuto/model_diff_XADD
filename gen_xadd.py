@@ -11,7 +11,7 @@ import numpy as np
 
 import multiprocessing
 
-params = Params("./params/xadd_params_navigation.json")
+params = Params("./params/xadd_params_wildfire.json")
 
 ModelDiff = ModelDiff(domain_type=params.domain_type, 
                       domain_path=params.domain_path, 
@@ -31,15 +31,19 @@ context_diff = ModelDiff._context_diff
 
 reward_node_1 = context_1._id_to_node.get(model_1.reward)
 print("Reward XADD 1")
-print(reward_node_1)
+print("Context 1 Nodes: ", len(str(reward_node_1)))
+# print(reward_node_1)
 
 reward_node_2 = context_2._id_to_node.get(model_2.reward)
 print("Reward XADD 2")
-print(reward_node_2)
+print("Context 2 Nodes: ", len(str(reward_node_2)))
+# print(reward_node_2)
 
 reward_node_diff = context_diff._id_to_node.get(model_diff.reward)
 print("Reward XADD Diff")
+print("Context diff Nodes: ", len(str(reward_node_diff)))
 print(reward_node_diff)
+
 
 def gen_xadd_files(horizon_length):
   print('{} xadd horizon is porcessing.......'.format(horizon_length))
@@ -69,16 +73,18 @@ def gen_xadd_files(horizon_length):
 
 def main():
 
-  num_processes = multiprocessing.cpu_count()
-  pool = multiprocessing.Pool(processes=num_processes)
+  gen_xadd_files(params.horizon_length)
 
-  results = pool.map(gen_xadd_files, params.horizon_length)
+  # num_processes = multiprocessing.cpu_count()
+  # pool = multiprocessing.Pool(processes=num_processes)
 
-  pool.close()
+  # results = pool.map(gen_xadd_files, params.horizon_length)
 
-  pool.join()
+  # pool.close()
 
-  print('all jobs completed')
+  # pool.join()
+
+  # print('all jobs completed')
 
 main()
      
