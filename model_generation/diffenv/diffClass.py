@@ -139,35 +139,21 @@ class ModelDiff:
     
     def create_policy_wildfire(self, mdp: MDP, context: XADD) -> Policy:
         xadd_policy = {}
+        # all_id = []
         for aname, action in mdp.actions.items():
-            print(aname)
-            num_true = sum(action._bool_dict.values())
-            if num_true == 0:
-                pass
-            elif num_true == 1:
-                pass
-            else:
-                pass
-
-            raise ValueError
             policy_id = context.ONE
-            for i in aname[1:-1].split(','):
-                agent_name = i.strip().split('___')[1][0:2]
-                pos = i.strip().split('_')[2]
-                bool_val = i.strip().split(' ')[1]
-                if bool_val == "True":
-                    if pos == 'x':
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [1] ) ( [0] ) )".format(pos, agent_name, x_goal)
-                    else:
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [1] ) ( [0] ) )".format(pos, agent_name, y_goal)
+            for s, b in action._bool_dict.items():
+                if b == True:
+                    policy_str = "( [{}] ( [1] ) ( [0] ) )".format(s)
                 else:
-                    if pos == 'x':
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [0] ) ( [1] ) )".format(pos, agent_name, x_goal)
-                    else:
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [0] ) ( [1] ) )".format(pos, agent_name, y_goal)
+                    policy_str = "( [{}] ( [0] ) ( [1] ) )".format(s)
                 a_id = context.import_xadd(xadd_str=policy_str)
                 policy_id = context.apply(policy_id, a_id, 'prod')
-            xadd_policy[aname] = policy_id
+            xadd_policy[aname] = policy_id 
+
+            # print(aname)
+            # print(context._id_to_node[policy_id])
+            # all_id.append(policy_id)
 
         policy = Policy(mdp)
         policy_dict = {}
@@ -175,7 +161,19 @@ class ModelDiff:
         for aname, action in mdp.actions.items():
             policy_dict[action] = xadd_policy[aname]
         policy.load_policy(policy_dict)
+        
+        ## Debugging to see if all actions add to 1
+        # sum_id = context.ZERO
+        # n = 0
+        # for a in all_id:
+        #     sum_id = context.apply(sum_id, a, 'add')
+        #     n += 1
+        #     print(n)
+        #     print(context._id_to_node[sum_id])
+        # print(context._id_to_node[sum_id])
+
         return policy
+        
     
 
     
