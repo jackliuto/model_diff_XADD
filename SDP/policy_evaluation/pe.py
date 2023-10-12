@@ -36,6 +36,8 @@ class PolicyEvaluation:
         # Initialize the value function to be the zero node
         value_dd = self.context.ZERO
 
+        
+
         # Perform policy evaluation for the specified number of iterations, or until convergence
         while self._cur_iter < self._n_iter:
 
@@ -92,8 +94,6 @@ class PolicyEvaluation:
 
         q = self.context.substitute(value_dd, subst_dict)
 
-        # TODO: Add next state if reward depend on next state
-
         # Discount
         if self.mdp.discount < 1.0:
             q = self.context.scalar_op(q, self.mdp.discount, PROD)
@@ -105,12 +105,29 @@ class PolicyEvaluation:
             q = self.context.apply(q, action.reward, SUM)
 
         
+        # # Get variables to eliminate
+        # # TODO: Do we need to handle topological ordering?
+        # # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
+        # vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
+
+        # i_vars = self.filter_i_vars(self.context.collect_vars(q), True, True)
+        # i_vars = self.rank_vars(i_vars)
+        # for v in vars_to_regress:
+        #     if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
+        #         q = self.regress_c_vars(q, action, v)
+        #     elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
+        #         q = self.regress_b_vars(q, action, v)
+
+
+        # i_vars = self.filter_i_vars(self.context.collect_vars(q), True, True)
+        # i_vars = self.rank_vars(i_vars)
+        
         # Get variables to eliminate
         # TODO: Do we need to handle topological ordering?
         # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
         vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
 
-        # Regress each variable
+
         while len(vars_to_regress) > 0:
             for v in vars_to_regress:
                 if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
@@ -150,8 +167,6 @@ class PolicyEvaluation:
         leaf_op = DeltaFunctionSubstitution(v, q, self.context)
         
         q = self.context.reduce_process_xadd_leaf(cpf, leaf_op, [], [])
-
-        # raise ValueError
 
         if self.mdp._is_linear:
             q = self.context.reduce_lp(q)
@@ -195,6 +210,37 @@ class PolicyEvaluation:
             elif allow_bool and (v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars):
                 filtered_vars.add(v)
         return filtered_vars
+    
+    def filter_ns_vars(
+            self, var_set: set, allow_bool: bool = True, allow_cont: bool = True
+    ) -> Set[str]:
+        filtered_vars = set()
+        for v in var_set:
+            if allow_cont and (v in self.mdp._cont_ns_vars):
+                filtered_vars.add(v)
+            elif allow_bool and (v in self.mdp._bool_ns_vars):
+                filtered_vars.add(v)
+        return filtered_vars
+    
+    def filter_i_vars(
+            self, var_set: set, allow_bool: bool = True, allow_cont: bool = True
+    ) -> Set[str]:
+        filtered_vars = set()
+        for v in var_set:
+            if allow_cont and (v in self.mdp._cont_i_vars):
+                filtered_vars.add(v)
+            elif allow_bool and (v in self.mdp._bool_i_vars):
+                filtered_vars.add(v)
+        return filtered_vars
+
+    def rank_vars(self, var_set):
+        level_dict_reverse = {}
+        return
+
+            
+
+
+        
         
     def flush_caches(self):
         pass

@@ -31,12 +31,16 @@ domain robot {
 
         // reach_flag: {interm-fluent, bool};
 
+        test_iterm: {interm-fluent, real};
+
+        test_iterm2: {interm-fluent, real};
+
         // Action fluents
         move: { action-fluent, bool, default = false}; // Action to move robot
     };
 
     cpfs {
-        pos_x_robot' = pos_x_robot + move;
+        pos_x_robot' = pos_x_robot + move + test_iterm2;
         //pos_y_robot' = pos_y_robot + move;
 
         //random_left = Bernoulli(0.5);
@@ -47,6 +51,9 @@ domain robot {
 
         //pos_x_danger' = pos_x_danger;
         //pos_y_danger' = pos_y_danger;
+
+        test_iterm = pos_x_robot +1;
+        test_iterm2 = test_iterm +1;
 
         reach_flag' = if ((pos_x_robot <= 11) ^ (pos_x_robot >= 10)) then 1.0 else reach_flag;
         // reach_flag' = if (((abs[pos_x_robot - pos_x_danger] <= 1) ^ (abs[pos_y_robot - pos_y_danger] <= 1)) | ((abs[pos_x_robot' - pos_x_danger'] <= 1) ^ (abs[pos_y_robot' - pos_y_danger'] <= 1))) then true else reach_flag;

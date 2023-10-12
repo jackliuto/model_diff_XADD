@@ -70,6 +70,8 @@ policy.load_policy(policy_dict)
 pe = PolicyEvaluation(mdp, policy,N_STEPS)
 value_id_pe, q_id_list_pe = pe.solve()
 
+raise ValueError
+
 # can printout value XADD using print function in pe
 print(pe.print(value_id_pe))
 # print(q_id_list_pe)
