@@ -8,7 +8,7 @@ non-fluents Reservoir_3nf {
 	non-fluents {
 		RES_CONNECT(t1, t2);
 		// MIN_LEVEL(t1) = 45;
-		COST_UNDERMIN(t1) = -0.5;
+		COST_UNDERMIN(t1) = -2;
 	};
 }
 

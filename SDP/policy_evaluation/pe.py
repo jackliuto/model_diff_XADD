@@ -62,9 +62,9 @@ class PolicyEvaluation:
 
         q_list = []
         
-
         # Iterate over all actions
         for aname, action in self.mdp.actions.items():
+
             # Compute the action value function
             regr = self.regress(value_dd, action)
 
@@ -91,6 +91,8 @@ class PolicyEvaluation:
         subst_dict = self.mdp.prime_subs
 
         q = self.context.substitute(value_dd, subst_dict)
+
+        # TODO: Add next state if reward depend on next state
 
         # Discount
         if self.mdp.discount < 1.0:

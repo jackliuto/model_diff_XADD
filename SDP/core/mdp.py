@@ -1,6 +1,7 @@
 import sympy as sp
 from typing import Dict, Tuple
 from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
+from pyRDDLGym.XADD.RDDLLevelAnalysisXADD import RDDLLevelAnalysisWXADD
 
 from SDP.core.action import Action
 
@@ -13,6 +14,11 @@ class MDP:
             discount: float = 1.0
     ):
         self._model = model
+
+        self._levelanalysis = RDDLLevelAnalysisWXADD(model)
+
+        print(self._levelanalysis.build_call_graph())
+
         self._is_linear = is_linear
         self._discount = discount
         self._prime_subs = self.get_prime_subs()

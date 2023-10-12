@@ -6,10 +6,10 @@
     "instance_target_path":"./RDDL/reservoir/reservoir_disc/instance_2res_target.rddl",
     "policy_path": "",
     "save_path":"./exported_xadd/reservoir/2res/",
-    "horizon_length": [1, 5, 10, 15, 20, 30],
+    "horizon_length": 10,
     "discount_rate": 0.9,
     "sdp_mode": "PE",
     "display_xadd":false,
-    "save_xadds":true
+    "save_xadds": false
 
 }

@@ -110,27 +110,37 @@ class ModelDiff:
         y_goal = 10
         xadd_policy = {}
         for aname, action in mdp.actions.items():
-            policy_id = context.ONE
+            policy_id = context.TRUE
             for i in aname[1:-1].split(','):
+                action_name = i.split(':')[0][0:-1]
                 agent_name = i.strip().split('___')[1][0:2]
                 pos = i.strip().split('_')[2]
                 bool_val = i.strip().split(' ')[1]
                 if bool_val == "True":
                     if pos == 'x':
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [1] ) ( [0] ) )".format(pos, agent_name, x_goal)
+                        policy_str = "( [pos_{}___{} - {} <= 0] ( [{}] ) ( [FALSE] ) )".format(pos, agent_name, x_goal, action_name)
                     else:
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [1] ) ( [0] ) )".format(pos, agent_name, y_goal)
+                        policy_str = "( [pos_{}___{} - {} <= 0] ( [{}] ) ( [FALSE] ) )".format(pos, agent_name, y_goal, action_name)
                 else:
                     if pos == 'x':
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [0] ) ( [1] ) )".format(pos, agent_name, x_goal)
+                        policy_str = "( [pos_{}___{} - {} <= 0] ( [FALSE] ) ( [{}] ) )".format(pos, agent_name, x_goal, action_name)
                     else:
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [0] ) ( [1] ) )".format(pos, agent_name, y_goal)
+                        policy_str = "( [pos_{}___{} - {} <= 0] ( [FALSE] ) ( [{}] ) )".format(pos, agent_name, y_goal, action_name)
                 a_id = context.import_xadd(xadd_str=policy_str)
-                policy_id = context.apply(policy_id, a_id, 'prod')
+
+                policy_id = context.apply(policy_id, a_id, 'and')
+
+                print(context._id_to_node[policy_id])
+                raise ValueError
+
             xadd_policy[aname] = policy_id
+
+
 
         policy = Policy(mdp)
         policy_dict = {}
+
+
 
         for aname, action in mdp.actions.items():
             policy_dict[action] = xadd_policy[aname]
