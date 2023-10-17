@@ -8,7 +8,7 @@ from SDP.value_iteration.vi import ValueIteration
 ## Global Vars for SDP
 # DISCOUNT = 0.9
 DISCOUNT = 1
-N_STEPS = 3
+N_STEPS = 1
 
 # Domain/Instance Path
 # f_domain = './RDDL/reservoir/reservoir_disc/domain.rddl'
@@ -69,6 +69,10 @@ policy.load_policy(policy_dict)
 ## do policy evaluation for n steps
 pe = PolicyEvaluation(mdp, policy,N_STEPS)
 value_id_pe, q_id_list_pe = pe.solve()
+
+pe.print(value_id_pe)
+
+
 
 raise ValueError
 

@@ -126,8 +126,7 @@ class PolicyEvaluation:
         # TODO: Do we need to handle topological ordering?
         # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
         vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
-
-
+        
         while len(vars_to_regress) > 0:
             for v in vars_to_regress:
                 if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
