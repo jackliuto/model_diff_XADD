@@ -15,9 +15,9 @@ class MDP:
     ):
         self._model = model
 
-        self._level_analyzer = RDDLLevelAnalysisWXADD(model)
-        self._call_graph = self._level_analyzer.build_call_graph()
-        self._levels = self._level_analyzer.compute_levels()
+        #self._level_analyzer = RDDLLevelAnalysisWXADD(model)
+        #self._call_graph = self._level_analyzer.build_call_graph()
+        #self._levels = self._level_analyzer.compute_levels()
 
         self._is_linear = is_linear
         self._discount = discount

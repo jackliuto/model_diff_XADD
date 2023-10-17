@@ -8,7 +8,7 @@ from SDP.value_iteration.vi import ValueIteration
 ## Global Vars for SDP
 # DISCOUNT = 0.9
 DISCOUNT = 1
-N_STEPS = 1
+N_STEPS = 3
 
 # Domain/Instance Path
 # f_domain = './RDDL/reservoir/reservoir_disc/domain.rddl'
