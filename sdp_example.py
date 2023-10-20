@@ -8,7 +8,7 @@ from SDP.value_iteration.vi import ValueIteration
 ## Global Vars for SDP
 # DISCOUNT = 0.9
 DISCOUNT = 1
-N_STEPS = 3
+N_STEPS = 2
 
 # Domain/Instance Path
 # f_domain = './RDDL/reservoir/reservoir_disc/domain.rddl'
@@ -36,26 +36,25 @@ model, context = get_xadd_model_from_file(f_domain, f_instance)
 
 ### Policy PolicyEvaluation
 parser = Parser()
-mdp = parser.parse(model, is_linear=True, discount=DISCOUNT) ## SDP currently only handle linear cases
-
-for aname, action in mdp.actions.items():
-    print(aname, action)
+mdp = parser.parse(model, is_linear=True) ## SDP currently only handle linear cases
 
 # need to define a policy by a string or load from xadd file
-policy_str_move_false = "( [0] )"
-policy_str_move_true = "( [1] )"
-
+policy_str_move_true = """
+                        ( [pox_x_robot - 2 <= 0] 
+                            ( [0] )
+                            ( [1] )
+                        )
+                        """
 # ### import using:
 # policy_str_release_true = context.import_xadd('release___t1_true.xadd', locals=context._str_var_to_var)
 
 # get node ids for xadd
-policy_str_move_false = context.import_xadd(xadd_str=policy_str_move_false)
+# policy_str_move_false = context.import_xadd(xadd_str=policy_str_move_false)
 policy_str_move_true = context.import_xadd(xadd_str=policy_str_move_true)
 
 # make a dictionary of action as string to node id
 xadd_policy = {
-    '{move: False}': policy_str_move_false,
-    '{move: True}' : policy_str_move_true
+    'move': policy_str_move_true,
 }
 
 
@@ -66,9 +65,14 @@ for aname, action in mdp.actions.items():
     policy_dict[action] = xadd_policy[aname]
 policy.load_policy(policy_dict)
 
+
+policy.compile_policy()
+
+raise ValueError
+
 ## do policy evaluation for n steps
 pe = PolicyEvaluation(mdp, policy,N_STEPS)
-value_id_pe, q_id_list_pe = pe.solve()
+value_id_pe= pe.solve()
 
 pe.print(value_id_pe)
 

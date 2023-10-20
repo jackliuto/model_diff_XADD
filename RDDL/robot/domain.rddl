@@ -10,70 +10,42 @@ domain robot {
 	};
 
     pvariables {
-		// Constants
-        // pos_x_goal: { non-fluent, real, default = 5 }; // The x position of the goal
-        // pos_y_goal: { non-fluent, real, default = 5 }; // The y position of the goal
+        // Constants
+        MOVE_DISTANCE: {non-fluent, real, default = 1.0 };
+        GOAL_MIN: {non-fluent, real, default = 9.0 };
+        GOAL_MAX: {non-fluent, real, default = 10.0 };
 
-        //
-        //random_left: {interm-fluent, real};
-        //random_right: {interm-fluent, real};
-        //random_up: {interm-fluent, real};
-        //random_down: {interm-fluent, real};
+        // state fluent
+        pos_x_robot: {state-fluent, real, default = 0.0 }; // The x position of the robot
+        // reach_flag: {state-fluent, bool, default = false};
 
-        // State fluents
-        //pos_x_danger: {state-fluent, real, default = 5 };
-        //pos_y_danger: {state-fluent, real, default = 5 };
-        reach_flag: {state-fluent, int, default = 0};
-        //reach_flag: {state-fluent, bool, default = false};
-
-        pos_x_robot: {state-fluent, real, default = 0 }; // The x position of the robot
-        //pos_y_robot: {state-fluent, real, default = 0 }; // The y position of the robot
-
-        // reach_flag: {interm-fluent, bool};
-
-        random_move: {interm-fluent, real};
-
-        // test_iterm: {interm-fluent, real};
-
-        // test_iterm2: {interm-fluent, real};
+        // interm flugents
+        //in_goal: {interm-fluent, bool};
 
         // Action fluents
         move: { action-fluent, bool, default = false}; // Action to move robot
+
+        
     };
 
     cpfs {
+        
 
-        random_move = Bernoulli(0.7);
+        //in_goal = (pos_x_robot <= 6) ^ (pos_x_robot >= 5);
 
-        //pos_x_robot' = if (random_move) then pos_x_robot + move else pos_x_robot;
-        pos_x_robot' = if (random_move) then pos_x_robot + move else pos_x_robot;
-        // pos_y_robot' = pos_y_robot + move;
+        pos_x_robot' =  if (move) 
+                            then pos_x_robot + MOVE_DISTANCE
+                        else pos_x_robot;
 
-        //random_left = Bernoulli(0.5);
-        //random_right = Bernoulli(0.5);
+        // reach_flag' = if (in_goal)
+        //                 then true
+        //              else reach_flag;
 
-        // pos_x_danger' = pos_x_danger + Bernoulli(0.5) - Bernoulli(0.5);
-        // pos_y_danger' = pos_y_danger + Bernoulli(0.5) - Bernoulli(0.5);
 
-        //pos_x_danger' = pos_x_danger;
-        //pos_y_danger' = pos_y_danger;
-
-       // test_iterm = pos_x_robot +1;
-       // test_iterm2 = test_iterm +1;
-
-        reach_flag' = if ((pos_x_robot <= 11) ^ (pos_x_robot >= 10)) then 1 else reach_flag;
-        // reach_flag' = if (((abs[pos_x_robot - pos_x_danger] <= 1) ^ (abs[pos_y_robot - pos_y_danger] <= 1)) | ((abs[pos_x_robot' - pos_x_danger'] <= 1) ^ (abs[pos_y_robot' - pos_y_danger'] <= 1))) then true else reach_flag;
-        // reach_flag' = if ((abs[pos_x_robot + move * min[1, 10.5 - pos_x_robot] - (pos_x_danger + Bernoulli(0.5) - Bernoulli(0.5))] <= 1) ^ (abs[pos_y_robot + move * min[1, 10.5 - pos_y_robot] - (pos_y_danger + Bernoulli(0.5) - Bernoulli(0.5))] <= 1)) then true else reach_flag;
     };
 
-    // reward = (1 - reach_flag) * (pos_x_robot <= 11) * (pos_x_robot >= 10);
-    reward = (pos_x_robot <= 11) * (pos_x_robot >= 10);
-    // reward = if ((pos_x_robot <= 11) ^ (pos_x_robot >= 10)) then 1 else 0;
+    reward = if ((pos_x_robot <= 6) ^ (pos_x_robot >= 5))
+                then 1
+             else 0;
 
-    // reward = random_move;
-
-    // reward = if ((~reach_flag) ^ (pos_x_robot <= 11) ^ (pos_x_robot >= 10)) then 1 else 0;
-    // reward = if ((abs[pos_x_robot - pos_x_danger] <= 1) ^ (abs[pos_y_robot - pos_y_danger] <= 1)) then 1 else 0;
-    // reward = if ((~reach_flag) ^ (abs[pos_x_robot - pos_x_danger] <= 1) ^ (abs[pos_y_robot - pos_y_danger] <= 1)) then 1 else 0;
-    //reward = if ((abs[pos_x_robot - pos_x_danger] <= 0.5) ^ (abs[pos_y_robot - pos_y_danger] <= 0.5)) then 1 else 0;
 }
