@@ -5,6 +5,8 @@ from SDP.core.action import Action
 
 import sympy as sp
 
+import pdb
+
 
 class Policy:
     """A policy class to support policy evaluation"""
@@ -33,50 +35,36 @@ class Policy:
             self._dist[action] = node_id
     
     def compile_policy(self):
-        policy_id_true = self.mdp.context.ONE
-        policy_id_false = self.mdp.context.ONE
+        policy_id_all = self.context.ONE
 
-        for action, policy_id in self._dist.items():
+        for action, policy_id_true in self._dist.items():
             if action._atype != 'bool':
                 raise NotImplementedError("Continuous actions are not supported yet")
             
             # get action in int form
-            dec_id, is_reversed = self.mdp.context.get_dec_expr_index(action._symbol, create=True)
-            high: int = self.mdp.context.get_leaf_node(sp.S(1))
-            low: int = self.mdp.context.get_leaf_node(sp.S(0))
+            dec_id, is_reversed = self.context.get_dec_expr_index(action._symbol, create=True)
+            high: int = self.context.get_leaf_node(sp.S(1))
+            low: int = self.context.get_leaf_node(sp.S(0))
             if is_reversed:
                 low, high = high, low
-            action_id: int = self.mdp.context.get_internal_node(dec_id, low=low, high=high)
-            
-            # generate true and false policy
-            action_policy_id_true = self.mdp.context.apply(policy_id, action_id, 'prod')
-            action_policy_id_false = self.mdp.context.apply(self.mdp.context.ONE, action_policy_id_true, 'false')
+            # get indicator version of true and false action
+            action_id_true: int = self.context.get_internal_node(dec_id, low=low, high=high)
+            action_id_false = self.context.apply(self.context.ONE, action_id_true, 'subtract')
+            # get the policy where false action are taken
+            policy_id_false = self.context.apply(self.context.ONE, policy_id_true, 'subtract')
+            # integrate action indicator in policy
+            action_policy_id_true = self.context.apply(policy_id_true, action_id_true, 'prod')
+            action_policy_id_false = self.context.apply(policy_id_false, action_id_false, 'prod')
+            # combine true and false action policy
+            action_policy_id_all = self.context.apply(action_policy_id_true, action_policy_id_false, 'max')
+            # use the max operator to combien polcies of different actions
+            policy_id_all = self.context.apply(policy_id_all, action_policy_id_all, 'min')
 
-            policy_id_true = self.mdp.context.apply(action_policy_id_true, action_policy_id_true, 'max')
-            policy_id_false = self.mdp.context.apply(action_policy_id_false, action_policy_id_false, 'max')
-
+        if self.mdp._is_linear:
+            policy_id_all = self.context.reduce_lp(policy_id_all)
         
-
-
-
+        return policy_id_all
             
-            
-
-        # policy_id = self.mdp.context.ONE
-        # action_cpf = self.mdp._model.cpfs
-        # print(self.mdp._model._var_name_to_node_id['move'])
-        # print(self.mdp.context.get_repr(self.mdp._model._var_name_to_node_id['move']))
-        # a = self.mdp.context.apply(policy_id, self.mdp._model._var_name_to_node_id['move'], 'add')
-        # print(self.mdp.context.get_repr(a))
-        # for action, a_id in self._dist.items():
-        #     pass
-        #     print(action, a_id)
-        #     print(self.mdp.context.get_repr(a_id))
-        #     print(self.mdp.model.actions)
-        # return
-
-
-
 
     @property
     def context(self):

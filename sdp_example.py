@@ -39,22 +39,32 @@ parser = Parser()
 mdp = parser.parse(model, is_linear=True) ## SDP currently only handle linear cases
 
 # need to define a policy by a string or load from xadd file
-policy_str_move_true = """
-                        ( [pox_x_robot - 2 <= 0] 
-                            ( [0] )
+policy_str_move_true_x = """
+                        ( [pox_x_robot - 5 <= 0] 
                             ( [1] )
+                            ( [0] )
                         )
                         """
+
+policy_str_move_true_y = """
+                        ( [pox_y_robot - 5 <= 0] 
+                            ( [1] )
+                            ( [0] )
+                        )
+                        """
+
 # ### import using:
 # policy_str_release_true = context.import_xadd('release___t1_true.xadd', locals=context._str_var_to_var)
 
 # get node ids for xadd
 # policy_str_move_false = context.import_xadd(xadd_str=policy_str_move_false)
-policy_str_move_true = context.import_xadd(xadd_str=policy_str_move_true)
+policy_str_move_true_x = context.import_xadd(xadd_str=policy_str_move_true_x)
+policy_str_move_true_y = context.import_xadd(xadd_str=policy_str_move_true_y)
 
 # make a dictionary of action as string to node id
 xadd_policy = {
-    'move': policy_str_move_true,
+    'move_x': policy_str_move_true_x,
+    'move_y': policy_str_move_true_y,
 }
 
 
@@ -65,10 +75,6 @@ for aname, action in mdp.actions.items():
     policy_dict[action] = xadd_policy[aname]
 policy.load_policy(policy_dict)
 
-
-policy.compile_policy()
-
-raise ValueError
 
 ## do policy evaluation for n steps
 pe = PolicyEvaluation(mdp, policy,N_STEPS)

@@ -10,8 +10,6 @@ from SDP.core.mdp import MDP
 from SDP.core.policy import Policy
 from SDP.utils.global_vars import SUM, PROD, RESTRICT_HIGH, RESTRICT_LOW, MAX
 
-import pdb
-
 
 class PolicyEvaluation:
 
@@ -94,6 +92,8 @@ class PolicyEvaluation:
         # Prime the value function
         subst_dict = self.mdp.prime_subs
 
+        self.print(value_dd)
+
         q = self.context.substitute(value_dd, subst_dict)
 
         # Discount
@@ -109,33 +109,33 @@ class PolicyEvaluation:
         
         # # Get variables to eliminate
         # # TODO: Do we need to handle topological ordering?
-        # # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)    
-            
-        vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
+        # # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
+        # vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
+
         # i_vars = self.filter_i_vars(self.context.collect_vars(q), True, True)
         # i_vars = self.rank_vars(i_vars)
-        for v in vars_to_regress:
-            if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
-                q = self.regress_c_vars(q, action, v)
-            elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
-                q = self.regress_b_vars(q, action, v)
+        # for v in vars_to_regress:
+        #     if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
+        #         q = self.regress_c_vars(q, action, v)
+        #     elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
+        #         q = self.regress_b_vars(q, action, v)
 
 
         # i_vars = self.filter_i_vars(self.context.collect_vars(q), True, True)
         # i_vars = self.rank_vars(i_vars)
         
-        # # Get variables to eliminate
-        # # TODO: Do we need to handle topological ordering?
-        # # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)     
-        #    
-        # vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
-        # while len(vars_to_regress) > 0:
-        #     for v in vars_to_regress:
-        #         if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
-        #             q = self.regress_c_vars(q, action, v)
-        #         elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
-        #             q = self.regress_b_vars(q, action, v)
-        #     vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
+        # Get variables to eliminate
+        # TODO: Do we need to handle topological ordering?
+        # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
+        vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
+        
+        while len(vars_to_regress) > 0:
+            for v in vars_to_regress:
+                if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
+                    q = self.regress_c_vars(q, action, v)
+                elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
+                    q = self.regress_b_vars(q, action, v)
+            vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
         
         # Add the reward
         if len(i_and_ns_vars_in_reward) == 0:
