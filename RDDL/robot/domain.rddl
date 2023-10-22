@@ -50,7 +50,7 @@ domain robot {
 
     };
 
-    reward = if ((pos_x_robot <= 6) ^ (pos_x_robot >= 5))
+    reward = if ((pos_x_robot <= 6.0) ^ (pos_x_robot >= 5.0))
                 then 1
              else 0;
 

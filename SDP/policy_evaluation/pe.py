@@ -1,7 +1,6 @@
 from typing import Set
 import sympy as sp
 
-import xaddpy
 from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
 from xaddpy.xadd.xadd import XADD, DeltaFunctionSubstitution
 
@@ -10,6 +9,7 @@ from SDP.core.mdp import MDP
 from SDP.core.policy import Policy
 from SDP.utils.global_vars import SUM, PROD, RESTRICT_HIGH, RESTRICT_LOW, MAX
 
+import pdb
 
 class PolicyEvaluation:
 
@@ -22,6 +22,7 @@ class PolicyEvaluation:
             iter (int): The number of iterations to perform.
         """
         self.mdp = mdp
+        self.model = mdp.model
         self.policy = policy
         self._cur_iter = 0
         self._final_iter = 0
@@ -36,7 +37,7 @@ class PolicyEvaluation:
         # Initialize the value function to be the zero node
         value_dd = self.context.ZERO
 
-        
+        policy_id = self.policy.compile_policy()
 
         # Perform policy evaluation for the specified number of iterations, or until convergence
         while self._cur_iter < self._n_iter:
@@ -45,6 +46,7 @@ class PolicyEvaluation:
             
             # Compute the next value function
             value_dd = self.bellman_backup(value_dd)
+            value_dd = self.context.apply(value_dd, policy_id, 'prod')
 
             # Increment the iteration counter
             self._cur_iter += 1
@@ -65,34 +67,28 @@ class PolicyEvaluation:
         # q_list = []
         
         # Iterate over all actions
-        for aname, action in self.mdp.actions.items():
 
-            # Compute the action value function
-            regr = self.regress(value_dd, action)
+        # Compute the action value function
+        regr = self.regress(value_dd)
 
-            # # get q value 
-            # q_list.append((action._bool_dict, regr))
+        # # get q value 
+        # q_list.append((action._bool_dict, regr))
 
-            # Multiply by pi(a|s)
-            # Note: since everything's symbolic, state is not specified
+        # Multiply by pi(a|s)
+        # Note: since everything's symbolic, state is not specified
+        
+        res_dd = self.context.apply(regr, res_dd, SUM)
 
-            regr = self.context.apply(regr, self.policy.get_policy_xadd(action), PROD)
- 
-            if self.mdp._is_linear:
-                regr = self.context.reduce_lp(regr)
-            
-            res_dd = self.context.apply(regr, res_dd, SUM)
-
-            if self.mdp._is_linear:
-                res_dd = self.context.reduce_lp(res_dd)
-            
+        if self.mdp._is_linear:
+            res_dd = self.context.reduce_lp(res_dd)
+        
         return res_dd
     
-    def regress(self, value_dd: int, action: Action, regress_cont: bool = False) -> int:
+    def regress(self, value_dd: int, regress_cont: bool = False) -> int:
         # Prime the value function
         subst_dict = self.mdp.prime_subs
 
-        self.print(value_dd)
+        # self.print(value_dd)
 
         q = self.context.substitute(value_dd, subst_dict)
 
@@ -101,61 +97,59 @@ class PolicyEvaluation:
             q = self.context.scalar_op(q, self.mdp.discount, PROD)
 
         # Add reward *if* it contains primed vars that need to be regressed
-        i_and_ns_vars_in_reward = self.filter_i_and_ns_vars(self.context.collect_vars(action.reward))
+        i_and_ns_vars_in_reward = self.filter_i_and_ns_vars(self.context.collect_vars(self.model.reward))
 
         if len(i_and_ns_vars_in_reward) > 0:
-            q = self.context.apply(q, action.reward, SUM)
+            q = self.context.apply(q, self.model.reward, SUM)
 
+        # # Get variables to eliminate
+        # # TODO: Do we need to handle topological ordering?
+        # # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
+        vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
+        for v in vars_to_regress:
+            if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
+                q = self.regress_c_vars(q, v)
+            elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
+                q = self.regress_b_vars(q, v)
+
+
+        # i_vars = self.filter_i_vars(self.context.collect_vars(q), True, True)
+        # i_vars = self.rank_vars(i_vars)
         
         # # Get variables to eliminate
         # # TODO: Do we need to handle topological ordering?
         # # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
         # vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
-
-        # i_vars = self.filter_i_vars(self.context.collect_vars(q), True, True)
-        # i_vars = self.rank_vars(i_vars)
-        # for v in vars_to_regress:
-        #     if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
-        #         q = self.regress_c_vars(q, action, v)
-        #     elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
-        #         q = self.regress_b_vars(q, action, v)
-
-
-        # i_vars = self.filter_i_vars(self.context.collect_vars(q), True, True)
-        # i_vars = self.rank_vars(i_vars)
+        # while len(vars_to_regress) > 0:
+        #     for v in vars_to_regress:
+        #         if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
+        #             q = self.regress_c_vars(q, v)
+        #         elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
+        #             q = self.regress_b_vars(q, v)
+        #     vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
         
-        # Get variables to eliminate
-        # TODO: Do we need to handle topological ordering?
-        # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
-        vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
-        
-        while len(vars_to_regress) > 0:
-            for v in vars_to_regress:
-                if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
-                    q = self.regress_c_vars(q, action, v)
-                elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
-                    q = self.regress_b_vars(q, action, v)
-            vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
-        
+        # pdb.set_trace()
+
         # Add the reward
         if len(i_and_ns_vars_in_reward) == 0:
-            q = self.context.apply(q, action.reward, SUM)
+            q = self.context.apply(q, self.model.reward, SUM)
 
         # Continuous noise?
         # TODO
         # q = self.regress_noise(q, action)
 
-        # Continuous parameter
-        if regress_cont:
-            q = self.regress_action(q, action)
+        # # Continuous parameter
+        # if regress_cont:
+        #     q = self.regress_action(q, action)
 
-        q = self.mdp.standardize_dd(q)      
+        q = self.mdp.standardize_dd(q)
 
         return q
 
-    def regress_c_vars(self, q: int, a: Action, v: sp.Symbol) -> int:
+    def regress_c_vars(self, q: int, v: sp.Symbol) -> int:
         # Get the cpf for the variable
-        cpf = a.get_cpf(v)
+   
+        cpf = self.model.cpfs[str(v)]   
 
         # Check regression cache
         key = (str(v), cpf, q)
@@ -178,12 +172,10 @@ class PolicyEvaluation:
 
         return q
     
-    def regress_b_vars(self, q: int, a: Action, v: str) -> int:
+    def regress_b_vars(self, q: int, v: str) -> int:
         # Get the cpf for the variable
-        cpf = a.get_cpf(v)
 
-        dec_id = self.context._expr_to_id[self.mdp.model.ns[str(v)]]
-
+        dec_id = self.context._expr_to_id[self.model.ns[str(v)]]
 
         # # Marginalize out the variable uncomment for the original,
         # q = self.context.apply(q, cpf, PROD)

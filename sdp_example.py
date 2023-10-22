@@ -8,7 +8,7 @@ from SDP.value_iteration.vi import ValueIteration
 ## Global Vars for SDP
 # DISCOUNT = 0.9
 DISCOUNT = 1
-N_STEPS = 2
+N_STEPS = 3
 
 # Domain/Instance Path
 # f_domain = './RDDL/reservoir/reservoir_disc/domain.rddl'
@@ -40,14 +40,14 @@ mdp = parser.parse(model, is_linear=True) ## SDP currently only handle linear ca
 
 # need to define a policy by a string or load from xadd file
 policy_str_move_true_x = """
-                        ( [pox_x_robot - 5 <= 0] 
+                        ( [pos_x_robot - 5.0 <= 0] 
                             ( [1] )
                             ( [0] )
                         )
                         """
 
 policy_str_move_true_y = """
-                        ( [pox_y_robot - 5 <= 0] 
+                        ( [pos_y_robot - 5.0 <= 0] 
                             ( [1] )
                             ( [0] )
                         )
