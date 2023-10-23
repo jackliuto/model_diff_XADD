@@ -202,20 +202,32 @@ class PolicyEvaluation:
 
         return q
     
+  
     def regress_b_vars(self, q: int, v: str) -> int:
         # Get the cpf for the variable
-
-        dec_id = self.context._expr_to_id[self.model.ns[str(v)]]
-
-        # # Marginalize out the variable uncomment for the original,
-        # q = self.context.apply(q, cpf, PROD)
         
+        cpf = self.policy_cpfs[str(v)]
+
+        cpf_true = self.context.apply(cpf, self.context.ONE, 'add')
+        cpf_true = self.context.apply(cpf_true, self.context.ONE, 'subtract')
+        cpf_false = self.context.apply(self.context.ONE, cpf_true, 'subtract')
+
+        dec_id = self.context._expr_to_id[self.mdp.model.ns[str(v)]]
+
+        # # Marginalize out the variable
+        # q = self.context.apply(q, cpf, PROD)
         restrict_high = self.context.op_out(q, dec_id, RESTRICT_HIGH)
         restrict_low = self.context.op_out(q, dec_id, RESTRICT_LOW)
 
-        q = self.context.apply(restrict_high, restrict_low, SUM)
+        q_true = self.context.apply(cpf_true, restrict_high, 'prod')
+        q_false = self.context.apply(cpf_false, restrict_low, 'prod')
+
+        q = self.context.apply(q_true, q_false, SUM)
 
         return q
+    
+
+
     
     def regress_action(self, q: int, a: Action) -> int:
         if len(a._action_params) == 0:  # No action parameters
