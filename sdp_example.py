@@ -40,14 +40,14 @@ mdp = parser.parse(model, is_linear=True) ## SDP currently only handle linear ca
 
 # need to define a policy by a string or load from xadd file
 policy_str_move_true_x = """
-                        ( [pos_x_robot - 5.0 <= 0] 
+                        ( [pos_x_robot - 10 <= 0] 
                             ( [1] )
                             ( [0] )
                         )
                         """
 
 policy_str_move_true_y = """
-                        ( [pos_y_robot - 5.0 <= 0] 
+                        ( [pos_y_robot - 10 <= 0] 
                             ( [1] )
                             ( [0] )
                         )

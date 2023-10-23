@@ -25,7 +25,7 @@ domain robot {
 
         // Action fluents
         move_x: { action-fluent, bool, default = false}; // Action to move robot
-        //move_y: { action-fluent, bool, default = false}; // Action to move robot
+        // move_y: { action-fluent, bool, default = false}; // Action to move robot
 
         
     };
@@ -50,7 +50,7 @@ domain robot {
 
     };
 
-    reward = if ((pos_x_robot <= 6.0) ^ (pos_x_robot >= 5.0))
+    reward = if ((pos_x_robot >= 5.0)) 
                 then 1
              else 0;
 

@@ -24,20 +24,50 @@ class PolicyEvaluation:
         self.mdp = mdp
         self.model = mdp.model
         self.policy = policy
+        # self.policy_id = policy.compile_policy()
+        self.policy_cpfs = self.gen_policy_cpfs()
         self._cur_iter = 0
         self._final_iter = 0
         self._n_iter = iter
         self._res_dd = 0
         self._prev_dd = 0
     
+
+    def gen_policy_cpfs(self):
+        policy_cpfs = {}
+        # get transtion cpfs according to policy
+        for cpf_name, cpf_id in self.model.cpfs.items():
+            # collect all action vars in the cpfs
+            action_vars = set([str(i) for i in self.context.collect_vars(cpf_id) if str(i) in self.mdp._actions.keys()])
+            policy_cpf = cpf_id
+            for a in action_vars:
+                a_symbol = self.mdp._actions[a]._symbol
+
+                # get state space where policy is True and False seperately
+                a_policy_true = self.policy._dist[self.mdp._actions[a]]
+                a_policy_false = self.context.apply(self.context.ONE, a_policy_true, 'subtract')
+
+                # subsitute action with true and false in cpfs
+                true_aciton_cpf = self.context.substitute(policy_cpf, {a_symbol:True})
+                false_aciton_cpf = self.context.substitute(policy_cpf, {a_symbol:False})
+
+                # find state space where transtion happens
+                true_cpf = self.context.apply(true_aciton_cpf, a_policy_true, 'prod')
+                false_cpf = self.context.apply(false_aciton_cpf, a_policy_false, 'prod')
+
+                # marginalize all the true and false
+                policy_cpf = self.context.apply(true_cpf, false_cpf, 'add')
+                policy_cpf = self.mdp.standardize_dd(policy_cpf)
+            policy_cpfs[cpf_name] = policy_cpf
+        return policy_cpfs
+
+
     def solve(self) -> int:
         # Initialize the iteration counter
         self._cur_iter = 0
 
         # Initialize the value function to be the zero node
         value_dd = self.context.ZERO
-
-        policy_id = self.policy.compile_policy()
 
         # Perform policy evaluation for the specified number of iterations, or until convergence
         while self._cur_iter < self._n_iter:
@@ -46,7 +76,9 @@ class PolicyEvaluation:
             
             # Compute the next value function
             value_dd = self.bellman_backup(value_dd)
-            value_dd = self.context.apply(value_dd, policy_id, 'prod')
+            
+            if self.mdp._is_linear:
+                value_dd = self.mdp.standardize_dd(value_dd)
 
             # Increment the iteration counter
             self._cur_iter += 1
@@ -80,16 +112,13 @@ class PolicyEvaluation:
         res_dd = self.context.apply(regr, res_dd, SUM)
 
         if self.mdp._is_linear:
-            res_dd = self.context.reduce_lp(res_dd)
+            res_dd = self.mdp.standardize_dd(res_dd)
         
         return res_dd
     
     def regress(self, value_dd: int, regress_cont: bool = False) -> int:
         # Prime the value function
         subst_dict = self.mdp.prime_subs
-
-        # self.print(value_dd)
-
         q = self.context.substitute(value_dd, subst_dict)
 
         # Discount
@@ -128,7 +157,8 @@ class PolicyEvaluation:
         #             q = self.regress_b_vars(q, v)
         #     vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
         
-        # pdb.set_trace()
+
+
 
         # Add the reward
         if len(i_and_ns_vars_in_reward) == 0:
@@ -149,7 +179,7 @@ class PolicyEvaluation:
     def regress_c_vars(self, q: int, v: sp.Symbol) -> int:
         # Get the cpf for the variable
    
-        cpf = self.model.cpfs[str(v)]   
+        cpf = self.policy_cpfs[str(v)]
 
         # Check regression cache
         key = (str(v), cpf, q)
@@ -164,7 +194,7 @@ class PolicyEvaluation:
         q = self.context.reduce_process_xadd_leaf(cpf, leaf_op, [], [])
 
         if self.mdp._is_linear:
-            q = self.context.reduce_lp(q)
+            q = self.mdp.standardize_dd(q)
         
         # Cache result
         self.mdp._cont_regr_cache[key] = q

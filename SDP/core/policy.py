@@ -61,7 +61,7 @@ class Policy:
             policy_id_all = self.context.apply(policy_id_all, action_policy_id_all, 'min')
 
         if self.mdp._is_linear:
-            policy_id_all = self.context.reduce_lp(policy_id_all)
+            policy_id_all = self.mdp.standardize_dd(policy_id_all)
         
         return policy_id_all
             
