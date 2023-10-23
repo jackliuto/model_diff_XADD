@@ -38,7 +38,7 @@ def get_xadd_model_from_file(
 
     # XADD compilation
     xadd_model = RDDLModelWXADD(model, context=context)
-    xadd_model.compile(simulation=True)
+    xadd_model.compile(simulation=False)
 
     # for s in xadd_model.states.keys():
     #     for i in xadd_model.interm.keys():

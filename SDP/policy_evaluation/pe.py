@@ -35,11 +35,13 @@ class PolicyEvaluation:
 
     def gen_policy_cpfs(self):
         policy_cpfs = {}
+
         # get transtion cpfs according to policy
         for cpf_name, cpf_id in self.model.cpfs.items():
             # collect all action vars in the cpfs
             action_vars = set([str(i) for i in self.context.collect_vars(cpf_id) if str(i) in self.mdp._actions.keys()])
             policy_cpf = cpf_id
+
             for a in action_vars:
                 a_symbol = self.mdp._actions[a]._symbol
 
@@ -124,6 +126,7 @@ class PolicyEvaluation:
         # Discount
         if self.mdp.discount < 1.0:
             q = self.context.scalar_op(q, self.mdp.discount, PROD)
+        
 
         # Add reward *if* it contains primed vars that need to be regressed
         i_and_ns_vars_in_reward = self.filter_i_and_ns_vars(self.context.collect_vars(self.model.reward))
@@ -135,11 +138,18 @@ class PolicyEvaluation:
         # # TODO: Do we need to handle topological ordering?
         # # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
         vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
+
         for v in vars_to_regress:
             if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
                 q = self.regress_c_vars(q, v)
             elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
                 q = self.regress_b_vars(q, v)
+
+        
+        ber_vars_to_regress = self.filter_ber_vars(self.context.collect_vars(q))
+        for v in ber_vars_to_regress:
+            q = self.regress_ber_vars(q, v)
+            
 
 
         # i_vars = self.filter_i_vars(self.context.collect_vars(q), True, True)
@@ -202,6 +212,23 @@ class PolicyEvaluation:
 
         return q
     
+    def regress_ber_vars(self, q: int, v: str) -> int:
+        prob_id = int(str(v).split('_')[-1])
+        not_prob_id = self.context.apply(self.context.ONE, prob_id, 'subtract')
+
+        dec_id = self.context._expr_to_id[self.mdp.model.ns[str(v)]]
+
+        restrict_high = self.context.op_out(q, dec_id, RESTRICT_HIGH)
+        restrict_low = self.context.op_out(q, dec_id, RESTRICT_LOW)
+
+        true_prob_id = self.context.apply(restrict_high, prob_id, 'prod')
+        false_prob_id = self.context.apply(restrict_low, not_prob_id, 'prod')
+
+        q = self.context.apply(true_prob_id, false_prob_id, 'add')
+
+
+        return q
+    
   
     def regress_b_vars(self, q: int, v: str) -> int:
         # Get the cpf for the variable
@@ -243,6 +270,14 @@ class PolicyEvaluation:
             if allow_cont and (v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars):
                 filtered_vars.add(v)
             elif allow_bool and (v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars):
+                filtered_vars.add(v)
+        return filtered_vars
+
+    def filter_ber_vars(
+            self, var_set: set) -> Set[str]:
+        filtered_vars = set()
+        for v in var_set:
+            if str(v).startswith('Bernoulli'):
                 filtered_vars.add(v)
         return filtered_vars
     
