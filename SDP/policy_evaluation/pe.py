@@ -4,6 +4,8 @@ import sympy as sp
 from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
 from xaddpy.xadd.xadd import XADD, DeltaFunctionSubstitution
 
+from pyRDDLGym.XADD.RDDLLevelAnalysisXADD import RDDLLevelAnalysisWXADD
+
 from SDP.core.action import Action
 from SDP.core.mdp import MDP
 from SDP.core.policy import Policy
@@ -31,6 +33,21 @@ class PolicyEvaluation:
         self._n_iter = iter
         self._res_dd = 0
         self._prev_dd = 0
+
+        self._level_analyzer = RDDLLevelAnalysisWXADD(self.model)
+        self.call_graph = self._level_analyzer.build_call_graph()
+        self.levels = self._level_analyzer.compute_levels()
+    
+    def sort_var_set(self, var_set):
+        sorted_keys = sorted(list(self.levels.keys()))
+        sorted_levels = []
+        for i in sorted_keys:
+            sorted_levels = list(self.levels[i]) + sorted_levels
+        sorted_list = sorted(list(var_set), \
+                            key=lambda x: sorted_levels.index(str(x)) \
+                            if str(x) in sorted_levels else float('inf'))
+
+        return sorted_list
     
 
     def gen_policy_cpfs(self):
@@ -139,35 +156,19 @@ class PolicyEvaluation:
         # # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
         vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
 
-        for v in vars_to_regress:
+        sorted_vars_to_regress = self.sort_var_set(vars_to_regress)
+
+        # for s in self.sorted_levels:
+        for v in sorted_vars_to_regress:
             if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
                 q = self.regress_c_vars(q, v)
             elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
                 q = self.regress_b_vars(q, v)
 
-        
+        # bernoulli noise
         ber_vars_to_regress = self.filter_ber_vars(self.context.collect_vars(q))
         for v in ber_vars_to_regress:
             q = self.regress_ber_vars(q, v)
-            
-
-
-        # i_vars = self.filter_i_vars(self.context.collect_vars(q), True, True)
-        # i_vars = self.rank_vars(i_vars)
-        
-        # # Get variables to eliminate
-        # # TODO: Do we need to handle topological ordering?
-        # # graph = self.mdp.build_dbn_dependency_dag(action, vars_to_regress)        
-        # vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
-        # while len(vars_to_regress) > 0:
-        #     for v in vars_to_regress:
-        #         if v in self.mdp._cont_ns_vars or v in self.mdp._cont_i_vars:
-        #             q = self.regress_c_vars(q, v)
-        #         elif v in self.mdp._bool_ns_vars or v in self.mdp._bool_i_vars:
-        #             q = self.regress_b_vars(q, v)
-        #     vars_to_regress = self.filter_i_and_ns_vars(self.context.collect_vars(q), True, True)
-        
-
 
 
         # Add the reward

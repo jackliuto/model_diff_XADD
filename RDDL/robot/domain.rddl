@@ -25,7 +25,7 @@ domain robot {
 
         // Action fluents
         move_x: { action-fluent, bool, default = false}; // Action to move robot
-        // move_y: { action-fluent, bool, default = false}; // Action to move robot
+        move_y: { action-fluent, bool, default = false}; // Action to move robot
 
         
     };
@@ -42,12 +42,12 @@ domain robot {
 
         // reach_flag' = if ((pos_x_robot >= 5) ^ (pos_x_robot <= 7)) then true else reach_flag;
                       
-        pos_x_robot' =  if (Bernoulli(0.7)) 
+        pos_x_robot' =  if (Bernoulli(0.5)) 
                             then pos_x_robot + move_x * MOVE_DISTANCE
                         else pos_x_robot;
 
-        pos_y_robot' =  if (Bernoulli(0.7)) 
-                            then pos_y_robot + MOVE_DISTANCE
+        pos_y_robot' =  if (Bernoulli(0.5)) 
+                            then pos_y_robot + move_y * MOVE_DISTANCE
                         else pos_y_robot;
 
         // reach_flag' = if (in_goal)
