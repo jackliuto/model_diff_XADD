@@ -41,7 +41,7 @@ domain reservoir_control_dis {
         rlevel'(?r) = min[TOP_RES(?r), 
                             max[0, 
                                 rlevel(?r) 
-                                + RAIN_VALUE(?r) * Bernoulli(RAIN_PROP(?r)) 
+                                + (if (Bernoulli(RAIN_PROP(?r))) then RAIN_VALUE(?r) else 0)
                                 // + RAIN_VALUE_EXCESS(?r) * Bernoulli(RAIN_PROP_EXCESS(?r))
                                 - release(?r) * RELEASE_VALUE(?r) 
                                 + sum_{?in : reservoir} [
