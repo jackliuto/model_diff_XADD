@@ -13,7 +13,7 @@ class Parser:
     def parse(
             self,
             model: RDDLModelWXADD,
-            discount: float,
+            discount: float = 1.0,
             is_linear: bool = False
     ) -> MDP:
         """Parses the RDDL model into an MDP."""
