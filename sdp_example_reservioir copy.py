@@ -78,8 +78,13 @@ policy.load_policy(policy_dict)
 ## do policy evaluation for n steps
 pe = PolicyEvaluation(mdp, policy,N_STEPS)
 value_id_pe= pe.solve()
-
 pe.print(value_id_pe)
+
+
+vi = ValueIteration(mdp, N_STEPS)
+
+
+
 
 
 

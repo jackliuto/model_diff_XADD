@@ -13,10 +13,11 @@ class Parser:
     def parse(
             self,
             model: RDDLModelWXADD,
+            discount: float,
             is_linear: bool = False
     ) -> MDP:
         """Parses the RDDL model into an MDP."""
-        mdp = MDP(model, is_linear=is_linear)
+        mdp = MDP(model, is_linear=is_linear,discount=discount)
 
         # Go through all actions and get corresponding CPFs and rewards
         actions = model.actions
