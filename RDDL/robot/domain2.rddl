@@ -12,8 +12,6 @@ domain robot {
     pvariables {
         // Constants
         MOVE_DISTANCE: {non-fluent, real, default = 1.0 };
-        GOAL_MIN: {non-fluent, real, default = 9.0 };
-        GOAL_MAX: {non-fluent, real, default = 10.0 };
 
         // state fluent
         pos_x_robot: {state-fluent, real, default = 0.0 }; // The x position of the robot
