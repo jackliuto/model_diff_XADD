@@ -11,10 +11,9 @@ DISCOUNT = 1
 N_STEPS = 5
 
 # Domain/Instance Path
-# f_domain = './RDDL/reservoir/reservoir_disc/domain.rddl'
-# f_instance = './RDDL/reservoir/reservoir_disc/instance_1res_source.rddl'
-f_domain = './RDDL/robot/domain.rddl'
-f_instance = './RDDL/robot/instance.rddl'
+f_domain = './RDDL/reservoir/reservoir_disc/domain.rddl'
+f_instance = './RDDL/reservoir/reservoir_disc/instance_2res_source.rddl'
+
 
 # load xadd model and context see SDP.utils for details
 model, context = get_xadd_model_from_file(f_domain, f_instance)
@@ -36,20 +35,20 @@ model, context = get_xadd_model_from_file(f_domain, f_instance)
 
 ### Policy PolicyEvaluation
 parser = Parser()
-mdp = parser.parse(model, is_linear=True, discount=1.0) ## SDP currently only handle linear cases
+mdp = parser.parse(model, is_linear=True) ## SDP currently only handle linear cases
 
 # need to define a policy by a string or load from xadd file
-policy_str_move_true_x = """
-                        ( [pos_x_robot - 10 <= 0] 
-                            ( [1] )
+policy_t1_str = """
+                        ( [rlevel__t1 - 45 <= 0] 
                             ( [0] )
+                            ( [1] )
                         )
                         """
 
-policy_str_move_true_y = """
-                        ( [pos_y_robot - 10 <= 0] 
-                            ( [1] )
+policy_t2_str = """
+                        ( [rlevel__t2 - 45 <= 0] 
                             ( [0] )
+                            ( [1] )
                         )
                         """
 
@@ -58,13 +57,13 @@ policy_str_move_true_y = """
 
 # get node ids for xadd
 # policy_str_move_false = context.import_xadd(xadd_str=policy_str_move_false)
-policy_str_move_true_x = context.import_xadd(xadd_str=policy_str_move_true_x)
-policy_str_move_true_y = context.import_xadd(xadd_str=policy_str_move_true_y)
+policy_t1= context.import_xadd(xadd_str=policy_t1_str)
+policy_t2 = context.import_xadd(xadd_str=policy_t2_str)
 
 # make a dictionary of action as string to node id
 xadd_policy = {
-    'move_x': policy_str_move_true_x,
-    'move_y': policy_str_move_true_y,
+    'release___t1': policy_t1,
+    'release___t2': policy_t2,
 }
 
 
@@ -79,8 +78,13 @@ policy.load_policy(policy_dict)
 ## do policy evaluation for n steps
 pe = PolicyEvaluation(mdp, policy,N_STEPS)
 value_id_pe= pe.solve()
-
 pe.print(value_id_pe)
+
+
+vi = ValueIteration(mdp, N_STEPS)
+
+
+
 
 
 
