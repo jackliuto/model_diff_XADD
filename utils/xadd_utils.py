@@ -210,17 +210,17 @@ def save_value_function(fpath, name, node_id, context):
     with open(fpath+name+'.json', 'w') as f:
         json.dump(node_dict, f)
 
-def save_q_function(fpath, name, q_list, context):
-    q_xadd_list = []
-    for i in q_list:
-        action = i[0]
-        node_id = i[1]
+def save_q_function(fpath, name, q_dict, context):
+    q_xadd_dict = {}
+    for k, v in q_dict.items():
+        action = k
+        node_id = v
         node = context._id_to_node.get(node_id, None)
         node.turn_off_print_node_info()
         node_str = str(node)
-        q_xadd_list.append((action, node_str))
+        q_xadd_dict[action] = node_str
     with open(fpath+name+'.json', 'w') as f:
-        json.dump(q_xadd_list, f)
+        json.dump(q_xadd_dict, f)
 
 
 def save_cache(fpath, cache_dict):

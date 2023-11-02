@@ -10,10 +10,8 @@ non-fluents navigation_d {
 	};
 
 	non-fluents {
-		GOAL_POS_X_MIN(a1) = 7;
-		GOAL_POS_Y_MIN(a1) = 7;
-		GOAL_POS_X_MAX(a1) = 9;
-		GOAL_POS_Y_MAX(a1) = 9;
+		GOAL_REWARD_1(a1)=1;
+		GOAL_REWARD_2(a1)=1;
 
 	};
 
@@ -27,7 +25,7 @@ instance inst_mars_rover {
 	non-fluents = navigation_d;
 
 	init-state{
-		pos_x(a1) = 0;
+		pos_x(a1) = 5;
 		pos_y(a1) = 0;
 	};
 
