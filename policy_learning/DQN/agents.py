@@ -106,13 +106,14 @@ class DQN_Agent():
         q_xadd_nodes = {}        
         for k, v in q_xadd_path.items():
             with open(v) as data_file:
-                q_xadd_list = json.load(data_file)
-            q_list = []
-            for i in q_xadd_list:
-                action = i[0]
-                node_id = self.context.import_xadd(xadd_str=i[1])
-                q_list.append((action, node_id))
-            q_xadd_nodes[k] = q_list
+                q_xadd_dict = json.load(data_file)
+            q_dict = {}
+            for a, v in q_xadd_dict.items():
+                action = a
+                node_id = self.context.import_xadd(xadd_str=v)
+                q_dict[a] = node_id
+                # q_xadd_nodes[k][a].append((action, node_id))
+            q_xadd_nodes[k] = q_dict
         return q_xadd_nodes
 
     def gen_state_index_dict(self, state_name_list):
@@ -171,23 +172,23 @@ class DQN_Agent():
         for v_type, v_node in self.value_xadd_nodes.items():
             value_xadd_cache[v_type] = {}
         
-        for a_type, q_lst in self.q_xadd_nodes.items():
-            temp_q_lst = []
-            for t in q_lst:
-                temp_q_lst.append((t[0],{}))
-            q_xadd_cache[a_type] = temp_q_lst       
-        
+        for a_type, q_dict in self.q_xadd_nodes.items():
+            temp_q_dict = {}
+            for a, n in q_dict.items():
+                temp_q_dict[a] = {}
+            q_xadd_cache[a_type] = temp_q_dict   
+
         for state_tuple in all_int_states:
             state = {v:state_tuple[k] for k,v in self.state_index_dict.items()}
             state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
             for v_type, v_node in self.value_xadd_nodes.items():
                 state_value = self.context.evaluate(v_node, bool_assign={}, cont_assign=state_c_assign)
                 value_xadd_cache[v_type][str(state_tuple)] = str(state_value)
-            for q_type, q_lst in self.q_xadd_nodes.items():
-                for i, q in enumerate(q_lst):
-                    q_value = self.context.evaluate(q[1], bool_assign={}, cont_assign=state_c_assign)
-                    q_xadd_cache[q_type][i][1][str(state_tuple)] = str(q_value)
-
+            for q_type, q_dict in self.q_xadd_nodes.items():
+                for a, q_id in q_dict.items():
+                    q_value = self.context.evaluate(q_id, bool_assign={}, cont_assign=state_c_assign)
+                    q_xadd_cache[q_type][a][str(state_tuple)] = str(q_value)
+                    
         return value_xadd_cache, q_xadd_cache
 
 

@@ -7,6 +7,10 @@ import os
 
 import torch
 
+import matplotlib.pyplot as plt
+import numpy as np
+
+
 from pyRDDLGym import RDDLEnv
 from pyRDDLGym import ExampleManager
 from pyRDDLGym.XADD.RDDLModelXADD import RDDLModelWXADD
@@ -65,20 +69,43 @@ q_dict = agent.q_cache
 
 viz_source = np.zeros((11,11))
 viz_target = np.zeros((11,11))
+viz_diff = np.zeros((11,11))
 
 print(agent.state_index_dict)
 
 np.set_printoptions(precision=2)
 
+print()
+
 for i in range(11):
     for j in range(11):
-        coor_str = '({}, {}, {}, {})'.format(i,j,i,j)
+        coor_str = '({}, {})'.format(j,i)
         v_source = float(value_dict['v_source'][coor_str])
         v_target = float(value_dict['v_target'][coor_str])
+        v_diff = float(value_dict['v_diff'][coor_str])
         viz_source[i][j] = v_source
         viz_target[i][j] = v_target
+        viz_diff[i][j] = v_diff
 
-print(viz_source)
-print(viz_target)
+print(viz_source[:, 1:])
+print(viz_target[:, 1:])
+print(viz_diff[:, 1:])
+
+viz_lb = viz_source+ viz_diff
+
+print(viz_lb[:, 1:])
         
 
+fig, ax = plt.subplots()
+
+im = ax.imshow(viz_lb[:, 1:], cmap='gray', interpolation='nearest')
+ax.set_title(f'V_lb 20 steps')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+fig.colorbar(im)
+ax.set_xticks(np.arange(10))
+ax.set_yticks(np.arange(10))
+
+# plt.show()
+
+plt.savefig(f"./v_lb.png")

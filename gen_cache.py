@@ -52,17 +52,18 @@ def gen_xadd_cache(num_xadd_steps):
   print('{} cache xadd horizon is completed'.format(num_xadd_steps))
 
 def main():
-  num_processes = multiprocessing.cpu_count()
+    gen_xadd_cache(params.num_xadd_steps)
+  # num_processes = multiprocessing.cpu_count()
 
-  pool = multiprocessing.Pool(processes=num_processes)
+  # pool = multiprocessing.Pool(processes=num_processes)
 
-  results = pool.map(gen_xadd_cache, params.num_xadd_steps)
+  # results = pool.map(gen_xadd_cache, params.num_xadd_steps)
 
-  pool.close()
+  # pool.close()
 
-  pool.join()
+  # pool.join()
 
-  print('all jobs completed')
+  # print('all jobs completed')
 
 
 main()
