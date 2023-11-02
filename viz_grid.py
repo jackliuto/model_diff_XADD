@@ -87,25 +87,28 @@ for i in range(11):
         viz_target[i][j] = v_target
         viz_diff[i][j] = v_diff
 
+print('source')
 print(viz_source[:, 1:])
+print('target')
 print(viz_target[:, 1:])
+print('diff')
 print(viz_diff[:, 1:])
 
 viz_lb = viz_source+ viz_diff
-
+print('lb')
 print(viz_lb[:, 1:])
         
 
-fig, ax = plt.subplots()
+# fig, ax = plt.subplots()
 
-im = ax.imshow(viz_lb[:, 1:], cmap='gray', interpolation='nearest')
-ax.set_title(f'V_lb 20 steps')
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-fig.colorbar(im)
-ax.set_xticks(np.arange(10))
-ax.set_yticks(np.arange(10))
+# im = ax.imshow(viz_lb[:, 1:], cmap='gray', interpolation='nearest')
+# ax.set_title(f'V_lb 20 steps')
+# ax.set_xlabel('x')
+# ax.set_ylabel('y')
+# fig.colorbar(im)
+# ax.set_xticks(np.arange(10))
+# ax.set_yticks(np.arange(10))
 
-# plt.show()
+# # plt.show()
 
-plt.savefig(f"./v_lb.png")
+# plt.savefig(f"./v_lb.png")

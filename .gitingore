@@ -2,4 +2,5 @@ exported_xadd/
 exported_cache/
 
 
-.pyc
+*.pyc
+__pycache__/

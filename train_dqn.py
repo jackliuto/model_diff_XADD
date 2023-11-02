@@ -1,6 +1,4 @@
 
-
-
 import logging
 
 import random
@@ -61,7 +59,7 @@ agent = DQN_Agent(env=myEnv, model=model, context=context,
                 value_cache_path=params.value_cache_path, q_cache_path=params.q_cache_path, 
                 replay_memory_size=params.replay_memory_size, batch_size=params.batch_size, 
                 gamma=params.gamma, learning_rate=params.learning_rate, update_rate=params.update_rate, tau=params.tau, 
-                    seed=params.seed, device=device, agent_type=params.agent_type, use_cache=params.use_cache)
+                    seed=params.seed, device=device, agent_type=params.agent_type, use_cache=params.use_cache, concurrent_actions=params.concurrent_actions)
 
 for i in range(params.num_runs):
 
@@ -94,18 +92,18 @@ for i in range(params.num_runs):
                 agent.step(state_vec, action_vec, reward, next_state_vec, done)
             eps_reward += reward*params.gamma**step
             # eps_reward += reward
-            # print()
-            # print('step       = {}'.format(step))
-            # print('state      = {}'.format(state))
-            # print('action     = {}'.format(action))
-            # print('next state = {}'.format(next_state))
-            # print('reward     = {}'.format(reward))
+            print()
+            print('step       = {}'.format(step))
+            print('state      = {}'.format(state))
+            print('action     = {}'.format(action))
+            print('next state = {}'.format(next_state))
+            print('reward     = {}'.format(reward))
             state = next_state
         # raise ValueError
         if mode == 'eval':
             eval_list.append(eps_reward)
             total_reward += eps_reward
-            # print("episode {} ended with reward {}".format(eps, eps_reward))
+            print("episode {} ended with reward {}".format(eps, eps_reward))
         else:
             train_list.append(eps_reward)
 

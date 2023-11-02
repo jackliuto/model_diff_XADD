@@ -18,7 +18,7 @@ from .memory import ReplayBuffer
 class DQN_Agent():
 
     def __init__(self, env, model, context, value_xadd_path='', q_xadd_path='', value_cache_path='', q_cache_path='', dqn_type='DQN', replay_memory_size=1e5, batch_size=64, gamma=0.99,
-    	learning_rate=1e-3, tau=0.05, update_rate=4, seed=0, device='cuda:0',agent_type="vanilla", domain_type="None", use_cache=False):
+    	learning_rate=1e-3, tau=0.05, update_rate=4, seed=0, device='cuda:0',agent_type="vanilla", domain_type="None", use_cache=False, concurrent_actions=False):
         
         self.env = env
         self.value_xadd_path = value_xadd_path
@@ -42,9 +42,16 @@ class DQN_Agent():
         self.state_name_list = [i for i in self.env.observation_space.keys()]
         self.state_name_list.sort()
         self.state_size = len(self.state_name_list)
-        self.action_size = 2**(len(self.action_name_list))
         self.state_index_dict = self.gen_state_index_dict(self.state_name_list)
-        self.action_index_dict = self.gen_action_index_dict(self.action_name_list)
+
+        if concurrent_actions:
+            self.action_size = 2**(len(self.action_name_list))
+            self.action_index_dict = self.gen_action_index_dict(self.action_name_list)
+        else:
+            self.action_size = len(self.action_name_list)
+            self.action_index_dict = self.gen_action_index_dict_concurrent(self.action_name_list)
+
+        # self.action_index_dict = self.gen_action_index_dict(self.action_name_list)
         self.dqn_type = 'DQN'
         self.buffer_size = int(replay_memory_size)
         self.batch_size = batch_size
@@ -122,6 +129,24 @@ class DQN_Agent():
             state_index_dict[i] = v
         return state_index_dict
     
+    def gen_action_index_dict_concurrent(self, action_name_list):
+        action_index_dict = {}
+        action_size = len(self.action_name_list)
+        bool_combos = [[0 for _ in range(action_size)] for _ in range(action_size)]
+        action_list = []
+        for i in range(action_size):
+            bool_combos[i][i] = 1
+        
+        for b in bool_combos:
+            a = {}
+            for i, v in enumerate(b):
+                a[action_name_list[i]] = True if v==1 else False
+            action_list.append(a)
+        for i, v in enumerate(action_list):
+            action_index_dict[i] = v
+        
+        return action_index_dict
+    
     def gen_action_index_dict(self, action_name_list):
         action_index_dict = {}
         bool_combos = [list(i) for i in itertools.product([0, 1], repeat=len(action_name_list))]
@@ -144,9 +169,9 @@ class DQN_Agent():
 
         return state_tensor
 
-    def vec_to_action(self, action_vec):
+    def idx_to_action(self, action_idx):
         for k, v in self.action_index_dict.items():
-            if k == action_vec:
+            if k == action_idx:
                 return v
     
     def vec_to_state(self, state_vec):
@@ -197,6 +222,7 @@ class DQN_Agent():
             action_tensor = np.argmax(action_values.cpu().data.numpy())
         else:
             action_tensor = random.choice(np.arange(self.action_size))
+
         return action_tensor
     
     # ppr select source policy using q value of previous source MDP using psi, psi is discounted every step
@@ -272,15 +298,15 @@ class DQN_Agent():
             action_values = self.network(state_tensor)
         self.network.train()
         if self.agent_type == "ppr":
-            action_vec = self.ppr_action(state, action_values, eps, psi)
+            action_idx = self.ppr_action(state, action_values, eps, psi)
         elif self.agent_type == "source_policy" or self.agent_type == "target_policy":
-            action_vec = self.baseline_action(state)
+            action_idx = self.baseline_action(state)
         else:
-            action_vec = self.e_greedy_action(action_values, eps)
+            action_idx = self.e_greedy_action(action_values, eps)
 
-        action = self.vec_to_action(action_vec)
+        action = self.idx_to_action(action_idx)
 
-        return state_vec, action_vec, action
+        return state_vec, action_idx, action
 
     # shaped reward use value function from the srouce MDP as 
     def cal_potential_diff(self, states, actions, next_states, shape):
@@ -292,7 +318,6 @@ class DQN_Agent():
             state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
 
             next_state_vec = list(ns)
-            action_vec = a
             next_state = self.vec_to_state(next_state_vec)
             next_state_c_assign = {self.context._str_var_to_var[k]:v for k,v in next_state.items()}
 
@@ -332,11 +357,11 @@ class DQN_Agent():
         # use using q value
         for s, a in zip(states.detach().cpu().numpy(), actions.detach().cpu().numpy()):
             state_vec = list(s)
-            action_vec = a
+            action_idx = a
             state = self.vec_to_state(state_vec)
             state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
 
-            action = self.vec_to_action(action_vec)
+            action = self.idx_to_action(action_idx)
 
             if self.use_cache:
                 state_str = str(tuple([int(i) for i in state_vec]))
@@ -403,13 +428,13 @@ class DQN_Agent():
         s_idx = 0
         for s, a in zip(states.detach().cpu().numpy(), actions.detach().cpu().numpy()):
             state_vec = list(s)
-            action_vec = a[0]
+            action_idx = a[0]
             state = self.vec_to_state(state_vec)
             state_c_assign = {self.context._str_var_to_var[k]:v for k,v in state.items()}
-            action = self.vec_to_action(action_vec)
+            action = self.idx_to_action(action_idx)
 
             for a in self.action_index_dict.keys():
-                if a == action_vec:
+                if a == action_idx:
                     target_Qs[s_idx][a] == rewards[s_idx] + (gamma * Qsa_prime_targets[s_idx] * (1 - dones))
                 else:
                     if self.use_cache:
