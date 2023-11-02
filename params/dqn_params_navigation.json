@@ -8,11 +8,11 @@
     "load_cache_path":  "./exported_cache/navigation/",
     "save_path": "./results/",                       
     "num_episodes": 100,
-    "eps_length": 20,
+    "eps_length": 5000,
     "epsilon": 0.1,
     "psi": 0.1, 
-    "replay_memory_size": 500,
-    "batch_size": 128,
+    "replay_memory_size": 2000,
+    "batch_size": 512,
     "gamma": 0.9,
     "seed": 0,
     "learning_rate": 0.001,
@@ -21,7 +21,7 @@
     "agent_type": "dqn",
     "save":false,
     "use_cache":true,
-    "num_runs": 3,
+    "num_runs": 1,
     "concurrent_actions": false
 
 }

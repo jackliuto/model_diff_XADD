@@ -61,6 +61,26 @@ agent = DQN_Agent(env=myEnv, model=model, context=context,
                 gamma=params.gamma, learning_rate=params.learning_rate, update_rate=params.update_rate, tau=params.tau, 
                     seed=params.seed, device=device, agent_type=params.agent_type, use_cache=params.use_cache, concurrent_actions=params.concurrent_actions)
 
+# ## Test domain is correct
+
+
+# action_east = {'do_nothing___a1': False, 'move_east___a1': True, 'move_north___a1': False, 'move_south___a1': False, 'move_west___a1': False}
+# action_west = {'do_nothing___a1': False, 'move_east___a1': False, 'move_north___a1': False, 'move_south___a1': False, 'move_west___a1': True}
+# action_south = {'do_nothing___a1': False, 'move_east___a1': False, 'move_north___a1': False, 'move_south___a1': True, 'move_west___a1': False}
+# action_north = {'do_nothing___a1': False, 'move_east___a1': False, 'move_north___a1': True, 'move_south___a1': False, 'move_west___a1': False}
+# action_nothing = {'do_nothing___a1': True, 'move_east___a1': False, 'move_north___a1': False, 'move_south___a1': False, 'move_west___a1': False}
+
+# action = action_nothing
+
+# state = myEnv.reset()
+# next_state, reward, done, info = myEnv.step(action)
+
+# print(state)
+# print(action)
+# print(next_state)
+
+# raise ValueError
+
 for i in range(params.num_runs):
 
     agent.reset(seed=i)
@@ -90,14 +110,14 @@ for i in range(params.num_runs):
             done = int(False) ## no terminal state thus have done all set to false
             if mode == 'train':
                 agent.step(state_vec, action_vec, reward, next_state_vec, done)
-            eps_reward += reward*params.gamma**step
             # eps_reward += reward
-            print()
-            print('step       = {}'.format(step))
-            print('state      = {}'.format(state))
-            print('action     = {}'.format(action))
-            print('next state = {}'.format(next_state))
-            print('reward     = {}'.format(reward))
+            eps_reward += reward*params.gamma**step
+            # print()
+            # print('step       = {}'.format(step))
+            # print('state      = {}'.format(state))
+            # print('action     = {}'.format(action))
+            # print('next state = {}'.format(next_state))
+            # print('reward     = {}'.format(reward))
             state = next_state
         # raise ValueError
         if mode == 'eval':
