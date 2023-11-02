@@ -1,10 +1,10 @@
-from SDP.utils.utils import get_xadd_model_from_file
-from SDP.core.parser import Parser
-from SDP.core.mdp import MDP
-from SDP.core.policy import Policy
-from SDP.core.action import Action
-from SDP.policy_evaluation.pe import PolicyEvaluation
-from SDP.value_iteration.vi import ValueIteration
+from pySDP.utils.utils import get_xadd_model_from_file
+from pySDP.core.parser import Parser
+from pySDP.core.mdp import MDP
+from pySDP.core.policy import Policy
+from pySDP.core.action import Action
+from pySDP.policy_evaluation.pe import PolicyEvaluation
+from pySDP.value_iteration.vi import ValueIteration
 
 from xaddpy.xadd.xadd import XADD
 
@@ -105,42 +105,83 @@ class ModelDiff:
         return policy
     
     def create_policy_navigation(self, mdp: MDP, context: XADD) -> Policy:
-        threshold = self.THRESHOLD
-        x_goal = 10
-        y_goal = 10
-        xadd_policy = {}
-        for aname, action in mdp.actions.items():
-            policy_id = context.TRUE
-            for i in aname[1:-1].split(','):
-                action_name = i.split(':')[0][0:-1]
-                agent_name = i.strip().split('___')[1][0:2]
-                pos = i.strip().split('_')[2]
-                bool_val = i.strip().split(' ')[1]
-                if bool_val == "True":
-                    if pos == 'x':
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [{}] ) ( [FALSE] ) )".format(pos, agent_name, x_goal, action_name)
-                    else:
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [{}] ) ( [FALSE] ) )".format(pos, agent_name, y_goal, action_name)
-                else:
-                    if pos == 'x':
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [FALSE] ) ( [{}] ) )".format(pos, agent_name, x_goal, action_name)
-                    else:
-                        policy_str = "( [pos_{}___{} - {} <= 0] ( [FALSE] ) ( [{}] ) )".format(pos, agent_name, y_goal, action_name)
-                a_id = context.import_xadd(xadd_str=policy_str)
+        
+        policy_move_east = """
+                        ( [pos_x___a1 - 5 <= 0] 
+                            ( [0]
+                            )
+                            ( [pos_x___a1 - 8 <= 0]
+                                ( [1] )
+                                ( [0] )
+                            )
+                        )
+                    """
 
-                policy_id = context.apply(policy_id, a_id, 'and')
+        policy_move_west = """
+                                ( [pos_x___a1 - 5 <= 0] 
+                                    ( [pos_x___a1 - 2 <= 0]
+                                        ( [0] )
+                                        ( [1] )
+                                    )
+                                    ( [0]
+                                    )
+                                )
+                            """
 
-                print(context._id_to_node[policy_id])
-                raise ValueError
+        policy_move_north = """
+                                ( [pos_y___a1 - 8 <= 0] 
+                                    ( [1] ) 
+                                    ( [0] )
+                                )
+                                """
 
-            xadd_policy[aname] = policy_id
+        policy_move_south = """
+                                ( [pos_y___a1 - 10 <= 0] 
+                                    ( [0] )
+                                    ( [1] )
+                                )
+                                """
+
+        policy_move_east = context.import_xadd(xadd_str=policy_move_east, locals=mdp.model.ns)
+        policy_move_east = context.reduce_lp(policy_move_east)
+        policy_move_east_false = context.apply(context.ONE, policy_move_east, 'subtract')
+
+        policy_move_west = context.import_xadd(xadd_str=policy_move_west, locals=mdp.model.ns)
+        policy_move_west = context.reduce_lp(policy_move_west)
+        policy_move_west =  context.apply(policy_move_west, policy_move_east_false, 'prod')
+
+        policy_move_east_west = context.apply(policy_move_east, policy_move_west, 'max')
+        policy_move_east_west_false = context.apply(context.ONE, policy_move_east_west, 'subtract')
+
+        policy_move_north = context.import_xadd(xadd_str=policy_move_north, locals=mdp.model.ns)
+        policy_move_north = context.reduce_lp(policy_move_north)
+        policy_move_north = context.apply(policy_move_north, policy_move_east_west_false, 'prod')
+
+        policy_move_east_west_north = context.apply(policy_move_east_west, policy_move_north, 'max')
+        policy_move_east_west_north_false = context.apply(context.ONE, policy_move_east_west_north, 'subtract')
 
 
+        policy_move_south = context.import_xadd(xadd_str=policy_move_south, locals=mdp.model.ns)
+        policy_move_south = context.reduce_lp(policy_move_south)
+        policy_move_south = context.apply(policy_move_south, policy_move_east_west_north_false, 'prod')
 
-        policy = Policy(mdp)
+        policy_move_east_west_north_south = context.apply(policy_move_east_west_north, policy_move_south, 'max')
+        policy_move_east_west_north_south_false = context.apply(context.ONE, policy_move_east_west_north_south, 'subtract')
+
+        do_nothing = context.apply(context.ONE, policy_move_east_west_north_south, 'subtract')
+        do_nothing = context.reduce_lp(do_nothing)
+
+        # make a dictionary of action as string to node id
+        xadd_policy = {
+            'move_east___a1': policy_move_east,
+            'move_west___a1': policy_move_west,
+            'move_north___a1': policy_move_north,
+            'move_south___a1': policy_move_south,
+            'do_nothing___a1' : do_nothing
+            }
+
         policy_dict = {}
-
-
+        policy = Policy(mdp)
 
         for aname, action in mdp.actions.items():
             policy_dict[action] = xadd_policy[aname]

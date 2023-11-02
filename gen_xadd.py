@@ -11,7 +11,7 @@ import numpy as np
 
 import multiprocessing
 
-params = Params("./params/xadd_params_wildfire.json")
+params = Params("./params/xadd_params_navigation.json")
 
 ModelDiff = ModelDiff(domain_type=params.domain_type, 
                       domain_path=params.domain_path, 
@@ -55,6 +55,8 @@ def gen_xadd_files(horizon_length):
   print("Context 1 Nodes: ", len(context_1._id_to_node))
   print("Context 2 Nodes: ",len(context_2._id_to_node))
   print("Context diff Nodes: ",len(context_diff._id_to_node))
+
+  print(ModelDiff._context_diff.get_repr(vid_diff))
 
   if params.save_xadds:
     xadd_path = pathlib.Path(params.save_path+'{}_step/'.format(horizon_length))
