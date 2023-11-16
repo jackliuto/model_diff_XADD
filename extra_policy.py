@@ -21,7 +21,7 @@ RDDLEnv = RDDLEnv.RDDLEnv(domain=DOMAIN_PATH, instance=INSTANCE_PATH)
 env = envWrapperNav(RDDLEnv, max_episode_length=1000)
 
 
-loaded_model = DQN.load('./policy_learning/checkpoints/rl_model_9000000_steps.zip', env=env, exploration_fraction=0.0)
+loaded_model = DQN.load('../checkpoints/rl_model_9000000_steps.zip', env=env, exploration_fraction=0.0)
 
 obs, _ = env.reset()
 
