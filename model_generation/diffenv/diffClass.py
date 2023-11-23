@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
+import json
 
 import os
 
@@ -53,6 +54,20 @@ class ModelDiff:
         self._model_diff.reward = diff_node
         
         return diff_node
+
+    def load_policy(self, mdp: MDP, context: XADD) -> Policy:
+        policy_dict_str = json.load(open(self._policy_path, 'r'))
+        xadd_policy = {}
+        for aname, action in mdp.actions.items():
+            policy_id = context.import_xadd(xadd_str=policy_dict_str[aname])
+            xadd_policy[aname] = policy_id
+        policy = Policy(mdp)
+        policy_dict = {}
+        for aname, action in mdp.actions.items():
+            policy_dict[action] = xadd_policy[aname]
+        policy.load_policy(policy_dict)
+        return policy
+
     
     def create_policy_reservoir(self, mdp: MDP, context: XADD) -> Policy:
         threshold = self.THRESHOLD
@@ -236,7 +251,8 @@ class ModelDiff:
         elif "inventory" in self._domain_type:
             policy = self.create_policy_inventory(mdp, context)
         elif "navigation" in self._domain_type:
-            policy = self.create_policy_navigation(mdp, context)
+            # policy = self.create_policy_navigation(mdp, context)
+            policy = self.load_policy(mdp, context)
         elif "wildfire" in self._domain_type:
             policy = self.create_policy_wildfire(mdp, context)
         else:

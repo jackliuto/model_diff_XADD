@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from pyRDDLGym import RDDLEnv
-from policy_learning.envs.navEnv import envWrapperNav
+from policy_learning.envs.roverEnv import envWrapperRover
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3 import DQN
 
@@ -18,15 +18,15 @@ import json
 import pdb
 
 # globalvars
-DOMAIN_PATH = "./RDDL/navigation/navigation_disc/domain.rddl"
-INSTANCE_PATH = "./RDDL/navigation/navigation_disc/instance_1agent_source.rddl"
+DOMAIN_PATH = "./RDDL/mars_rover/domain.rddl"
+INSTANCE_PATH = "./RDDL/mars_rover/instance.rddl"
 
 
 
 RDDLEnv = RDDLEnv.RDDLEnv(domain=DOMAIN_PATH, instance=INSTANCE_PATH)
-env = envWrapperNav(RDDLEnv, max_episode_length=1000)
+env = envWrapperRover(RDDLEnv, max_episode_length=1000)
 
-loaded_model = DQN.load('../checkpoints/rl_model_9000000_steps.zip', env=env, exploration_fraction=0.0)
+loaded_model = DQN.load('../checkpoints/mars_rover/rl_model_8368000_steps.zip', env=env, exploration_fraction=0.0)
 
 obs, _ = env.reset()
 
@@ -36,22 +36,42 @@ x = np.arange(0, 11, 1)
 y = np.arange(0, 11, 1)
 
 X, Y = np.meshgrid(x, y)
-Z = np.zeros_like(X, dtype=float)
+
 
 
 action_list = env.action_list
 observation_list = env.observation_list
 
+print(action_list)
+
 inputs = []
 labels = []
 
+Z = np.zeros_like(X, dtype=float)
+
 for i in range(len(x)):
     for j in range(len(y)):
-        obs = {'pos_x___a1': np.array([i], dtype=np.float32), 'pos_y___a1': np.array([j], dtype=np.float32)}
+        obs = {'pos_x___a1': np.array([i], dtype=np.float32), 'pos_y___a1': np.array([j], dtype=np.float32), 'has_mineral___a1':0}
         value, _ = loaded_model.predict(obs)
         Z[i][j] = value
         inputs.append(np.array([i,j]))
         labels.append(env.action_list[value])
+
+
+print(Z.T)
+
+
+Z = np.zeros_like(X, dtype=float)
+
+for i in range(len(x)):
+    for j in range(len(y)):
+        obs = {'pos_x___a1': np.array([i], dtype=np.float32), 'pos_y___a1': np.array([j], dtype=np.float32), 'has_mineral___a1':1}
+        value, _ = loaded_model.predict(obs)
+        Z[i][j] = value
+        inputs.append(np.array([i,j]))
+        labels.append(env.action_list[value])
+
+print(Z.T)
 
 
 inputs = np.array(inputs)
@@ -65,11 +85,9 @@ fig = plt.figure(figsize=(50, 30))
 tree.plot_tree(clf)
 fig.savefig('test_tree.png')
 
-print(Z.T)
-
 y_pred = clf.predict(inputs)
 
-Z_tree = np.empty(X.shape, dtype=float)
+Z_tree_0 = np.empty(X.shape, dtype=float)
 
 for idx in range(len(inputs)):
     i = inputs[idx][0]
