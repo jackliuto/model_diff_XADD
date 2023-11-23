@@ -1,5 +1,3 @@
-
-
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -21,7 +19,7 @@ GAMMA = 0.9
 TAU = 0.001
 EXP_BEG = 0.9
 EXP_FINAL = 0.1
-BUFFER_SIZE = 10000
+BUFFER_SIZE = 100000
 BATCH_SIZE = 128
 
 total_timesteps = 10000000    # Adjust as needed
@@ -36,7 +34,7 @@ check_env(env)
 
 # set callbacks
 checkpoint_callback = CheckpointCallback(save_freq = 1000, 
-                                         save_path = './policy_learning/checkpoints/',
+                                         save_path = '..//checkpoints/',
                                          name_prefix = 'rl_model')
 
 # eval_callback = EvalCallback(eval_env, best_model_save_path='./logs/',

@@ -36,7 +36,7 @@ class envWrapperNav(gym.Env):
         return action_dict
 
     def action_dict2vec(self, action_dict):
-        action_vec = numpy.zeros(len(self.action_list))
+        action_vec = np.zeros(len(self.action_list))
         for idx, action in enumerate(self.action_list):
             action_vec[idx] = action_dict[action]
         return action_vec
